@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://cwy0p6kbmufgt"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/category_filter/category_filter.gd" id="1_iqelm"]
+[ext_resource type="Texture2D" uid="uid://duf7splcl7ddr" path="res://addons/resource_databases/editor_only/ui/icons/category_filter/no_filter_clean.svg" id="2_qt1ul"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bnakq"]
+content_margin_left = 7.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 3.0
+bg_color = Color(0.129412, 0.14902, 0.180392, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_lr1dy"]
+
+[node name="CategoryFilter" type="PanelContainer" node_paths=PackedStringArray("_button", "_texture")]
+offset_right = 8.0
+offset_bottom = 31.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_bnakq")
+script = ExtResource("1_iqelm")
+_button = NodePath("Button")
+_texture = NodePath("TextureRect")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_lr1dy")
+text = "      <category_name>"
+flat = true
+alignment = 0
+
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("2_qt1ul")
+expand_mode = 3
+stretch_mode = 5
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

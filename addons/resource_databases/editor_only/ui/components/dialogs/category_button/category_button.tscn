@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://crtatdwnr4bgq"]
+
+[ext_resource type="Texture2D" uid="uid://pitjyqj7brld" path="res://addons/resource_databases/editor_only/ui/icons/create_clean.svg" id="1_cdksn"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.gd" id="1_yn2uu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iulrt"]
+content_margin_left = 10.0
+content_margin_right = 10.0
+bg_color = Color(0.211765, 0.239216, 0.290196, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_it20e"]
+
+[node name="CategoryButton" type="PanelContainer" node_paths=PackedStringArray("_button", "_texture_rect")]
+offset_right = 75.0
+offset_bottom = 31.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_iulrt")
+script = ExtResource("1_yn2uu")
+_button = NodePath("Button")
+_texture_rect = NodePath("TextureRect")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_it20e")
+text = "test     "
+flat = true
+
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("1_cdksn")
+expand_mode = 5
+stretch_mode = 5
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

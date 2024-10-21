@@ -1,0 +1,74 @@
+[gd_scene load_steps=11 format=3 uid="uid://d1p78w1c430sb"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_button/collection_button.gd" id="1_kmau3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_s4noe"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k0ksl"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.282975, 1, 0.435217, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_htb50"]
+bg_color = Color(0.4802, 0.93835, 0.98, 0.258824)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mwxvi"]
+bg_color = Color(1, 1, 1, 0.529412)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wl6bg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x615y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4n001"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w70gp"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7jcpv"]
+
+[node name="CollectionButton" type="Button" node_paths=PackedStringArray("color_bg", "collection_name_label")]
+show_behind_parent = true
+custom_minimum_size = Vector2(0, 25)
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+theme_override_styles/focus = SubResource("StyleBoxEmpty_s4noe")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_k0ksl")
+theme_override_styles/hover = SubResource("StyleBoxFlat_htb50")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mwxvi")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_wl6bg")
+script = ExtResource("1_kmau3")
+color_bg = NodePath("ColorRect")
+collection_name_label = NodePath("RichTextLabel")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.129412, 0.14902, 0.180392, 1)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/fill = SubResource("StyleBoxEmpty_x615y")
+theme_override_styles/background = SubResource("StyleBoxEmpty_4n001")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w70gp")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_7jcpv")
+bbcode_enabled = true
+text = "<CollectionName>"
+fit_content = true

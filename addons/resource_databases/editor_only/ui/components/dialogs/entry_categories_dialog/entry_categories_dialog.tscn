@@ -1,0 +1,68 @@
+[gd_scene load_steps=5 format=3 uid="uid://i0c2m81nxr42"]
+
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_7cqnf"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/entry_categories_dialog/entry_categories_dialog.gd" id="1_lvtsd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_koost"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a2haw"]
+content_margin_left = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 18.0
+draw_center = false
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="EntryCategoriesDialog" type="Window" node_paths=PackedStringArray("_categories_container", "_entry_name_label", "_current_categories_container", "_remaining_categories_container", "_no_categories_container")]
+title = "Entry categories"
+initial_position = 4
+size = Vector2i(350, 350)
+theme = ExtResource("1_7cqnf")
+script = ExtResource("1_lvtsd")
+_categories_container = NodePath("PanelContainer/CategoriesContainer")
+_entry_name_label = NodePath("PanelContainer/CategoriesContainer/EntryNameLabel")
+_current_categories_container = NodePath("PanelContainer/CategoriesContainer/CurrentCategories")
+_remaining_categories_container = NodePath("PanelContainer/CategoriesContainer/RemainingCategories")
+_no_categories_container = NodePath("PanelContainer/NoCategories")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="CategoriesContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="EntryNameLabel" type="RichTextLabel" parent="PanelContainer/CategoriesContainer"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_koost")
+theme_override_styles/normal = SubResource("StyleBoxFlat_a2haw")
+bbcode_enabled = true
+text = "<resource> categories"
+fit_content = true
+
+[node name="CurrentCategories" type="HFlowContainer" parent="PanelContainer/CategoriesContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/CategoriesContainer"]
+layout_mode = 2
+
+[node name="RemainingCategories" type="HFlowContainer" parent="PanelContainer/CategoriesContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NoCategories" type="CenterContainer" parent="PanelContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/NoCategories"]
+layout_mode = 2
+text = "No categories in this collection."
+
+[connection signal="close_requested" from="." to="." method="queue_free"]

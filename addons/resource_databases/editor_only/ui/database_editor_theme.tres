@@ -1,0 +1,48 @@
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://bnltql7b8a71q"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pf53x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8i3gi"]
+content_margin_left = 5.0
+bg_color = Color(0.141176, 0.164706, 0.2, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ryaot"]
+bg_color = Color(0.145098, 0.168627, 0.203922, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ma7bw"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dfagc"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.1136, 0.13216, 0.16, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+
+[resource]
+CreationLineEdit/base_type = &"LineEdit"
+CreationLineEdit/styles/focus = SubResource("StyleBoxEmpty_pf53x")
+CreationLineEdit/styles/normal = SubResource("StyleBoxFlat_8i3gi")
+DatabaseCollectionEntriesSeparator/base_type = &"HSplitContainer"
+DatabaseCollectionEntriesSeparator/constants/minimum_grab_thickness = 30
+DatabaseCollectionEntriesSeparator/constants/separation = 16
+DatabaseEditorPanel/base_type = &"PanelContainer"
+DatabaseEditorPanel/styles/panel = SubResource("StyleBoxFlat_ryaot")
+DialogPanel/base_type = &"PanelContainer"
+DialogPanel/styles/panel = SubResource("StyleBoxFlat_ma7bw")
+ToolsTopPanel/base_type = &"PanelContainer"
+ToolsTopPanel/styles/panel = SubResource("StyleBoxFlat_dfagc")

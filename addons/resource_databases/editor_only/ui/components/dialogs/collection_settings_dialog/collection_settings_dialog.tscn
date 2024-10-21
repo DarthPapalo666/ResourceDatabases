@@ -1,0 +1,143 @@
+[gd_scene load_steps=5 format=3 uid="uid://c47p7j84pq5ci"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/collection_settings_dialog/collection_settings_dialog.gd" id="1_p4jef"]
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="2_tlbha"]
+[ext_resource type="PackedScene" uid="uid://dh0myumwsa6i0" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.tscn" id="3_o8teb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_whqg7"]
+content_margin_left = 10.0
+bg_color = Color(1, 1, 1, 0.0784314)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[node name="CollectionSettingsDialog" type="Window" node_paths=PackedStringArray("_collection_name_parameter", "_classes_parameter", "_folders_parameter", "_included_filters_parameter", "_excluded_filters_parameter")]
+title = "Collection settings"
+initial_position = 4
+size = Vector2i(350, 547)
+wrap_controls = true
+unresizable = true
+theme = ExtResource("2_tlbha")
+script = ExtResource("1_p4jef")
+_collection_name_parameter = NodePath("PanelContainer/VBoxContainer/HBoxContainer/NameEditableParameter")
+_classes_parameter = NodePath("PanelContainer/VBoxContainer/HBoxContainer2/ClassesEditableParameter")
+_folders_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/FoldersEditableParameter")
+_included_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/IncludedEditableParameter")
+_excluded_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/ExcludedEditableParameter")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+alignment = 1
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Collection name"
+
+[node name="NameEditableParameter" parent="PanelContainer/VBoxContainer/HBoxContainer" instance=ExtResource("3_o8teb")]
+layout_mode = 2
+size_flags_horizontal = 3
+parameter_read_box = SubResource("StyleBoxFlat_whqg7")
+parameter_color = Color(1, 1, 1, 1)
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="HBoxContainer2" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Accepted resource types"
+
+[node name="ClassesEditableParameter" parent="PanelContainer/VBoxContainer/HBoxContainer2" instance=ExtResource("3_o8teb")]
+layout_mode = 2
+size_flags_horizontal = 3
+parameter_read_box = SubResource("StyleBoxFlat_whqg7")
+parameter_color = Color(1, 1, 1, 1)
+
+[node name="ValidateClassesButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Validate classes"
+
+[node name="HSeparator2" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Designated folders"
+
+[node name="FoldersEditableParameter" parent="PanelContainer/VBoxContainer/VBoxContainer" instance=ExtResource("3_o8teb")]
+layout_mode = 2
+size_flags_vertical = 3
+parameter_read_box = SubResource("StyleBoxFlat_whqg7")
+parameter_color = Color(1, 1, 1, 1)
+parameter_placeholder = "Folder paths"
+
+[node name="IncludedEditableParameter" parent="PanelContainer/VBoxContainer/VBoxContainer" instance=ExtResource("3_o8teb")]
+layout_mode = 2
+size_flags_vertical = 3
+parameter_read_box = SubResource("StyleBoxFlat_whqg7")
+parameter_color = Color(1, 1, 1, 1)
+parameter_placeholder = "Include filters"
+
+[node name="ExcludedEditableParameter" parent="PanelContainer/VBoxContainer/VBoxContainer" instance=ExtResource("3_o8teb")]
+layout_mode = 2
+size_flags_vertical = 3
+parameter_read_box = SubResource("StyleBoxFlat_whqg7")
+parameter_color = Color(1, 1, 1, 1)
+parameter_placeholder = "Exclude filters"
+
+[node name="UpdateFolderResourcesButton" type="Button" parent="PanelContainer/VBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Update"
+
+[node name="HSeparator3" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="CheckMissingResources" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Check for missing resources [TODO]"
+
+[node name="HSeparator4" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="RemoveCollectionButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(1, 0.552612, 0.552612, 1)
+theme_override_colors/font_pressed_color = Color(0.581464, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0.302705, 0.302705, 1)
+text = "Remove collection"
+
+[connection signal="close_requested" from="." to="." method="queue_free"]
+[connection signal="change_made" from="PanelContainer/VBoxContainer/HBoxContainer/NameEditableParameter" to="." method="_on_name_editable_parameter_change_made"]
+[connection signal="change_made" from="PanelContainer/VBoxContainer/HBoxContainer2/ClassesEditableParameter" to="." method="_on_classes_editable_parameter_change_made"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer2/ValidateClassesButton" to="." method="_on_validate_classes_button_pressed"]
+[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/FoldersEditableParameter" to="." method="_on_folders_editable_parameter_change_made"]
+[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/IncludedEditableParameter" to="." method="_on_included_editable_parameter_change_made"]
+[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/ExcludedEditableParameter" to="." method="_on_excluded_editable_parameter_change_made"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/VBoxContainer/UpdateFolderResourcesButton" to="." method="_on_update_folder_resources_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/RemoveCollectionButton" to="." method="_on_remove_collection_button_pressed"]

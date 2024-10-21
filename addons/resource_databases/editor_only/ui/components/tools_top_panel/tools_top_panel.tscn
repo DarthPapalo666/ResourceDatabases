@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dk1q161y2tr7x"]
+
+[node name="ToolsPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 40)
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+theme_type_variation = &"ToolsTopPanel"
+
+[node name="ToolsContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0

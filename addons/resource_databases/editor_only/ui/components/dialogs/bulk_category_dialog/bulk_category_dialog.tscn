@@ -1,0 +1,33 @@
+[gd_scene load_steps=3 format=3 uid="uid://1px3v5fmg1dx"]
+
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_evd1o"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.gd" id="2_8vs00"]
+
+[node name="BulkCategoryDialog" type="Window" node_paths=PackedStringArray("_categories_container")]
+title = "<action> category to selected entries"
+initial_position = 4
+size = Vector2i(350, 200)
+wrap_controls = true
+popup_window = true
+theme = ExtResource("1_evd1o")
+script = ExtResource("2_8vs00")
+_categories_container = NodePath("PanelContainer/ScrollContainer/HFlowContainer")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(300, 200)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="PanelContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="close_requested" from="." to="." method="queue_free"]

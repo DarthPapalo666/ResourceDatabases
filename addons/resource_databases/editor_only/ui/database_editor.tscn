@@ -1,0 +1,175 @@
+[gd_scene load_steps=12 format=3 uid="uid://juvgv48tbcqo"]
+
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_lanst"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/database_editor.gd" id="2_hsw1r"]
+[ext_resource type="PackedScene" uid="uid://sycqukt8d0fy" path="res://addons/resource_databases/editor_only/ui/components/dialogs/warning_dialog/warning_dialog.tscn" id="5_3n5vd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rp6f7"]
+content_margin_left = 6.0
+content_margin_top = 5.0
+content_margin_right = 15.0
+content_margin_bottom = 7.0
+bg_color = Color(0.145098, 0.168627, 0.203922, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0is4y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7ua7s"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbefp"]
+bg_color = Color(0.180392, 0.180392, 0.180392, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4w2ib"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rtd15"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wdhev"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3gbxt"]
+
+[node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_database_path_label", "_database_interface_parent", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("1_lanst")
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 10
+script = ExtResource("2_hsw1r")
+_start_screen = NodePath("StartScreen")
+_database_path_label = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabasePathLabel")
+_database_interface_parent = NodePath("VBoxContainer")
+_database_button = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabaseMenuButton")
+_warning_dialog = NodePath("WarningDialog")
+_load_dialog = NodePath("LoadDatabaseFileDialog")
+_save_dialog = NodePath("SaveDatabaseFileDialog")
+_settings_dialogues_container = NodePath("SettingsDialoguesContainer")
+_categories_dialogues_container = NodePath("CategoriesDialoguesContainer")
+_collection_categories_dialogues_container = NodePath("CollectionCategoriesDialoguesContainer")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="EditorTopBar" type="PanelContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 41)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rp6f7")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/EditorTopBar"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="DatabaseMenuButton" type="MenuButton" parent="VBoxContainer/EditorTopBar/HBoxContainer"]
+layout_mode = 2
+text = "Database"
+switch_on_hover = true
+item_count = 7
+popup/item_0/text = "New"
+popup/item_1/text = "Load"
+popup/item_1/id = 1
+popup/item_2/id = -1
+popup/item_2/separator = true
+popup/item_3/text = "Save"
+popup/item_3/id = 3
+popup/item_3/disabled = true
+popup/item_4/text = "Save As..."
+popup/item_4/id = 4
+popup/item_4/disabled = true
+popup/item_5/id = -1
+popup/item_5/separator = true
+popup/item_6/text = "Close"
+popup/item_6/id = 6
+popup/item_6/disabled = true
+
+[node name="DatabasePathLabel" type="RichTextLabel" parent="VBoxContainer/EditorTopBar/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+theme_override_styles/focus = SubResource("StyleBoxEmpty_0is4y")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_7ua7s")
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 0
+
+[node name="StartScreen" type="CenterContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="StartScreen"]
+custom_minimum_size = Vector2(450, 175)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fbefp")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="StartScreen/PanelContainer"]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="StartScreen/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+color = Color(0, 0.520366, 0.463541, 1)
+
+[node name="Label" type="Label" parent="StartScreen/PanelContainer/VBoxContainer/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "  Resource databases"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="StartScreen/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+theme_override_styles/fill = SubResource("StyleBoxEmpty_4w2ib")
+theme_override_styles/background = SubResource("StyleBoxEmpty_rtd15")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wdhev")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_3gbxt")
+bbcode_enabled = true
+text = "[center]Use a [color=violet]Database[/color] to hold and manage your own [color=lawngreen][i]custom or built-in[/i] resources[/color]!
+
+Start with [color=yellow]Database > New[/color] to create a new database.
+Or load an existing one with [color=yellow]Database > Load[/color]."
+fit_content = true
+
+[node name="WarningDialog" parent="." instance=ExtResource("5_3n5vd")]
+visible = false
+
+[node name="LoadDatabaseFileDialog" type="FileDialog" parent="."]
+auto_translate_mode = 1
+title = "Load a database"
+initial_position = 4
+size = Vector2i(700, 500)
+ok_button_text = "Open"
+dialog_hide_on_ok = true
+mode_overrides_title = false
+file_mode = 0
+filters = PackedStringArray("*.gddb;GodotDatabase Files")
+use_native_dialog = true
+
+[node name="SaveDatabaseFileDialog" type="FileDialog" parent="."]
+auto_translate_mode = 1
+title = "Save current database"
+initial_position = 4
+size = Vector2i(700, 500)
+ok_button_text = "Save"
+dialog_hide_on_ok = true
+mode_overrides_title = false
+filters = PackedStringArray("*.gddb;GodotDatabase Files")
+use_native_dialog = true
+
+[node name="SettingsDialoguesContainer" type="Node" parent="."]
+
+[node name="CategoriesDialoguesContainer" type="Node" parent="."]
+
+[node name="CollectionCategoriesDialoguesContainer" type="Node" parent="."]
+
+[connection signal="file_selected" from="LoadDatabaseFileDialog" to="." method="_on_load_database_file_dialog_file_selected"]
+[connection signal="file_selected" from="SaveDatabaseFileDialog" to="." method="_on_save_database_file_dialog_file_selected"]

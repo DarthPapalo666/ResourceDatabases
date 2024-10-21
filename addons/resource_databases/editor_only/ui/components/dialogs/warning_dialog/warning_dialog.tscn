@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://sycqukt8d0fy"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/warning_dialog/warning_dialog.gd" id="1_717uu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k53l1"]
+
+[node name="WarningDialog" type="Window" node_paths=PackedStringArray("warning_text")]
+auto_translate_mode = 1
+title = "Warning!"
+initial_position = 4
+size = Vector2i(350, 125)
+wrap_controls = true
+transient = true
+exclusive = true
+unresizable = true
+script = ExtResource("1_717uu")
+warning_text = NodePath("PanelContainer/VBoxContainer/WarningRichTextLabel")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="WarningRichTextLabel" type="RichTextLabel" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/normal = SubResource("StyleBoxEmpty_k53l1")
+bbcode_enabled = true
+text = "<Warning text>"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="AcceptButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Accept"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Cancel"
+
+[connection signal="close_requested" from="." to="." method="_on_cancel_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/AcceptButton" to="." method="_on_accept_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]

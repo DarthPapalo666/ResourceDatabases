@@ -1,0 +1,61 @@
+[gd_scene load_steps=4 format=3 uid="uid://bblabb1i6dmcp"]
+
+[ext_resource type="Texture2D" uid="uid://pitjyqj7brld" path="res://addons/resource_databases/editor_only/ui/icons/create_clean.svg" id="1_4da2e"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collections_list_view/collections_list_view.gd" id="1_8br7f"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4ti4q"]
+
+[node name="CollectionsListView" type="PanelContainer" node_paths=PackedStringArray("_new_collection_line_edit", "_create_collection_button", "_collection_buttons_container")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DatabaseEditorPanel"
+script = ExtResource("1_8br7f")
+_new_collection_line_edit = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/NewCollectionLineEdit")
+_create_collection_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/CreateCollectionButton")
+_collection_buttons_container = NodePath("VBoxContainer/ScrollContainer/CollectionsButtonsContainer")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ToolsPanel" type="PanelContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_type_variation = &"ToolsTopPanel"
+
+[node name="ToolsContainer" type="HBoxContainer" parent="VBoxContainer/ToolsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="NewCollectionLineEdit" type="LineEdit" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CreationLineEdit"
+placeholder_text = "New collection"
+
+[node name="CreateCollectionButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_4ti4q")
+disabled = true
+icon = ExtResource("1_4da2e")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CollectionsButtonsContainer" type="VBoxContainer" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[connection signal="text_changed" from="VBoxContainer/ToolsPanel/ToolsContainer/NewCollectionLineEdit" to="." method="_on_new_collection_line_edit_text_changed"]
+[connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/CreateCollectionButton" to="." method="_on_create_collection_button_pressed"]

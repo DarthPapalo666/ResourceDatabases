@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3 uid="uid://cq3tpu7cdhlq4"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.gd" id="1_3588u"]
+
+[node name="ViewPageCounter" type="PanelContainer" node_paths=PackedStringArray("counter_label", "left_button", "right_button")]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.5
+offset_top = -31.0
+offset_right = 22.5
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 6
+size_flags_vertical = 10
+script = ExtResource("1_3588u")
+counter_label = NodePath("HBoxContainer/CounterLabel")
+left_button = NodePath("HBoxContainer/PageLeftButton")
+right_button = NodePath("HBoxContainer/PageRightButton")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="PageLeftButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+disabled = true
+text = "<"
+flat = true
+
+[node name="CounterLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="PageRightButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+disabled = true
+text = ">"
+flat = true
+
+[connection signal="pressed" from="HBoxContainer/PageLeftButton" to="." method="_on_page_left_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/PageRightButton" to="." method="_on_page_right_button_pressed"]

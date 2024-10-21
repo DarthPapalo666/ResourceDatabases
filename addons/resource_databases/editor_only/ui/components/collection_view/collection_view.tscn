@@ -1,0 +1,194 @@
+[gd_scene load_steps=9 format=3 uid="uid://c6snrkt0lx7rr"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
+[ext_resource type="PackedScene" uid="uid://drfc1vxe6tdt2" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entries_top_bar.tscn" id="5_yml8w"]
+[ext_resource type="PackedScene" uid="uid://cq3tpu7cdhlq4" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.tscn" id="6_fv67i"]
+[ext_resource type="PackedScene" uid="uid://dgpxlgbitn4fr" path="res://addons/resource_databases/editor_only/ui/components/drag_and_drop_panel/drag_and_drop_panel.tscn" id="7_tjc6f"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shf0k"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.142, 0.166167, 0.2, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_01y5v"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_00b4q"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gl4rf"]
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+border_width_left = 2
+border_color = Color(0.439216, 0.729412, 0.980392, 1)
+
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries__view_page_counter", "_filters_panel", "_filters_container")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 4.0
+theme_type_variation = &"DatabaseEditorPanel"
+script = ExtResource("2_r2ggo")
+_collection_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/CollectionMenuButton")
+_selection_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/SelectionMenuButton")
+_selected_collection_label = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/SelectedCollectionLabel")
+_collection_entries_container = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ScrollContainer/CollectionEntriesContainer")
+_search_line_edit = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit")
+_entries__view_page_counter = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter")
+_filters_panel = NodePath("VBoxContainer/HSplitContainer/CategoriesFilter")
+_filters_container = NodePath("VBoxContainer/HSplitContainer/CategoriesFilter/ScrollContainer/HFlowContainer")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ToolsPanel" type="PanelContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_type_variation = &"ToolsTopPanel"
+
+[node name="ToolsContainer" type="HBoxContainer" parent="VBoxContainer/ToolsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="SelectedCollectionLabel" type="RichTextLabel" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_shf0k")
+bbcode_enabled = true
+text = "<Selected collection>"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="CollectionMenuButton" type="MenuButton" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+disabled = true
+text = "Collection"
+switch_on_hover = true
+item_count = 2
+popup/item_0/text = "Settings"
+popup/item_1/text = "Categories"
+popup/item_1/id = 1
+
+[node name="SelectionMenuButton" type="MenuButton" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+disabled = true
+text = "Selection"
+switch_on_hover = true
+item_count = 9
+popup/item_0/text = "Select all"
+popup/item_1/text = "Unselect"
+popup/item_1/id = 1
+popup/item_1/disabled = true
+popup/item_2/text = "Invert selection"
+popup/item_2/id = 2
+popup/item_3/id = -1
+popup/item_3/separator = true
+popup/item_4/text = "Invalidate selected"
+popup/item_4/id = 4
+popup/item_5/text = "Remove selected"
+popup/item_5/id = 5
+popup/item_6/id = -1
+popup/item_6/separator = true
+popup/item_7/text = "Add category to selected"
+popup/item_7/id = 7
+popup/item_7/disabled = true
+popup/item_8/text = "Remove category from selected"
+popup/item_8/id = 8
+popup/item_8/disabled = true
+
+[node name="TestingButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+visible = false
+layout_mode = 2
+text = "Testing"
+
+[node name="CategoryFiltersCheckButton" type="CheckButton" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_styles/focus = SubResource("StyleBoxEmpty_01y5v")
+text = "Category filters"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+theme_override_constants/minimum_grab_thickness = 16
+theme_override_icons/grabber = SubResource("CompressedTexture2D_00b4q")
+
+[node name="EntriesElements" type="Control" parent="VBoxContainer/HSplitContainer"]
+custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/EntriesElements"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="DatabaseEntryTopBar" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer" instance=ExtResource("5_yml8w")]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CollectionEntriesContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="SearchLineEdit" type="LineEdit" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+placeholder_text = "Search..."
+
+[node name="ViewPageCounter" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer" instance=ExtResource("6_fv67i")]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="DragAndDropPanel" parent="VBoxContainer/HSplitContainer/EntriesElements" instance=ExtResource("7_tjc6f")]
+layout_mode = 1
+
+[node name="CategoriesFilter" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+visible = false
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_gl4rf")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/CategoriesFilter"]
+layout_mode = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="VBoxContainer/HSplitContainer/CategoriesFilter/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/TestingButton" to="." method="_on_testing_button_pressed"]
+[connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/CategoryFiltersCheckButton" to="." method="_on_category_filters_check_button_toggled"]
+[connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
+[connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]
+[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_collection"]

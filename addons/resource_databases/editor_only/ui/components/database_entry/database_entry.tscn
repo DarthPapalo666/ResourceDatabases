@@ -1,0 +1,170 @@
+[gd_scene load_steps=17 format=3 uid="uid://xy4e3kkw44ru"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entry.gd" id="1_3lc0p"]
+[ext_resource type="PackedScene" uid="uid://dh0myumwsa6i0" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.tscn" id="2_ugfhb"]
+[ext_resource type="Texture2D" uid="uid://be0kkccg6cvjd" path="res://addons/resource_databases/editor_only/ui/icons/remove_clean.svg" id="3_q2dmk"]
+[ext_resource type="Texture2D" uid="uid://co0w2lqnfyg35" path="res://addons/resource_databases/editor_only/ui/icons/change.png" id="3_qdnpw"]
+[ext_resource type="Texture2D" uid="uid://ddrw1s2scl7h3" path="res://addons/resource_databases/editor_only/ui/icons/inspect_clean.svg" id="4_sn6fc"]
+[ext_resource type="Texture2D" uid="uid://dfxlfjb6ydvy8" path="res://addons/resource_databases/editor_only/ui/icons/categories_clean.svg" id="5_7so76"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0g4q0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ctdgh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ope1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w7k32"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1icof"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2yabm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_262ie"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tp4gl"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3ox36"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cubkw"]
+
+[node name="DatabaseEntry" type="Control" node_paths=PackedStringArray("_int_id_parameter", "_string_id_parameter", "_resource_locator_label", "_selection_box", "_make_invalid_button", "_open_categories_button", "_open_inspector_button", "_color_bg")]
+clip_contents = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 3
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1_3lc0p")
+_int_id_parameter = NodePath("MarginContainer/HBoxContainer/IntIDParameter")
+_string_id_parameter = NodePath("MarginContainer/HBoxContainer/StringIDParameter")
+_resource_locator_label = NodePath("MarginContainer/HBoxContainer/HBoxContainer/ResourceLocatorLabel")
+_selection_box = NodePath("MarginContainer/HBoxContainer/OptionsContainer/SelectionBox")
+_make_invalid_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/MakeInvalidButton")
+_open_categories_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/CategoriesButton")
+_open_inspector_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/OpenInspectorButton")
+_color_bg = NodePath("ColorBG")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_right = 6
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="IntIDParameter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_ugfhb")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 1.2
+parameter_color = Color(0, 0.694118, 0.756863, 1)
+parameter_placeholder = "Int ID..."
+parameter_alignment = 2
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = ":"
+
+[node name="StringIDParameter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_ugfhb")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 2.0
+parameter_color = Color(1, 1, 0.709804, 1)
+parameter_placeholder = "String ID..."
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+alignment = 1
+
+[node name="ResourceLocatorLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/fill = SubResource("StyleBoxEmpty_0g4q0")
+theme_override_styles/background = SubResource("StyleBoxEmpty_ctdgh")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_3ope1")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_w7k32")
+bbcode_enabled = true
+fit_content = true
+autowrap_mode = 0
+
+[node name="ChangeResourceButton" type="Button" parent="MarginContainer/HBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_1icof")
+icon = ExtResource("3_qdnpw")
+flat = true
+expand_icon = true
+
+[node name="OptionsContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+alignment = 1
+
+[node name="SelectionBox" type="CheckBox" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_2yabm")
+flat = true
+
+[node name="MakeInvalidButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+layout_mode = 2
+theme_override_colors/font_disabled_color = Color(0.38, 0.31825, 0.133, 1)
+theme_override_colors/font_color = Color(1, 0.836282, 0.329412, 1)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_262ie")
+text = "Make invalid"
+flat = true
+
+[node name="RemoveButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_tp4gl")
+icon = ExtResource("3_q2dmk")
+flat = true
+
+[node name="CategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_3ox36")
+icon = ExtResource("5_7so76")
+flat = true
+expand_icon = true
+
+[node name="OpenInspectorButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_cubkw")
+icon = ExtResource("4_sn6fc")
+flat = true
+expand_icon = true
+
+[node name="ColorBG" type="ColorRect" parent="."]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.391381, 0.391381, 0.391381, 1)
+
+[connection signal="change_made" from="MarginContainer/HBoxContainer/IntIDParameter" to="." method="_on_parameter_changed" binds= [0]]
+[connection signal="change_made" from="MarginContainer/HBoxContainer/StringIDParameter" to="." method="_on_parameter_changed" binds= [1]]
+[connection signal="gui_input" from="MarginContainer/HBoxContainer/HBoxContainer/ResourceLocatorLabel" to="." method="_on_resource_locator_label_gui_input"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/ChangeResourceButton" to="." method="_on_change_resource_button_pressed"]
+[connection signal="toggled" from="MarginContainer/HBoxContainer/OptionsContainer/SelectionBox" to="." method="_on_selection_box_toggled"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/MakeInvalidButton" to="." method="_on_make_invalid_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/RemoveButton" to="." method="_on_remove_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/CategoriesButton" to="." method="_on_categories_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/OpenInspectorButton" to="." method="_on_open_inspector_button_pressed"]

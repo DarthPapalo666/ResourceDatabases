@@ -1,0 +1,66 @@
+[gd_scene load_steps=4 format=3 uid="uid://qketvrxgm0ya"]
+
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_3rc7n"]
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.gd" id="1_tnh2y"]
+[ext_resource type="Texture2D" uid="uid://pitjyqj7brld" path="res://addons/resource_databases/editor_only/ui/icons/create_clean.svg" id="2_dex87"]
+
+[node name="CollectionCategoriesDialog" type="Window" node_paths=PackedStringArray("_new_category_line_edit", "_create_category_button", "_categories_container")]
+auto_translate_mode = 1
+title = "Collection categories"
+initial_position = 4
+size = Vector2i(450, 280)
+wrap_controls = true
+theme = ExtResource("1_3rc7n")
+script = ExtResource("1_tnh2y")
+_new_category_line_edit = NodePath("PanelContainer/VBoxContainer/HBoxContainer/NewCategoryLineEdit")
+_create_category_button = NodePath("PanelContainer/VBoxContainer/HBoxContainer/CreateCategoryButton")
+_categories_container = NodePath("PanelContainer/VBoxContainer/ScrollContainer/CategoriesContainer")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(450, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="NewCategoryLineEdit" type="LineEdit" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"CreationLineEdit"
+placeholder_text = "New category..."
+
+[node name="CreateCategoryButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+disabled = true
+icon = ExtResource("2_dex87")
+flat = true
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Categories:"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CategoriesContainer" type="HFlowContainer" parent="PanelContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[connection signal="close_requested" from="." to="." method="queue_free"]
+[connection signal="text_changed" from="PanelContainer/VBoxContainer/HBoxContainer/NewCategoryLineEdit" to="." method="_on_new_category_line_edit_text_changed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/CreateCategoryButton" to="." method="_on_create_category_button_pressed"]

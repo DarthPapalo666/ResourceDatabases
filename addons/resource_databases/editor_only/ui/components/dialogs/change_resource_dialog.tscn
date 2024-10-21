@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://xw3jk8st6nrf"]
+
+[node name="ChangeResourceDialog" type="FileDialog"]
+title = "Change resource"
+initial_position = 4
+size = Vector2i(275, 180)
+ok_button_text = "Open"
+dialog_hide_on_ok = true
+mode_overrides_title = false
+file_mode = 0
+use_native_dialog = true
+
+[connection signal="close_requested" from="." to="." method="queue_free"]

@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://dh0myumwsa6i0"]
+
+[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.gd" id="1_fa5h6"]
+[ext_resource type="Texture2D" uid="uid://3yr87ikvahav" path="res://addons/resource_databases/editor_only/ui/icons/tick_clean.svg" id="2_8xfgg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sxvmq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3b6at"]
+
+[node name="EditableParameter" type="HBoxContainer" node_paths=PackedStringArray("line_edit", "confirm_button")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fa5h6")
+line_edit = NodePath("EditableLineEdit")
+confirm_button = NodePath("ConfirmButton")
+
+[node name="EditableLineEdit" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_colors/font_uneditable_color = Color(0, 0, 0, 1)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_sxvmq")
+theme_override_styles/read_only = SubResource("StyleBoxEmpty_3b6at")
+editable = false
+context_menu_enabled = false
+selecting_enabled = false
+
+[node name="ConfirmButton" type="Button" parent="."]
+visible = false
+custom_minimum_size = Vector2(24, 0)
+layout_mode = 2
+icon = ExtResource("2_8xfgg")
+flat = true
+icon_alignment = 1
+expand_icon = true
+
+[connection signal="gui_input" from="EditableLineEdit" to="." method="_line_edit_gui_input"]
+[connection signal="pressed" from="ConfirmButton" to="." method="_on_confirm_button_pressed"]
