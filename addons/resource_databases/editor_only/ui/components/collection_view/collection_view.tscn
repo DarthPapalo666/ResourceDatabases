@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://c6snrkt0lx7rr"]
+[gd_scene load_steps=10 format=3 uid="uid://c6snrkt0lx7rr"]
 
 [ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
 [ext_resource type="PackedScene" uid="uid://drfc1vxe6tdt2" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entries_top_bar.tscn" id="5_yml8w"]
@@ -21,9 +21,19 @@ corner_radius_bottom_left = 15
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_00b4q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gl4rf"]
+content_margin_left = 6.0
+content_margin_top = 2.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
 bg_color = Color(0.113725, 0.133333, 0.160784, 1)
 border_width_left = 2
 border_color = Color(0.439216, 0.729412, 0.980392, 1)
+
+[sub_resource type="CodeHighlighter" id="CodeHighlighter_jhtmh"]
+number_color = Color(0.407929, 0.873221, 1, 1)
+symbol_color = Color(0.758361, 0.414505, 1, 1)
+function_color = Color(0.177751, 0.378312, 1, 1)
+member_variable_color = Color(0.447388, 0.890726, 1, 1)
 
 [node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit")]
 anchors_preset = 15
@@ -172,7 +182,6 @@ size_flags_vertical = 8
 layout_mode = 1
 
 [node name="FiltersContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
-visible = false
 custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -207,19 +216,23 @@ layout_mode = 2
 size_flags_vertical = 3
 placeholder_text = "Will be evaluated for each resource..."
 wrap_mode = 1
+syntax_highlighter = SubResource("CodeHighlighter_jhtmh")
 
 [node name="ExpressionOptionsContainer" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
 theme_override_constants/separation = 6
+alignment = 1
 
 [node name="EvaluateExpressionButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer"]
 layout_mode = 2
 text = "Evaluate"
+flat = true
 
 [node name="ClearExpressionButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Clear"
+flat = true
 
 [connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/TestingButton" to="." method="_on_testing_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton" to="." method="_on_filters_check_button_toggled"]

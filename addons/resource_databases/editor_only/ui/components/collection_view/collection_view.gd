@@ -181,7 +181,9 @@ func _get_filtered_ids() -> Array[int]:
 		func(int_id: int) -> bool:
 			if not ResourceLoader.exists(_current_entries.ints_to_locators[int_id] as String):
 				return false
-			var expr_result := expr.execute([], load(_current_entries.ints_to_locators[int_id]))
+			var expr_result := expr.execute([],
+			load(_current_entries.ints_to_locators[int_id]),
+			DatabaseSettings.get_setting("show_expression_evaluation_errors"))
 			if expr.has_execute_failed():
 				return false
 			if typeof(expr_result) != TYPE_BOOL:
