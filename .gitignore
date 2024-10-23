@@ -1,7 +1,7 @@
-project.godot
-
+testing/
 /icon.svg
 /icon.svg.import
+project.godot
 
 # Godot 4+ specific ignores
 .godot/

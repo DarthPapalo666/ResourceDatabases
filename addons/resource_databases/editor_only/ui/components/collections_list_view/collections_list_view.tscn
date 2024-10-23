@@ -38,14 +38,13 @@ theme_type_variation = &"CreationLineEdit"
 placeholder_text = "New collection"
 
 [node name="CreateCollectionButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
-custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
+theme_override_constants/icon_max_width = 28
 theme_override_styles/focus = SubResource("StyleBoxEmpty_4ti4q")
 disabled = true
 icon = ExtResource("1_4da2e")
 flat = true
 icon_alignment = 1
-expand_icon = true
 
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2

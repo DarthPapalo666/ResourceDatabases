@@ -9,8 +9,8 @@ signal change_page_requested(change: int)
 
 
 func set_page(current_page: int, max_page: int) -> void:
-	counter_label.text = str(current_page + 1)
-	left_button.disabled = current_page <= 0
+	counter_label.text = str(current_page)
+	left_button.disabled = current_page <= 1
 	right_button.disabled = current_page >= max_page
 
 

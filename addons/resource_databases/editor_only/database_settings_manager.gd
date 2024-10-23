@@ -5,6 +5,7 @@ var settings_list: PackedStringArray
 var default_settings: Dictionary
 
 func add_settings() -> void:
+	_create_setting("show_expression_evaluation_errors", false)
 	_create_setting("allow_repeated_locators", false)
 	_create_setting("allow_file_paths", true)
 	_create_setting("recursive_folder_search", false)

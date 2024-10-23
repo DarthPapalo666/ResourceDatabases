@@ -14,7 +14,7 @@ const ENTRY_CATEGORIES_DIALOG_SCENE := preload("res://addons/resource_databases/
 @export_subgroup("Editor components")
 @export var _start_screen: CenterContainer
 @export var _database_path_label: RichTextLabel
-@export var _database_interface_parent: VBoxContainer
+@export var _database_interface_parent: Control
 var _database_interface: Control
 @export_subgroup("Menu buttons")
 @export var _database_button: MenuButton
@@ -31,6 +31,7 @@ var loaded_database: EditorDatabase = null:
 		loaded_database = v
 		# Handle editor components visibility
 		_start_screen.visible = loaded_database == null
+		_database_interface_parent.visible = not _start_screen.visible
 		_update_database_button_options(loaded_database != null)
 		if _database_interface != null:
 			_database_interface.queue_free()
@@ -150,7 +151,7 @@ func close_database() -> void:
 		not loaded_database.last_save_path.is_empty() and not FileAccess.file_exists(loaded_database.last_save_path)
 	):
 		warn("Unsaved changes in Database",
-		"You have unsaved changes in the current database, are you sure you want to close it?")
+		"You have unsaved changes in the current database,\nare you sure you want to close it?")
 		if not await _warning_dialog.decision:
 			return
 	loaded_database = null
@@ -161,7 +162,7 @@ func new_database() -> void:
 	if loaded_database != null:
 		if loaded_database.has_unsaved_changes:
 			if not await warn("Unsaved changes in DB!",
-			"There are unsaved changes in the DB, are you sure you want to create a new one?"):
+			"There are unsaved changes in the DB,\nare you sure you want to create a new one?"):
 				return
 	loaded_database = EditorDatabase.new()
 
@@ -173,7 +174,7 @@ func load_database(path := "") -> void:
 			return
 		if loaded_database.has_unsaved_changes:
 			if not await warn("Unsaved changes in Database",
-			"You have unsavec changes in the current database, are you sure you want to load a new one?"):
+			"You have unsavec changes in the current database,\nare you sure you want to load a new one?"):
 				return
 	if path.is_empty():
 		_load_dialog.popup()

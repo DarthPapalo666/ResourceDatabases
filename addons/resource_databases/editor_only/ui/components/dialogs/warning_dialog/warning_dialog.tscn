@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://sycqukt8d0fy"]
+[gd_scene load_steps=4 format=3 uid="uid://sycqukt8d0fy"]
 
+[ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_0aiqc"]
 [ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/warning_dialog/warning_dialog.gd" id="1_717uu"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k53l1"]
@@ -8,11 +9,12 @@
 auto_translate_mode = 1
 title = "Warning!"
 initial_position = 4
-size = Vector2i(350, 125)
+size = Vector2i(190, 104)
 wrap_controls = true
 transient = true
 exclusive = true
 unresizable = true
+theme = ExtResource("1_0aiqc")
 script = ExtResource("1_717uu")
 warning_text = NodePath("PanelContainer/VBoxContainer/WarningRichTextLabel")
 
@@ -29,17 +31,19 @@ theme_type_variation = &"DialogPanel"
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 theme_override_constants/separation = 20
+alignment = 1
 
 [node name="WarningRichTextLabel" type="RichTextLabel" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
 theme_override_styles/normal = SubResource("StyleBoxEmpty_k53l1")
 bbcode_enabled = true
 text = "<Warning text>"
+fit_content = true
+autowrap_mode = 0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 2
 theme_override_constants/separation = 40
 alignment = 1
 

@@ -12,7 +12,7 @@ var database_settings_manager: Namespace.DatabaseSettings = Namespace.DatabaseSe
 # Initialization of the plugin goes here.
 func _enter_tree() -> void:
 	if not Engine.is_editor_hint():
-		print_rich("[color=orange][Resource Databases] [color=red]Not executing editor in game...")
+		print_rich("[color=orange][ResourceDatabases] [color=red]Not executing editor in game...")
 		return
 	
 	
@@ -28,7 +28,7 @@ func _enter_tree() -> void:
 	
 	_make_visible(false)
 	
-	print_rich("[color=sky_blue][ResourceDatabases] Plugin loaded!")
+	print_rich("[color=sky_blue][Resource Databases] Plugin loaded!")
 
 
 # Clean-up of the plugin goes here.
@@ -47,7 +47,7 @@ func _exit_tree() -> void:
 	database_settings_manager.remove_settings()
 	database_settings_manager = null
 	
-	print_rich("[color=sky_blue][ResourceDatabases] Plugin disabled.")
+	print_rich("[color=coral][Resource Databases] Plugin disabled.")
 
 
 func _make_visible(visible: bool) -> void:

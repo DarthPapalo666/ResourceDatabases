@@ -18,10 +18,11 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export_subgroup("Entries components")
 @export var _collection_entries_container: Container
 @export var _search_line_edit: LineEdit
-@export var _entries__view_page_counter: Namespace.CollectionViewPageCounter
-@export_subgroup("Category filters components")
+@export var _entries_view_page_counter: Namespace.CollectionViewPageCounter
+@export_subgroup("Filters components")
 @export var _filters_panel: PanelContainer
-@export var _filters_container: HFlowContainer
+@export var _category_filters_container: HFlowContainer
+@export var _expression_filter_text_edit: TextEdit
 
 var DatabaseEditor := Namespace.get_editor_singleton()
 var DatabaseSettings := Namespace.get_settings_singleton()
@@ -34,12 +35,7 @@ var _current_entries: Dictionary:
 		_selection_button.disabled = _current_entries.is_empty()
 		_update_entries()
 
-var _view_page: int = 0:
-	set(v):
-		var filtered_entries_count: int = _get_filtered_ids().size()
-		var max_page: int = ceili(float(filtered_entries_count) / DatabaseSettings.get_setting("max_view_entries")) - 1
-		_view_page = clamp(v, 0, max_page)
-		_entries__view_page_counter.set_page(_view_page, max_page)
+var _view_page: int = 1
 
 var _selected_ids: Dictionary
 var _categories_view_include_filter: Dictionary
@@ -69,8 +65,8 @@ func setup_collection_view(ncollection_uid: int) -> void:
 	collection.name_changed.connect(_on_collection_name_changed)
 	collection.entries_changed.connect(_on_collection_entries_changed)
 	collection.categories_changed.connect(_on_collection_categories_changed)
-	_current_entries = collection.get_entries()
 	_on_collection_categories_changed(collection.get_categories())
+	_current_entries = collection.get_entries()
 	show()
 
 
@@ -78,7 +74,6 @@ func hide_view() -> void:
 	collection_uid = -1
 	_collection_button.disabled = true
 	_current_entries = {}
-	_view_page = 0
 	hide()
 
 
@@ -178,7 +173,44 @@ func _get_filtered_ids() -> Array[int]:
 			func(int_id: int) -> bool:
 				return (_current_entries.ints_to_strings[int_id] as String).contains(_search_line_edit.text)
 				)
+	# Expression filtering:
+	var expr := _get_filter_expression()
+	if expr == null:
+		return result
+	result = result.filter(
+		func(int_id: int) -> bool:
+			if not ResourceLoader.exists(_current_entries.ints_to_locators[int_id] as String):
+				return false
+			var expr_result := expr.execute([],
+			load(_current_entries.ints_to_locators[int_id]),
+			DatabaseSettings.get_setting("show_expression_evaluation_errors"))
+			if expr.has_execute_failed():
+				return false
+			if typeof(expr_result) != TYPE_BOOL:
+				return false
+			return expr_result as bool
+	)
 	return result
+
+
+func _get_filter_expression() -> Expression:
+	if _expression_filter_text_edit.text.is_empty():
+		return null
+	var expr := Expression.new()
+	if expr.parse(_expression_filter_text_edit.text) != OK:
+		print_rich("[color=orange][ResourceDatabase] Error parsing filter expression.")
+		return null
+	return expr
+
+
+func _on_evaluate_expression_button_pressed() -> void:
+	_update_entries()
+
+
+func _on_clear_expression_button_pressed() -> void:
+	if not _expression_filter_text_edit.text.is_empty():
+		_expression_filter_text_edit.clear()
+	_update_entries()
 
 
 func _register_resources_collection(paths: PackedStringArray) -> void:
@@ -195,22 +227,24 @@ func _register_resources_collection(paths: PackedStringArray) -> void:
 func _on_collection_name_changed(new_name: StringName) -> void:
 	_set_collection_name(String(new_name))
 
+
 func _on_collection_entries_changed(entries: Dictionary) -> void:
 	_current_entries = entries
 
-func _on_collection_categories_changed(_categories: Dictionary) -> void:
+
+func _on_collection_categories_changed(categories: Dictionary) -> void:
 	# Free category filters
-	for category_filter: Namespace.CategoryFilter in _filters_container.get_children():
+	for category_filter: Namespace.CategoryFilter in _category_filters_container.get_children():
 		category_filter.queue_free()
 	# Remove filters of removed categories
 	for category: StringName in _categories_view_include_filter.keys():
-		if category not in _categories:
+		if category not in categories:
 			_categories_view_include_filter.erase(category)
 	for category: StringName in _categories_view_exclude_filter.keys():
-		if category not in _categories:
+		if category not in categories:
 			_categories_view_exclude_filter.erase(category)
 	# Add new filters
-	for category: StringName in _categories:
+	for category: StringName in categories:
 		var new_filter: Namespace.CategoryFilter = CATEGORY_FILTER_SCENE.instantiate()
 		var initial_state := 0
 		if _categories_view_include_filter.has(category):
@@ -219,7 +253,7 @@ func _on_collection_categories_changed(_categories: Dictionary) -> void:
 			initial_state = 2
 		new_filter.set_category(category, initial_state)
 		new_filter.filter_changed.connect(_on_category_filter_state_changed.bind(category))
-		_filters_container.add_child(new_filter)
+		_category_filters_container.add_child(new_filter)
 	_update_entries()
 #endregion
 
@@ -238,7 +272,7 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 	_update_entries()
 
 
-func _update_entries() -> void:
+func _update_entries(page: int = -1) -> void:
 	# HACK to avoid updating when removing settings. TODO solve this.
 	if not Engine.has_singleton(Namespace.SETTINGS_SINGLETON_NAME):
 		return
@@ -246,22 +280,27 @@ func _update_entries() -> void:
 	for child in _collection_entries_container.get_children():
 		child.queue_free()
 	if _current_entries.is_empty():
-		return # Nothing to update
+		return
 	# Get all data
 	var ints_to_strings: Dictionary = _current_entries.ints_to_strings
 	var ints_to_locators: Dictionary = _current_entries.ints_to_locators
-	# Get sorted int ids from filtered entries:
-	var ordered_ids: Array[int] = _get_filtered_ids()
-	ordered_ids.sort()
 	# Clean selected ids in case of removed...
 	for int_id: int in _selected_ids.keys():
 		if int_id not in ints_to_locators:
 			_selected_ids.erase(int_id)
 	_update_selection_button_options()
-	# Updates the view page to clamp it in case filters are active
-	_view_page = _view_page
+	# Get sorted int ids from filtered entries:
+	var ordered_ids: Array[int] = _get_filtered_ids()
+	ordered_ids.sort()
 	var max_entries: int = DatabaseSettings.get_setting("max_view_entries")
-	var ids_in_view := ordered_ids.slice(max_entries * _view_page, (max_entries * _view_page) + max_entries)
+	var max_page: int = ceili(float(ordered_ids.size()) / max_entries)
+	if max_page == 0:
+		max_page = 1
+	# Updates the view page to clamp it in case filters are active
+	_set_view_page(_view_page if page < 0 else page, max_page)
+	if ordered_ids.is_empty():
+		return # Nothing to update
+	var ids_in_view := ordered_ids.slice(max_entries * (_view_page - 1), (max_entries * (_view_page - 1)) + max_entries)
 	var index: int = 0
 	for int_id: int in ids_in_view:
 		var n_entry := DATABASE_ENTRY_SCENE.instantiate() as Namespace.CollectionEntry
@@ -336,23 +375,31 @@ func _bulk_category_selected(category: StringName, was_added: bool) -> void:
 #endregion
 
 
+func _set_view_page(page: int, max_page: int) -> void:
+	_view_page = clampi(page, 1, max_page)
+	_entries_view_page_counter.set_page(_view_page, max_page)
+
+
 func _set_collection_name(collection_name: String) -> void:
 	_selected_collection_label.text = "[b]%s" % collection_name
 
 
 func _on_view_page_counter_change_page_requested(change: int) -> void:
-	_view_page = _view_page + change
-	_update_entries()
+	_update_entries(_view_page + change)
 
 
 func _on_search_line_edit_text_changed(_new_text: String) -> void:
 	_update_entries()
 
 
-func _on_category_filters_check_button_toggled(toggled_on: bool) -> void:
+func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_filters_panel.visible = toggled_on
 
 
 # TESTING
 func _on_testing_button_pressed() -> void:
-	print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
+	#print(load(_get_collection().get_entries()[&"ints_to_locators"][0] as String).get_script().get_script_property_list())
+	#print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
+	for u in 5:
+		_get_collection().register_test_res()
+	pass
