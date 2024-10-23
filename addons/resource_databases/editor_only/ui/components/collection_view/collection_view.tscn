@@ -113,7 +113,6 @@ popup/item_8/id = 8
 popup/item_8/disabled = true
 
 [node name="TestingButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
-visible = false
 layout_mode = 2
 text = "Testing"
 

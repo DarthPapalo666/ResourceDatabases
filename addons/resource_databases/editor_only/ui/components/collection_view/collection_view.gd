@@ -45,6 +45,8 @@ var _selected_ids: Dictionary
 var _categories_view_include_filter: Dictionary
 var _categories_view_exclude_filter: Dictionary
 
+var _expression_filter: String
+
 
 func _ready() -> void:
 	ProjectSettings.settings_changed.connect(_update_entries)
@@ -179,6 +181,18 @@ func _get_filtered_ids() -> Array[int]:
 				return (_current_entries.ints_to_strings[int_id] as String).contains(_search_line_edit.text)
 				)
 	return result
+
+
+func _get_filter_expression() -> Expression:
+	if _expression_filter.is_empty():
+		return null
+	
+	var expr := Expression.new()
+	if expr.parse(_expression_filter) != OK:
+		print_rich("[color=orange][ResourceDatabase] Error parsing filter expression.")
+		return null
+	
+	return null
 
 
 func _register_resources_collection(paths: PackedStringArray) -> void:
@@ -355,4 +369,6 @@ func _on_category_filters_check_button_toggled(toggled_on: bool) -> void:
 
 # TESTING
 func _on_testing_button_pressed() -> void:
-	print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
+	#print(load(_get_collection().get_entries()[&"ints_to_locators"][0] as String).get_script().get_script_property_list())
+	#print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
+	pass
