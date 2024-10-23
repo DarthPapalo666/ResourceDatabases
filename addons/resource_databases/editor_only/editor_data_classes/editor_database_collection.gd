@@ -122,7 +122,9 @@ func _is_resource_inside_filters(locator: String) -> bool:
 
 func has_regex_match(filter: String, subject: String) -> bool:
 	var regex := RegEx.create_from_string(filter)
-	assert(regex.is_valid(), "[ResourceDatabase] Error when compiling RegEx.")
+	if not regex.is_valid():
+		print_rich("[color=orange][ResourceDatabase] Error when compiling RegEx (%s)." % filter)
+		return true
 	return regex.search(subject) != null
 #endregion
 
