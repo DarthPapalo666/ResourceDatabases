@@ -96,16 +96,16 @@ theme_override_styles/background = SubResource("StyleBoxEmpty_ctdgh")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_3ope1")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_w7k32")
 bbcode_enabled = true
+text = "[center]<locator>"
 fit_content = true
 autowrap_mode = 0
 
 [node name="ChangeResourceButton" type="Button" parent="MarginContainer/HBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(36, 0)
 layout_mode = 2
+theme_override_constants/icon_max_width = 28
 theme_override_styles/focus = SubResource("StyleBoxEmpty_1icof")
 icon = ExtResource("3_qdnpw")
 flat = true
-expand_icon = true
 
 [node name="OptionsContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
@@ -133,20 +133,18 @@ icon = ExtResource("3_q2dmk")
 flat = true
 
 [node name="CategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
-custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
+theme_override_constants/icon_max_width = 22
 theme_override_styles/focus = SubResource("StyleBoxEmpty_3ox36")
 icon = ExtResource("5_7so76")
 flat = true
-expand_icon = true
 
 [node name="OpenInspectorButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
-custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
+theme_override_constants/icon_max_width = 24
 theme_override_styles/focus = SubResource("StyleBoxEmpty_cubkw")
 icon = ExtResource("4_sn6fc")
 flat = true
-expand_icon = true
 
 [node name="ColorBG" type="ColorRect" parent="."]
 show_behind_parent = true
