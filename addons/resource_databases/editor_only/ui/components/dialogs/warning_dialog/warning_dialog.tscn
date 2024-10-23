@@ -45,6 +45,7 @@ autowrap_mode = 0
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 40
+alignment = 1
 
 [node name="AcceptButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2

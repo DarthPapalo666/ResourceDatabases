@@ -30,7 +30,8 @@ bg_color = Color(1, 1, 1, 0.529412)
 
 [node name="CollectionButton" type="Button" node_paths=PackedStringArray("color_bg", "collection_name_label")]
 show_behind_parent = true
-custom_minimum_size = Vector2(0, 25)
+clip_contents = true
+custom_minimum_size = Vector2(0, 30)
 anchors_preset = 10
 anchor_right = 1.0
 grow_horizontal = 2
@@ -72,3 +73,5 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_7jcpv")
 bbcode_enabled = true
 text = "<CollectionName>"
 fit_content = true
+scroll_active = false
+autowrap_mode = 0

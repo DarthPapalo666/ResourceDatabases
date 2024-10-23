@@ -17,6 +17,7 @@ _connected_collection_view = NodePath("../CollectionView")
 
 [node name="CollectionView" parent="." instance=ExtResource("2_t2i26")]
 visible = false
+custom_minimum_size = Vector2(750, 0)
 layout_mode = 2
 
 [connection signal="collection_selected" from="CollectionsListView" to="CollectionView" method="setup_collection_view"]
