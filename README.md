@@ -1,4 +1,7 @@
 # Resource Databases
+
+![plugin_header](https://github.com/user-attachments/assets/ab85fc8c-6ceb-49d9-9331-574177d059f9)
+
 Resource Databases is a Godot 4 plugin that aims to solve the problem of data management inside your projects.
 While it makes more sense to use this plugin for medium/large projects, it is still useful for any kind of development.
 
@@ -11,3 +14,6 @@ While it makes more sense to use this plugin for medium/large projects, it is st
  - Use ***categories*** to organize the resources inside each collection.
  - Use ***expressions*** for more complex filtering and organization.
  - Access your resources at ***runtime*** using the multiple Database methods.
+
+## Wiki 📚
+Check the [wiki](https://github.com/DarthPapalo666/ResourceDatabases/wiki) for the full plugin documentation.
