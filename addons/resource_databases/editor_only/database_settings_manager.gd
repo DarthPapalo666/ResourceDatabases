@@ -16,13 +16,13 @@ func add_settings() -> void:
 
 
 func remove_settings() -> void:
-	ProjectSettings.save()
 	for setting_name in settings_list:
 		var full_setting_name := SETTINGS_PREFIX + setting_name
 		if not ProjectSettings.has_setting(full_setting_name): return
 		ProjectSettings.set_setting(full_setting_name, null)
 	settings_list.clear()
 	default_settings.clear()
+	ProjectSettings.save()
 
 
 func get_setting(setting_name: String) -> Variant:
@@ -32,8 +32,10 @@ func get_setting(setting_name: String) -> Variant:
 
 func _create_setting(setting_name: String, value: Variant, property_hint: int = 0, property_hint_string: String = "") -> void:
 	var full_setting_name := SETTINGS_PREFIX + setting_name
-	if ProjectSettings.has_setting(full_setting_name): return
 	settings_list.append(setting_name)
+	default_settings[setting_name] = value
+	if ProjectSettings.has_setting(full_setting_name):
+		return
 	var property_info := {
 		"name": full_setting_name,
 		"type": typeof(value),

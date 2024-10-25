@@ -1,5 +1,8 @@
+@tool
 class_name DatabaseFormatLoader
 extends ResourceFormatLoader
+
+const DatabaseIO := preload("res://addons/resource_databases/database_io.gd")
 
 
 func _get_recognized_extensions() -> PackedStringArray:

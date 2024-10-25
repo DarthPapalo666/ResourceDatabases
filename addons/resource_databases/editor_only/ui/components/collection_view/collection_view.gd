@@ -278,9 +278,6 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 
 
 func _update_entries(page: int = -1) -> void:
-	# HACK to avoid updating when removing settings. TODO solve this.
-	if not Engine.has_singleton(Namespace.SETTINGS_SINGLETON_NAME):
-		return
 	# Clean entries
 	for child in _collection_entries_container.get_children():
 		child.queue_free()

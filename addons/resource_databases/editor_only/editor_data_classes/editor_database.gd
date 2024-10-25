@@ -6,6 +6,8 @@ signal collections_list_changed(collection_uids: Array[int])
 signal saved_changes
 signal unsaved_changes
 
+const DatabaseIO := preload("res://addons/resource_databases/database_io.gd")
+
 var has_unsaved_changes := true:
 	set(v):
 		has_unsaved_changes = v

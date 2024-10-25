@@ -1,4 +1,3 @@
-class_name DatabaseIO
 
 const DATABASE_FILE_EXTENSION := "gddb"
 

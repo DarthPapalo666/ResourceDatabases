@@ -86,5 +86,7 @@ func _on_excluded_editable_parameter_change_made(new_value: String, _old_value: 
 func _on_remove_collection_button_pressed() -> void:
 	if not await DatabaseEditor.warn("Remove [%s] collection" % _get_collection().name,
 	"Are you sure you want to remove the [b][i]%s[/i][/b] collection?" % _get_collection().name):
+		grab_focus()
 		return
 	DatabaseEditor.get_database().remove_collection(collection_uid)
+	
