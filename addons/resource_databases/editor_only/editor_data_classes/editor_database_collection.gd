@@ -12,18 +12,18 @@ var DatabaseSettings := Namespace.get_settings_singleton()
 
 var _emitter_flags: Dictionary
 
-static var all_names: Dictionary # Contains the used names, values are bool placeholders
+var _all_names_ref: Dictionary # Contains the used names, values are bool placeholders
 
 # Collection name
 var name: StringName:
 	set(v):
-		if v in all_names:
+		if v in _all_names_ref:
 			print_rich("[color=red]Error changing collection name, already registered.")
 			return
 		if name != v:
-			all_names.erase(name)
+			_all_names_ref.erase(name)
 			name = v
-			all_names[name] = true
+			_all_names_ref[name] = true
 			name_changed.emit(name)
 
 # Settings
@@ -45,17 +45,14 @@ var collection_size: int:
 		return _ints_to_locators.size()
 
 
-func _init(collection_name: StringName) -> void:
+func _init(collection_name: StringName, all_names: Dictionary) -> void:
+	_all_names_ref = all_names
 	name = collection_name
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:
-		all_names.erase(name)
-
-
-static func is_collection_name_available(name: StringName) -> bool:
-	return not name.is_empty() and name.is_valid_identifier() and name not in EditorDatabaseCollection.all_names
+		_all_names_ref.erase(name)
 
 
 #region Designation of folders
@@ -424,8 +421,8 @@ func serialize() -> Dictionary:
 
 
 ## Creates a collection from a serialization dictionary.
-static func load_serialized(name: StringName, data: Dictionary) -> EditorDatabaseCollection:
-	var n := EditorDatabaseCollection.new(name)
+static func load_serialized(name: StringName, data: Dictionary, all_names: Dictionary) -> EditorDatabaseCollection:
+	var n := EditorDatabaseCollection.new(name, all_names)
 	n._ints_to_strings = data.ints_to_strings
 	n._strings_to_ints = data.strings_to_ints
 	n._ints_to_locators = data.ints_to_locators

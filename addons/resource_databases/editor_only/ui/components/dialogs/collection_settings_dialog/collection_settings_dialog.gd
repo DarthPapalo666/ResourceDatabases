@@ -53,7 +53,7 @@ func _get_array_string(arr: Array) -> String:
 
 
 func _on_name_editable_parameter_change_made(new_value: String, _old_value: String) -> void:
-	if not EditorDatabaseCollection.is_collection_name_available(new_value):
+	if not DatabaseEditor.get_database().is_collection_name_available(new_value):
 		DatabaseEditor.warn("Can't rename collection", "Invalid new collection name.")
 		return
 	_get_collection().name = new_value

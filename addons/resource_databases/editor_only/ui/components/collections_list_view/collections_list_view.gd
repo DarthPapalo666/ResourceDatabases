@@ -50,7 +50,7 @@ func _on_collection_selected(uid: int) -> void:
 
 #region Create/remove collections callbacks
 func _on_new_collection_line_edit_text_changed(new_text: String) -> void:
-	_create_collection_button.disabled = not EditorDatabaseCollection.is_collection_name_available(StringName(new_text))
+	_create_collection_button.disabled = not DatabaseEditor.get_database().is_collection_name_available(StringName(new_text))
 
 
 func _on_create_collection_button_pressed() -> void:

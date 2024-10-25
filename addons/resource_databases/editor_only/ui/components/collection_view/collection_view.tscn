@@ -35,7 +35,7 @@ symbol_color = Color(0.758361, 0.414505, 1, 1)
 function_color = Color(0.177751, 0.378312, 1, 1)
 member_variable_color = Color(0.447388, 0.890726, 1, 1)
 
-[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit")]
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -52,6 +52,7 @@ _selected_collection_label = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/S
 _collection_entries_container = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ScrollContainer/CollectionEntriesContainer")
 _search_line_edit = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit")
 _entries_view_page_counter = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter")
+_filters_check_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton")
 _filters_panel = NodePath("VBoxContainer/HSplitContainer/FiltersContainer")
 _category_filters_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer/CategoryFiltersContainer")
 _expression_filter_text_edit = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionFilterTextEdit")
@@ -101,7 +102,7 @@ text = "Selection"
 switch_on_hover = true
 item_count = 9
 popup/item_0/text = "Select all"
-popup/item_1/text = "Unselect"
+popup/item_1/text = "Unselect all"
 popup/item_1/id = 1
 popup/item_1/disabled = true
 popup/item_2/text = "Invert selection"
@@ -124,6 +125,7 @@ popup/item_8/id = 8
 popup/item_8/disabled = true
 
 [node name="TestingButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
+visible = false
 layout_mode = 2
 text = "Testing"
 
@@ -182,7 +184,8 @@ size_flags_vertical = 8
 layout_mode = 1
 
 [node name="FiltersContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
-custom_minimum_size = Vector2(160, 0)
+visible = false
+custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.0
@@ -214,7 +217,8 @@ text = "Expression"
 [node name="ExpressionFilterTextEdit" type="TextEdit" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-placeholder_text = "Will be evaluated for each resource..."
+placeholder_text = "res -> resource
+res_type -> class"
 wrap_mode = 1
 syntax_highlighter = SubResource("CodeHighlighter_jhtmh")
 

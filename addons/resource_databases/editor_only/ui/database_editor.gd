@@ -161,20 +161,17 @@ func close_database() -> void:
 func new_database() -> void:
 	if loaded_database != null:
 		if loaded_database.has_unsaved_changes:
-			if not await warn("Unsaved changes in DB!",
-			"There are unsaved changes in the DB,\nare you sure you want to create a new one?"):
+			if not await warn("Unsaved changes in Database!",
+			"You have unsaved changes in the current database,\nare you sure you want to create a new one?"):
 				return
 	loaded_database = EditorDatabase.new()
 
 ## Loads a database into the editor using a file path.
 func load_database(path := "") -> void:
-	if loaded_database:
-		if loaded_database.last_save_path == path:
-			print_rich("[color=orange]Database already loaded.")
-			return
+	if loaded_database != null: # Has loaded
 		if loaded_database.has_unsaved_changes:
-			if not await warn("Unsaved changes in Database",
-			"You have unsavec changes in the current database,\nare you sure you want to load a new one?"):
+			if not await warn("Unsaved changes in Database!",
+			"You have unsaved changes in the current database,\nare you sure you want to load a new one?"):
 				return
 	if path.is_empty():
 		_load_dialog.popup()

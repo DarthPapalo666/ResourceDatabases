@@ -20,6 +20,7 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _search_line_edit: LineEdit
 @export var _entries_view_page_counter: Namespace.CollectionViewPageCounter
 @export_subgroup("Filters components")
+@export var _filters_check_button: CheckButton
 @export var _filters_panel: PanelContainer
 @export var _category_filters_container: HFlowContainer
 @export var _expression_filter_text_edit: TextEdit
@@ -38,6 +39,7 @@ var _current_entries: Dictionary:
 var _view_page: int = 1
 
 var _selected_ids: Dictionary
+
 var _categories_view_include_filter: Dictionary
 var _categories_view_exclude_filter: Dictionary
 
@@ -122,7 +124,7 @@ func _update_selection_button_options() -> void:
 	menu.clear()
 	menu.add_item("Select all", 0)
 	menu.set_item_metadata(0, _select_all_entries)
-	menu.add_item("Unselect", 1)
+	menu.add_item("Unselect all", 1)
 	menu.set_item_metadata(1, _unselect_entries)
 	menu.add_item("Invert selection", 2)
 	menu.set_item_metadata(2, _invert_entries_selection)
@@ -181,8 +183,11 @@ func _get_filtered_ids() -> Array[int]:
 		func(int_id: int) -> bool:
 			if not ResourceLoader.exists(_current_entries.ints_to_locators[int_id] as String):
 				return false
-			var expr_result := expr.execute([],
-			load(_current_entries.ints_to_locators[int_id]),
+			var res := load(_current_entries.ints_to_locators[int_id])
+			var res_script := res.get_script() as Script
+			var res_type := res.get_class() if res_script == null else res_script.get_global_name()
+			var expr_result := expr.execute([res, res_type],
+			null,
 			DatabaseSettings.get_setting("show_expression_evaluation_errors"))
 			if expr.has_execute_failed():
 				return false
@@ -197,7 +202,7 @@ func _get_filter_expression() -> Expression:
 	if _expression_filter_text_edit.text.is_empty():
 		return null
 	var expr := Expression.new()
-	if expr.parse(_expression_filter_text_edit.text) != OK:
+	if expr.parse(_expression_filter_text_edit.text, PackedStringArray(["res", "res_type"])) != OK:
 		print_rich("[color=orange][ResourceDatabase] Error parsing filter expression.")
 		return null
 	return expr
@@ -289,13 +294,16 @@ func _update_entries(page: int = -1) -> void:
 		if int_id not in ints_to_locators:
 			_selected_ids.erase(int_id)
 	_update_selection_button_options()
-	# Get sorted int ids from filtered entries:
-	var ordered_ids: Array[int] = _get_filtered_ids()
+	# Get sorted int ids
+	var ordered_ids: Array[int]
+	# Just display filtered ids if the filters button is checked
+	if _filters_check_button.button_pressed:
+		ordered_ids = _get_filtered_ids()
+	else:
+		ordered_ids.assign(ints_to_strings.keys())
 	ordered_ids.sort()
 	var max_entries: int = DatabaseSettings.get_setting("max_view_entries")
-	var max_page: int = ceili(float(ordered_ids.size()) / max_entries)
-	if max_page == 0:
-		max_page = 1
+	var max_page: int = maxi(1, ceili(float(ordered_ids.size()) / max_entries))
 	# Updates the view page to clamp it in case filters are active
 	_set_view_page(_view_page if page < 0 else page, max_page)
 	if ordered_ids.is_empty():
@@ -394,6 +402,7 @@ func _on_search_line_edit_text_changed(_new_text: String) -> void:
 
 func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_filters_panel.visible = toggled_on
+	_update_entries()
 
 
 # TESTING

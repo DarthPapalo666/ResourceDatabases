@@ -13,10 +13,10 @@ func make_warning(ntitle: String, text: String) -> void:
 
 
 func _on_accept_button_pressed() -> void:
-	decision.emit(true)
 	hide()
+	decision.emit(true)
 
 
 func _on_cancel_button_pressed() -> void:
-	decision.emit(false)
 	hide()
+	decision.emit(false)
