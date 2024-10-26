@@ -18,20 +18,20 @@ static func export_database_data(path: String, data: Dictionary) -> bool:
 	return true
 
 
-static func load_database_data(path: String) -> Dictionary:
+static func load_database_data(path: String) -> Variant:
 	if not path.get_extension() == DATABASE_FILE_EXTENSION:
 		print_rich("[color=orange][DatabaseIO] [color=red]Can't load database, invalid file path.")
-		return {}
+		return null
 	var f := FileAccess.open(path, FileAccess.READ)
 	if not f:
 		printerr(FileAccess.get_open_error())
-		return {}
+		return null
 	var data: Variant = f.get_var()
 	f.close()
 	if not _is_database_data_valid(data):
 		print_rich("[color=orange][DatabaseIO] [color=red]Can't load database, invalid data.")
-		return {}
-	return data
+		return null
+	return data as Dictionary
 
 
 static func _is_database_data_valid(data: Variant) -> bool:

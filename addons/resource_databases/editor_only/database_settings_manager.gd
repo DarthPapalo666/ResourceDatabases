@@ -18,7 +18,8 @@ func add_settings() -> void:
 func remove_settings() -> void:
 	for setting_name in settings_list:
 		var full_setting_name := SETTINGS_PREFIX + setting_name
-		if not ProjectSettings.has_setting(full_setting_name): return
+		if not ProjectSettings.has_setting(full_setting_name):
+			continue
 		ProjectSettings.set_setting(full_setting_name, null)
 	settings_list.clear()
 	default_settings.clear()

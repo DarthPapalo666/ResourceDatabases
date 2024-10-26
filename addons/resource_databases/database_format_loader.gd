@@ -26,8 +26,10 @@ func _handles_type(type: StringName) -> bool:
 
 func _load(path: String, _original_path: String, _use_sub_threads: bool, _cache_mode: int) -> Variant:
 	var n := Database.new()
-	var data := DatabaseIO.load_database_data(path)
-	if data.is_empty():
+	var data: Variant = DatabaseIO.load_database_data(path)
+	if data == null:
+		return ERR_PARSE_ERROR
+	if typeof(data) != TYPE_DICTIONARY:
 		return ERR_INVALID_DATA
-	n._collections_data = data
+	n._collections_data = data as Dictionary
 	return n

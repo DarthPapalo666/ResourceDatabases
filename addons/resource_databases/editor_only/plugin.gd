@@ -12,7 +12,7 @@ var database_settings_manager: Namespace.DatabaseSettings = Namespace.DatabaseSe
 # Initialization of the plugin goes here.
 func _enter_tree() -> void:
 	if not Engine.is_editor_hint():
-		print_rich("[color=orange][ResourceDatabases] [color=red]Not executing editor in game...")
+		print_rich("[color=orange][ResourceDatabases][/color] [color=red]Not executing editor in game...")
 		return
 	
 	
@@ -33,15 +33,15 @@ func _enter_tree() -> void:
 
 # Clean-up of the plugin goes here.
 func _exit_tree() -> void:
-	# Removes mainscreen instance
-	if database_editor_instance:
-		database_editor_instance.queue_free()
-	
 	# Remove editor and settings singleton
 	if Engine.has_singleton(Namespace.EDITOR_SINGLETON_NAME):
 		Engine.unregister_singleton(Namespace.EDITOR_SINGLETON_NAME)
 	if Engine.has_singleton(Namespace.SETTINGS_SINGLETON_NAME):
 		Engine.unregister_singleton(Namespace.SETTINGS_SINGLETON_NAME)
+	
+	# Removes mainscreen instance
+	if database_editor_instance:
+		database_editor_instance.free()
 	
 	# Remove plugin settings
 	database_settings_manager.remove_settings()

@@ -33,9 +33,11 @@ var db_size: int:
 #region Save/Export
 static func load_from_file(path: String) -> EditorDatabase:
 	var data := DatabaseIO.load_database_data(path)
+	var editor_db: EditorDatabase
 	if data.is_empty():
-		return null
-	var editor_db := EditorDatabase.load_serialized(data)
+		editor_db = EditorDatabase.new()
+	else:
+		editor_db = EditorDatabase.load_serialized(data)
 	editor_db.last_save_path = path
 	editor_db.has_unsaved_changes = false
 	print_rich("[color=lawngreen]Database loaded successfully at: [color=yellow]%s" % path)

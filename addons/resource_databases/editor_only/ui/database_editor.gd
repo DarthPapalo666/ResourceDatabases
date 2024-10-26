@@ -6,6 +6,8 @@ signal database_closed
 
 const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
 
+const DatabaseIO := preload("res://addons/resource_databases/database_io.gd")
+
 const COLLECTION_CATEGORIES_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.tscn")
 const COLLECTION_SETTINGS_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_settings_dialog/collection_settings_dialog.tscn")
 
@@ -53,6 +55,9 @@ var loaded_database: EditorDatabase = null:
 func _ready() -> void:
 	_database_button.get_popup().id_pressed.connect(_on_database_button_id_selected)
 	_update_database_button_options(false)
+	var filter_string := "*.%s;Database files" % DatabaseIO.DATABASE_FILE_EXTENSION
+	_save_dialog.filters = PackedStringArray([filter_string])
+	_load_dialog.filters = PackedStringArray([filter_string])
 
 
 #region Static singleton methods
@@ -109,29 +114,25 @@ func open_entry_categories_dialog(collection_uid: int, entry_int_id: int) -> voi
 
 #region Database menu button
 func _on_database_button_id_selected(id: int) -> void:
-	match id:
-		0: # New database
-			new_database()
-		1: # Load database
-			load_database()
-		3: # Save current database
-			save_database()
-		4: # Save with force save dialog
-			save_database(true)
-		6: # Close database
-			close_database()
+	var menu := _database_button.get_popup()
+	(menu.get_item_metadata(menu.get_item_index(id)) as Callable).call()
 
 
 func _update_database_button_options(is_db_loaded: bool) -> void:
 	var menu := _database_button.get_popup()
 	menu.clear()
 	menu.add_item("New", 0)
+	menu.set_item_metadata(0, new_database)
 	menu.add_item("Load", 1)
+	menu.set_item_metadata(1, load_database)
 	menu.add_separator()
 	menu.add_item("Save", 3)
+	menu.set_item_metadata(3, save_database)
 	menu.add_item("Save As...", 4)
+	menu.set_item_metadata(4, save_database.bind(true))
 	menu.add_separator()
 	menu.add_item("Close", 6)
+	menu.set_item_metadata(6, close_database)
 	if not is_db_loaded:
 		menu.set_item_disabled(3, true)
 		menu.set_item_disabled(4, true)
@@ -165,6 +166,7 @@ func new_database() -> void:
 			"You have unsaved changes in the current database,\nare you sure you want to create a new one?"):
 				return
 	loaded_database = EditorDatabase.new()
+
 
 ## Loads a database into the editor using a file path.
 func load_database(path := "") -> void:
