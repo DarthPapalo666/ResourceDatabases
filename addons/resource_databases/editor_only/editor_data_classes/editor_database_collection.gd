@@ -98,13 +98,15 @@ func update_designated_folders_resources() -> void:
 
 func _is_resource_inside_filters(locator: String) -> bool:
 	var res_path: String
-	if not ResourceLoader.exists(locator):
-		return false
 	if locator.begins_with("uid://"):
 		var res_id := ResourceUID.text_to_id(locator)
+		if not ResourceUID.has_id(ResourceUID.text_to_id(locator)):
+			return false
 		res_path = ResourceUID.get_id_path(res_id)
 	else:
 		res_path = locator
+	if not ResourceLoader.exists(res_path):
+		return false
 	var is_in_folders := true
 	if not _designated_folders.is_empty():
 		is_in_folders = _designated_folders.any(res_path.contains)

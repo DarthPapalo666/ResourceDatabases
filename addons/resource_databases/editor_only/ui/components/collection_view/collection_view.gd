@@ -43,9 +43,14 @@ var _selected_ids: Dictionary
 var _categories_view_include_filter: Dictionary
 var _categories_view_exclude_filter: Dictionary
 
+var _was_updated := false # Flag to update the view only once per frame when needed.
+
 
 func _ready() -> void:
+	# NOTE This signal is also emitted when a file is moved for some reason
 	ProjectSettings.settings_changed.connect(_update_entries)
+	# NOTE This signal seems to be emitted a lot, when saving, etc...
+	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
 	_collection_button.get_popup().id_pressed.connect(_on_collection_button_id_selected)
 	_update_collection_button_options()
 	_selection_button.get_popup().id_pressed.connect(_on_selection_button_id_selected)
@@ -181,12 +186,25 @@ func _get_filtered_ids() -> Array[int]:
 		return result
 	result = result.filter(
 		func(int_id: int) -> bool:
-			if not ResourceLoader.exists(_current_entries.ints_to_locators[int_id] as String):
-				return false
-			var res := load(_current_entries.ints_to_locators[int_id])
-			var res_script := res.get_script() as Script
-			var res_type := res.get_class() if res_script == null else res_script.get_global_name()
-			var expr_result := expr.execute([res, res_type],
+			var locator := _current_entries.ints_to_locators[int_id] as String
+			var locator_references_resource := false
+			var res: Resource
+			var res_script: Script
+			var res_class: StringName
+			if locator.begins_with("uid://"):
+				if ResourceUID.has_id(ResourceUID.text_to_id(locator)):
+					locator_references_resource = ResourceLoader.exists(locator)
+			else:
+				locator_references_resource = ResourceLoader.exists(locator)
+			if not locator_references_resource:
+				res = null
+				res_script = null
+				res_class = &"null"
+			else:
+				res = load(_current_entries.ints_to_locators[int_id])
+				res_script = res.get_script()
+				res_class = res.get_class() if res_script == null else res_script.get_global_name()
+			var expr_result := expr.execute([res, res_class],
 			null,
 			DatabaseSettings.get_setting("show_expression_evaluation_errors"))
 			if expr.has_execute_failed():
@@ -278,6 +296,11 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 
 
 func _update_entries(page: int = -1) -> void:
+	if _was_updated: # HACK This makes the view just update once per frame at most, but I dont like it
+		return
+	_was_updated = true
+	(func() -> void: _was_updated = false).call_deferred()
+	await get_tree().process_frame
 	# Clean entries
 	for child in _collection_entries_container.get_children():
 		child.queue_free()
