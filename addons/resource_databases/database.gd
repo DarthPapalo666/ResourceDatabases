@@ -1,6 +1,7 @@
 class_name Database
 extends Resource
-## Database of resources. Load and access data dynamically!
+## Database of resources. Load and access data dynamically![br]
+## Part of the [i]Resource Databases[/i] plugin by DarthPapalo.
 
 ## Locator for invalid resources. (Invalid resources are not fetched and don't push errors.)
 const INVALID_RESOURCE_LOCATOR := "<invalid>"
@@ -8,11 +9,25 @@ const INVALID_RESOURCE_LOCATOR := "<invalid>"
 var _collections_data: Dictionary
 
 
+## Given an [param id] (either String or Int) of a [param collection], it will always return the [param id] as an [int].
+func get_int_id(collection: StringName, id: Variant) -> int:
+	match typeof(id):
+		TYPE_STRING_NAME:
+			assert(_has_string_id(collection, id as StringName), "[ResourceDatabase] Error getting Int ID from String ID.")
+			return _collections_data[collection][&"strings_to_ints"][id as StringName]as int
+		TYPE_INT:
+			assert(_has_int_id(collection, id as int), "[ResourceDatabase] Int ID doesn't exist.")
+			return id as int
+		_:
+			assert(false, "[ResourceDatabase] Invalid ID type.")
+	return -1
+
+
 #region Fetch data methods
 ## Returns the resource from the given [param collection] and the given [param id].[br]
 ## Returns [code]null[/code] on invalid resource (An Invalid ID or resource locator will result in an error).
 func fetch_data(collection: StringName, id: Variant) -> Resource:
-	var int_id: int = _get_int_id(collection, id)
+	var int_id: int = get_int_id(collection, id)
 	var res_path := _collections_data[collection][&"ints_to_locators"][int_id] as String
 	if res_path == INVALID_RESOURCE_LOCATOR:
 		return null
@@ -72,48 +87,20 @@ func fetch_category_data(collection: StringName, category: StringName) -> Dictio
 ## Returns [code]true[/code] if the [param id] is inside the given [param category].[br]
 ## If the [param collection], [param id], or [param category] doesn't exist, returns [code]false[/code].
 func is_data_in_category(collection: StringName, id: Variant, category: StringName) -> bool:
-	var int_id: int = _get_int_id(collection, id)
+	var int_id: int = get_int_id(collection, id)
 	assert(_has_category(collection, category), "[ResourceDatabase] Error, category doesn't exist.")
 	return (_collections_data[collection][&"categories_to_ints"][category] as Dictionary).has(int_id)
 
 
 ## Return an [class Array[StringName]]
 func get_data_categories(collection: StringName, id: Variant) -> Array[StringName]:
-	var int_id: int = _get_int_id(collection, id)
+	var int_id: int = get_int_id(collection, id)
 	var result: Array[StringName]
 	for category: StringName in (_collections_data[collection][&"categories_to_ints"] as Dictionary):
 		if (_collections_data[collection][&"categories_to_ints"][category] as Dictionary).has(int_id):
 			result.append(category)
 	return result
 #endregion
-
-
-#region Data serialization/deserialization
-## Given a [param collection] and a [param id], this will return an array.[br]
-## Saving the serialized arrays should provide smaller save files.
-func serialize_data(collection: StringName, id: Variant) -> Array:
-	var int_id: int = _get_int_id(collection, id)
-	return [collection, int_id]
-
-
-## Given a serialized array obtained through [method serialize_data] it will load the data resource.
-func load_serialized_data(data: Array) -> Resource:
-	assert(data.size() == 2, "[ResourceDatabase] Error loading serialized array, invalid size.")
-	return fetch_data(data[0], data[1])
-#endregion
-
-
-func _get_int_id(collection: StringName, id: Variant) -> int:
-	match typeof(id):
-		TYPE_STRING_NAME:
-			assert(_has_string_id(collection, id as StringName), "[ResourceDatabase] Error getting Int ID from String ID.")
-			return _collections_data[collection][&"strings_to_ints"][id as StringName]as int
-		TYPE_INT:
-			assert(_has_int_id(collection, id as int), "[ResourceDatabase] Int ID doesn't exist.")
-			return id as int
-		_:
-			assert(false, "[ResourceDatabase] Invalid ID type.")
-	return -1
 
 
 #region Has methods
