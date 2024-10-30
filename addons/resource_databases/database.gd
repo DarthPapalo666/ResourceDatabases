@@ -104,7 +104,7 @@ func get_data_categories(collection: StringName, id: Variant) -> Array[StringNam
 
 
 #region Has methods
-## Returns [code]true[/code] if the database has the given [param collection].
+# Returns [code]true[/code] if the database has the given [param collection].
 func _has_collection(collection: StringName) -> bool:
 	return _collections_data.has(collection)
 
@@ -114,13 +114,13 @@ func _has_category(collection: StringName, category: StringName) -> bool:
 	return (_collections_data[collection][&"categories_to_ints"] as Dictionary).has(category)
 
 
-## Returns [code]true[/code] if the [param collection] has the given [param int_id].
+# Returns [code]true[/code] if the [param collection] has the given [param int_id].
 func _has_int_id(collection: StringName, int_id: int) -> bool:
 	assert(_has_collection(collection), "[ResourceDatabase] Can't access inexistent collection \"%s\"" % collection)
 	return (_collections_data[collection][&"ints_to_locators"] as Dictionary).has(int_id)
 
 
-## Returns [code]true[/code] if the [param collection] has the given [param string_id].
+# Returns [code]true[/code] if the [param collection] has the given [param string_id].
 func _has_string_id(collection: StringName, string_id: StringName) -> bool:
 	assert(_has_collection(collection), "[ResourceDatabase] Can't access inexistent collection \"%s\"" % collection)
 	return (_collections_data[collection][&"strings_to_ints"] as Dictionary).has(string_id)
