@@ -30,7 +30,7 @@ border_width_left = 2
 border_color = Color(0.439216, 0.729412, 0.980392, 1)
 
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_jhtmh"]
-number_color = Color(0.407929, 0.873221, 1, 1)
+number_color = Color(1, 0.70742, 0.783604, 1)
 symbol_color = Color(0.758361, 0.414505, 1, 1)
 function_color = Color(0.177751, 0.378312, 1, 1)
 member_variable_color = Color(0.447388, 0.890726, 1, 1)

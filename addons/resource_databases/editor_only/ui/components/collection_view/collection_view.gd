@@ -51,6 +51,7 @@ func _ready() -> void:
 	ProjectSettings.settings_changed.connect(_update_entries)
 	# NOTE This signal seems to be emitted a lot, when saving, etc...
 	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
+	_expression_filter_text_edit.syntax_highlighter.member_keyword_colors = {"res": Color.LIGHT_SALMON, "res_type": Color.LIGHT_PINK}
 	_collection_button.get_popup().id_pressed.connect(_on_collection_button_id_selected)
 	_update_collection_button_options()
 	_selection_button.get_popup().id_pressed.connect(_on_selection_button_id_selected)
