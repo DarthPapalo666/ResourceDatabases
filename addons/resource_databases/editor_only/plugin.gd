@@ -21,6 +21,7 @@ func _enter_tree() -> void:
 	Engine.register_singleton(Namespace.SETTINGS_SINGLETON_NAME, database_settings_manager)
 
 	# Adds the database editor to the mainscreen
+	database_editor_instance.set_plugin_version(get_plugin_version())
 	EditorInterface.get_editor_main_screen().add_child(database_editor_instance)
 	
 	# Add plugin settings

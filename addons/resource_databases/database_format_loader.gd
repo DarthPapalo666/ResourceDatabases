@@ -1,6 +1,7 @@
 @tool
 class_name DatabaseFormatLoader
 extends ResourceFormatLoader
+## Class in charge of loading resource database files as resources inside Godot.
 
 const DatabaseIO := preload("res://addons/resource_databases/database_io.gd")
 

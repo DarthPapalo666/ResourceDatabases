@@ -18,7 +18,7 @@ corner_radius_bottom_left = 12
 [node name="EntryCategoriesDialog" type="Window" node_paths=PackedStringArray("_categories_container", "_entry_name_label", "_current_categories_container", "_remaining_categories_container", "_no_categories_container")]
 title = "Entry categories"
 initial_position = 4
-size = Vector2i(350, 350)
+size = Vector2i(400, 350)
 theme = ExtResource("1_7cqnf")
 script = ExtResource("1_lvtsd")
 _categories_container = NodePath("PanelContainer/CategoriesContainer")

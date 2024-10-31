@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://juvgv48tbcqo"]
+[gd_scene load_steps=13 format=3 uid="uid://juvgv48tbcqo"]
 
 [ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_lanst"]
 [ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/database_editor.gd" id="2_hsw1r"]
@@ -26,6 +26,11 @@ corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_okkgs"]
+content_margin_left = 12.0
+content_margin_top = 7.0
+content_margin_right = 12.0
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4w2ib"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rtd15"]
@@ -34,7 +39,7 @@ corner_radius_bottom_left = 16
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3gbxt"]
 
-[node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_database_path_label", "_database_interface_parent", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
+[node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_start_screen_version", "_database_path_label", "_database_interface_parent", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -48,6 +53,7 @@ theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 10
 script = ExtResource("2_hsw1r")
 _start_screen = NodePath("VBoxContainer/StartScreen")
+_start_screen_version = NodePath("VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect/HBoxContainer/StartScreenVersion")
 _database_path_label = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabasePathLabel")
 _database_interface_parent = NodePath("VBoxContainer/DatabaseInterfaceParent")
 _database_button = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabaseMenuButton")
@@ -126,15 +132,34 @@ custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 color = Color(0.2, 0.56, 1, 1)
 
-[node name="Label" type="Label" parent="VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "  Resource databases"
-vertical_alignment = 1
+theme_override_constants/separation = 0
+
+[node name="StartScreenTitle" type="RichTextLabel" parent="VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_okkgs")
+bbcode_enabled = true
+text = "[color=white]Resource Databases"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="StartScreenVersion" type="RichTextLabel" parent="VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+theme_override_styles/normal = SubResource("StyleBoxEmpty_okkgs")
+bbcode_enabled = true
+text = "Version"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/StartScreen/PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -172,6 +197,7 @@ ok_button_text = "Open"
 dialog_hide_on_ok = true
 mode_overrides_title = false
 file_mode = 0
+filters = PackedStringArray("*.gddb;Database files")
 use_native_dialog = true
 
 [node name="SaveDatabaseFileDialog" type="FileDialog" parent="."]
@@ -182,6 +208,7 @@ size = Vector2i(700, 500)
 ok_button_text = "Save"
 dialog_hide_on_ok = true
 mode_overrides_title = false
+filters = PackedStringArray("*.gddb;Database files")
 use_native_dialog = true
 
 [node name="SettingsDialoguesContainer" type="Node" parent="."]

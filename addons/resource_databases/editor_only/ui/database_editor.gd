@@ -15,6 +15,7 @@ const ENTRY_CATEGORIES_DIALOG_SCENE := preload("res://addons/resource_databases/
 
 @export_subgroup("Editor components")
 @export var _start_screen: CenterContainer
+@export var _start_screen_version: RichTextLabel
 @export var _database_path_label: RichTextLabel
 @export var _database_interface_parent: Control
 var _database_interface: Control
@@ -60,7 +61,11 @@ func _ready() -> void:
 	_load_dialog.filters = PackedStringArray([filter_string])
 
 
-#region Static singleton methods
+func set_plugin_version(version: String) -> void:
+	_start_screen_version.text = "[i]Version: %s[/i]" % version
+
+
+#region Singleton methods
 func get_database_opened_signal() -> Signal:
 	return database_opened
 
