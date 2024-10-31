@@ -30,10 +30,13 @@ func set_entry(collection_id: int, int_id: int, string_id: StringName, locator: 
 	_int_id_parameter.set_parameter(string_int)
 	_string_id_parameter.set_parameter(string_id)
 	_text_locator = locator
-	var locator_references_resource: bool = ResourceLoader.exists(locator)
+	var locator_references_resource := false
 	if locator.begins_with("uid://"):
+		locator_references_resource = ResourceUID.has_id(ResourceUID.text_to_id(locator))
 		if locator_references_resource:
 			_resource_locator_label.tooltip_text = ResourceUID.get_id_path(ResourceUID.text_to_id(locator))
+	else:
+		locator_references_resource = ResourceLoader.exists(locator)
 	var locator_visible_text := "[right][color=%s]%s"
 	var truncated_locator := locator.right(47)
 	if not locator == truncated_locator:

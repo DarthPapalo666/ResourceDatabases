@@ -6,6 +6,8 @@ signal collections_list_changed(collection_uids: Array[int])
 signal saved_changes
 signal unsaved_changes
 
+const DatabaseIO := preload("res://addons/resource_databases/database_io.gd")
+
 var has_unsaved_changes := true:
 	set(v):
 		has_unsaved_changes = v
@@ -18,6 +20,8 @@ var last_save_path: String
 
 var _collections: Dictionary
 
+var _all_collection_names := {}
+
 var db_size: int:
 	get:
 		var size: int = 0
@@ -29,9 +33,11 @@ var db_size: int:
 #region Save/Export
 static func load_from_file(path: String) -> EditorDatabase:
 	var data := DatabaseIO.load_database_data(path)
+	var editor_db: EditorDatabase
 	if data.is_empty():
-		return null
-	var editor_db := EditorDatabase.load_serialized(data)
+		editor_db = EditorDatabase.new()
+	else:
+		editor_db = EditorDatabase.load_serialized(data)
 	editor_db.last_save_path = path
 	editor_db.has_unsaved_changes = false
 	print_rich("[color=lawngreen]Database loaded successfully at: [color=yellow]%s" % path)
@@ -72,10 +78,14 @@ func _generate_collection_uid() -> int:
 	return uid
 
 
+func is_collection_name_available(name: StringName) -> bool:
+	return not name.is_empty() and name.is_valid_identifier() and name not in _all_collection_names
+
+
 func create_collection(collection_name: StringName) -> int:
-	assert(EditorDatabaseCollection.is_collection_name_available(collection_name))
+	assert(is_collection_name_available(collection_name))
 	var collection_uid := _generate_collection_uid()
-	var new_collection := EditorDatabaseCollection.new(collection_name)
+	var new_collection := EditorDatabaseCollection.new(collection_name, _all_collection_names)
 	_collections[collection_uid] = new_collection
 	_connect_collection_signals(collection_uid, new_collection)
 	_emit_collections_list_changed()
@@ -123,7 +133,9 @@ func serialize() -> Dictionary:
 static func load_serialized(data: Dictionary) -> EditorDatabase:
 	var n := EditorDatabase.new()
 	for collection_name: StringName in data:
-		var loaded_collection := EditorDatabaseCollection.load_serialized(collection_name, data[collection_name])
+		var loaded_collection := EditorDatabaseCollection.load_serialized(collection_name,
+		data[collection_name],
+		n._all_collection_names)
 		var uid := n._generate_collection_uid()
 		n._collections[uid] = loaded_collection
 		n._connect_collection_signals(uid, loaded_collection)

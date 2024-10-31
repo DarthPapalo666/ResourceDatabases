@@ -20,6 +20,7 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _search_line_edit: LineEdit
 @export var _entries_view_page_counter: Namespace.CollectionViewPageCounter
 @export_subgroup("Filters components")
+@export var _filters_check_button: CheckButton
 @export var _filters_panel: PanelContainer
 @export var _category_filters_container: HFlowContainer
 @export var _expression_filter_text_edit: TextEdit
@@ -38,12 +39,19 @@ var _current_entries: Dictionary:
 var _view_page: int = 1
 
 var _selected_ids: Dictionary
+
 var _categories_view_include_filter: Dictionary
 var _categories_view_exclude_filter: Dictionary
 
+var _was_updated := false # Flag to update the view only once per frame when needed.
+
 
 func _ready() -> void:
+	# NOTE This signal is also emitted when a file is moved for some reason
 	ProjectSettings.settings_changed.connect(_update_entries)
+	# NOTE This signal seems to be emitted a lot, when saving, etc...
+	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
+	_expression_filter_text_edit.syntax_highlighter.member_keyword_colors = {"res": Color.LIGHT_SALMON, "res_type": Color.LIGHT_PINK}
 	_collection_button.get_popup().id_pressed.connect(_on_collection_button_id_selected)
 	_update_collection_button_options()
 	_selection_button.get_popup().id_pressed.connect(_on_selection_button_id_selected)
@@ -122,7 +130,7 @@ func _update_selection_button_options() -> void:
 	menu.clear()
 	menu.add_item("Select all", 0)
 	menu.set_item_metadata(0, _select_all_entries)
-	menu.add_item("Unselect", 1)
+	menu.add_item("Unselect all", 1)
 	menu.set_item_metadata(1, _unselect_entries)
 	menu.add_item("Invert selection", 2)
 	menu.set_item_metadata(2, _invert_entries_selection)
@@ -179,10 +187,26 @@ func _get_filtered_ids() -> Array[int]:
 		return result
 	result = result.filter(
 		func(int_id: int) -> bool:
-			if not ResourceLoader.exists(_current_entries.ints_to_locators[int_id] as String):
-				return false
-			var expr_result := expr.execute([],
-			load(_current_entries.ints_to_locators[int_id]),
+			var locator := _current_entries.ints_to_locators[int_id] as String
+			var locator_references_resource := false
+			var res: Resource
+			var res_script: Script
+			var res_class: StringName
+			if locator.begins_with("uid://"):
+				if ResourceUID.has_id(ResourceUID.text_to_id(locator)):
+					locator_references_resource = ResourceLoader.exists(locator)
+			else:
+				locator_references_resource = ResourceLoader.exists(locator)
+			if not locator_references_resource:
+				res = null
+				res_script = null
+				res_class = &"null"
+			else:
+				res = load(_current_entries.ints_to_locators[int_id])
+				res_script = res.get_script()
+				res_class = res.get_class() if res_script == null else res_script.get_global_name()
+			var expr_result := expr.execute([res, res_class],
+			null,
 			DatabaseSettings.get_setting("show_expression_evaluation_errors"))
 			if expr.has_execute_failed():
 				return false
@@ -197,7 +221,7 @@ func _get_filter_expression() -> Expression:
 	if _expression_filter_text_edit.text.is_empty():
 		return null
 	var expr := Expression.new()
-	if expr.parse(_expression_filter_text_edit.text) != OK:
+	if expr.parse(_expression_filter_text_edit.text, PackedStringArray(["res", "res_type"])) != OK:
 		print_rich("[color=orange][ResourceDatabase] Error parsing filter expression.")
 		return null
 	return expr
@@ -273,9 +297,11 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 
 
 func _update_entries(page: int = -1) -> void:
-	# HACK to avoid updating when removing settings. TODO solve this.
-	if not Engine.has_singleton(Namespace.SETTINGS_SINGLETON_NAME):
+	if _was_updated: # HACK This makes the view just update once per frame at most, but I dont like it
 		return
+	_was_updated = true
+	(func() -> void: _was_updated = false).call_deferred()
+	await get_tree().process_frame
 	# Clean entries
 	for child in _collection_entries_container.get_children():
 		child.queue_free()
@@ -289,13 +315,16 @@ func _update_entries(page: int = -1) -> void:
 		if int_id not in ints_to_locators:
 			_selected_ids.erase(int_id)
 	_update_selection_button_options()
-	# Get sorted int ids from filtered entries:
-	var ordered_ids: Array[int] = _get_filtered_ids()
+	# Get sorted int ids
+	var ordered_ids: Array[int]
+	# Just display filtered ids if the filters button is checked
+	if _filters_check_button.button_pressed:
+		ordered_ids = _get_filtered_ids()
+	else:
+		ordered_ids.assign(ints_to_strings.keys())
 	ordered_ids.sort()
 	var max_entries: int = DatabaseSettings.get_setting("max_view_entries")
-	var max_page: int = ceili(float(ordered_ids.size()) / max_entries)
-	if max_page == 0:
-		max_page = 1
+	var max_page: int = maxi(1, ceili(float(ordered_ids.size()) / max_entries))
 	# Updates the view page to clamp it in case filters are active
 	_set_view_page(_view_page if page < 0 else page, max_page)
 	if ordered_ids.is_empty():
@@ -394,6 +423,7 @@ func _on_search_line_edit_text_changed(_new_text: String) -> void:
 
 func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_filters_panel.visible = toggled_on
+	_update_entries()
 
 
 # TESTING

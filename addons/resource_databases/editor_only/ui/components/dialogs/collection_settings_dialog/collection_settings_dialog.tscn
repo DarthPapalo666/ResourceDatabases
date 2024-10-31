@@ -15,7 +15,7 @@ corner_radius_bottom_left = 15
 [node name="CollectionSettingsDialog" type="Window" node_paths=PackedStringArray("_collection_name_parameter", "_classes_parameter", "_folders_parameter", "_included_filters_parameter", "_excluded_filters_parameter")]
 title = "Collection settings"
 initial_position = 4
-size = Vector2i(350, 547)
+size = Vector2i(350, 483)
 wrap_controls = true
 unresizable = true
 theme = ExtResource("2_tlbha")
@@ -27,6 +27,7 @@ _included_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContain
 _excluded_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/ExcludedEditableParameter")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(350, 0)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -114,10 +115,12 @@ layout_mode = 2
 text = "Update"
 
 [node name="HSeparator3" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 25
 
 [node name="CheckMissingResources" type="Button" parent="PanelContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Check for missing resources [TODO]"
 

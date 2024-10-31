@@ -53,7 +53,7 @@ func _get_array_string(arr: Array) -> String:
 
 
 func _on_name_editable_parameter_change_made(new_value: String, _old_value: String) -> void:
-	if not EditorDatabaseCollection.is_collection_name_available(new_value):
+	if not DatabaseEditor.get_database().is_collection_name_available(new_value):
 		DatabaseEditor.warn("Can't rename collection", "Invalid new collection name.")
 		return
 	_get_collection().name = new_value
@@ -86,5 +86,7 @@ func _on_excluded_editable_parameter_change_made(new_value: String, _old_value: 
 func _on_remove_collection_button_pressed() -> void:
 	if not await DatabaseEditor.warn("Remove [%s] collection" % _get_collection().name,
 	"Are you sure you want to remove the [b][i]%s[/i][/b] collection?" % _get_collection().name):
+		grab_focus()
 		return
 	DatabaseEditor.get_database().remove_collection(collection_uid)
+	

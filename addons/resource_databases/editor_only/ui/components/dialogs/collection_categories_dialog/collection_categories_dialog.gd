@@ -41,7 +41,10 @@ func _update_categories(categories: Dictionary) -> void:
 
 
 func _category_removed(category: StringName, _added: bool) -> void:
-	_get_collection().remove_category(category)
+	if await DatabaseEditor.warn("Remove category",
+	"Are you sure you want to remove the [b]%s[/b] category?" % String(category)):
+		_get_collection().remove_category(category)
+	grab_focus()
 
 
 func _on_new_category_line_edit_text_changed(new_text: String) -> void:
