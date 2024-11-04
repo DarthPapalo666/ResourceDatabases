@@ -18,3 +18,5 @@ export_presets.cfg
 .mono/
 data_*/
 mono_crash.*.json
+plugin_icon.png.import
+plugin_icon.svg.import

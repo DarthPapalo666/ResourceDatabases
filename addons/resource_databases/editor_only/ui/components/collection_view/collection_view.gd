@@ -24,6 +24,7 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _filters_panel: PanelContainer
 @export var _category_filters_container: HFlowContainer
 @export var _expression_filter_text_edit: TextEdit
+@export var _categories_option_button: OptionButton
 
 var DatabaseEditor := Namespace.get_editor_singleton()
 var DatabaseSettings := Namespace.get_settings_singleton()
@@ -227,7 +228,7 @@ func _get_filter_expression() -> Expression:
 	return expr
 
 
-func _on_evaluate_expression_button_pressed() -> void:
+func _on_filter_with_expression_button_pressed() -> void:
 	_update_entries()
 
 
@@ -267,8 +268,11 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 	for category: StringName in _categories_view_exclude_filter.keys():
 		if category not in categories:
 			_categories_view_exclude_filter.erase(category)
+	# Remove categories from option button of advanced expression options
+	_categories_option_button.clear()
 	# Add new filters
 	for category: StringName in categories:
+		# Update category filters
 		var new_filter: Namespace.CategoryFilter = CATEGORY_FILTER_SCENE.instantiate()
 		var initial_state := 0
 		if _categories_view_include_filter.has(category):
@@ -278,6 +282,9 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 		new_filter.set_category(category, initial_state)
 		new_filter.filter_changed.connect(_on_category_filter_state_changed.bind(category))
 		_category_filters_container.add_child(new_filter)
+		# Update category option button for advanced expression options
+		_categories_option_button.add_item(String(category))
+		_categories_option_button.set_item_metadata(_categories_option_button.item_count, category)
 	_update_entries()
 #endregion
 
