@@ -24,7 +24,11 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _filters_panel: PanelContainer
 @export var _category_filters_container: HFlowContainer
 @export var _expression_filter_text_edit: TextEdit
+# Advanced filter options
+@export var _advanced_filter_options: VBoxContainer
+@export var overwrite_check_box: CheckBox
 @export var _categories_option_button: OptionButton
+@export var _update_category_button: Button
 
 var DatabaseEditor := Namespace.get_editor_singleton()
 var DatabaseSettings := Namespace.get_settings_singleton()
@@ -186,7 +190,20 @@ func _get_filtered_ids() -> Array[int]:
 	var expr := _get_filter_expression()
 	if expr == null:
 		return result
+	var expression_ids := _get_expression_ids()
 	result = result.filter(
+		func(int_id: int) -> bool:
+			return int_id in expression_ids
+	)
+	return result
+
+
+func _get_expression_ids() -> Array[int]:
+	var expr := _get_filter_expression()
+	assert(expr != null, "Can't get expression IDs if expression is null.")
+	var entries_ids: Array[int] = []
+	entries_ids.assign(_current_entries.ints_to_locators.keys())
+	var ids = entries_ids.filter(
 		func(int_id: int) -> bool:
 			var locator := _current_entries.ints_to_locators[int_id] as String
 			var locator_references_resource := false
@@ -215,7 +232,7 @@ func _get_filtered_ids() -> Array[int]:
 				return false
 			return expr_result as bool
 	)
-	return result
+	return ids
 
 
 func _get_filter_expression() -> Expression:
@@ -238,14 +255,14 @@ func _on_clear_expression_button_pressed() -> void:
 	_update_entries()
 
 
-func _register_resources_collection(paths: PackedStringArray) -> void:
+func _register_resources_in_collection(paths: PackedStringArray) -> void:
 	for path: String in paths:
 		if FileAccess.file_exists(path): # Is file
 			_get_collection().register_resource(path)
 		elif DirAccess.dir_exists_absolute(path): # Is folder
 			_get_collection().register_folder_resources(path)
 		else:
-			print_rich("[color=orange]Error on drag and drop, invalid path [color=yellow](%s)" % path)
+			print_rich("[color=orange][ResourceDatabase] Error on drag and drop, invalid path [color=yellow](%s)" % path)
 
 
 #region Collection callbacks
@@ -284,7 +301,7 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 		_category_filters_container.add_child(new_filter)
 		# Update category option button for advanced expression options
 		_categories_option_button.add_item(String(category))
-		_categories_option_button.set_item_metadata(_categories_option_button.item_count, category)
+		_categories_option_button.set_item_metadata(_categories_option_button.item_count - 1, category)
 	_update_entries()
 #endregion
 
@@ -431,6 +448,24 @@ func _on_search_line_edit_text_changed(_new_text: String) -> void:
 func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_filters_panel.visible = toggled_on
 	_update_entries()
+
+
+#region Advanced filter options
+func _on_advanced_filter_options_check_button_toggled(toggled_on: bool) -> void:
+	_advanced_filter_options.visible = toggled_on
+	_update_category_button.disabled = _categories_option_button.selected == -1
+
+
+func _on_update_category_button_pressed() -> void:
+	if not await DatabaseEditor.warn("Update category", "Are you sure you want to update the selected category with the currently filtered IDs?"):
+		return
+	var filtered_ids := _get_filtered_ids()
+	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
+	if overwrite_check_box.button_pressed:
+		_get_collection().empty_category(category)
+	for id: int in filtered_ids:
+		_get_collection().add_category_to_resource(category, id, false)
+#endregion
 
 
 # TESTING

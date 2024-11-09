@@ -187,6 +187,15 @@ func remove_category(category: StringName) -> void:
 		_emit_collection_entries_changed()
 
 
+func empty_category(category: StringName) -> void:
+	assert(has_category(category))
+	var was_empty := (_categories_to_ints[category] as Dictionary).size() == 0
+	(_categories_to_ints[category] as Dictionary).clear()
+	_emit_categories_changed()
+	if not was_empty:
+		_emit_collection_entries_changed()
+
+
 func get_all_categories() -> Array[StringName]:
 	var arr: Array[StringName]
 	arr.assign(_categories_to_ints.keys())

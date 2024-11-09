@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c6snrkt0lx7rr"]
+[gd_scene load_steps=11 format=3 uid="uid://c6snrkt0lx7rr"]
 
 [ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
 [ext_resource type="PackedScene" uid="uid://drfc1vxe6tdt2" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entries_top_bar.tscn" id="5_yml8w"]
@@ -29,6 +29,10 @@ bg_color = Color(0.113725, 0.133333, 0.160784, 1)
 border_width_left = 2
 border_color = Color(0.439216, 0.729412, 0.980392, 1)
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_66tam"]
+color = Color(0.441, 0.728467, 0.98, 0.392157)
+thickness = 2
+
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_jhtmh"]
 number_color = Color(1, 0.70742, 0.783604, 1)
 symbol_color = Color(0.758361, 0.414505, 1, 1)
@@ -39,7 +43,7 @@ member_keyword_colors = {
 "res_type": Color(1, 0.713726, 0.756863, 1)
 }
 
-[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit")]
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_advanced_filter_options", "overwrite_check_box", "_categories_option_button", "_update_category_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -60,6 +64,10 @@ _filters_check_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/Filter
 _filters_panel = NodePath("VBoxContainer/HSplitContainer/FiltersContainer")
 _category_filters_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer/CategoryFiltersContainer")
 _expression_filter_text_edit = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionFilterTextEdit")
+_advanced_filter_options = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions")
+overwrite_check_box = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/OverwriteCheckBox")
+_categories_option_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/CategoriesOptionButton")
+_update_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -188,6 +196,7 @@ size_flags_vertical = 8
 layout_mode = 1
 
 [node name="FiltersContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+visible = false
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -212,6 +221,11 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 7
+theme_override_styles/separator = SubResource("StyleBoxLine_66tam")
 
 [node name="Label2" type="Label" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
@@ -242,29 +256,39 @@ size_flags_horizontal = 3
 text = "Clear"
 flat = true
 
-[node name="AdvancedExpressionOptionsCheckButton" type="CheckButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 7
+theme_override_styles/separator = SubResource("StyleBoxLine_66tam")
+
+[node name="AdvancedFilterOptionsCheckButton" type="CheckButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
 text = "Advanced"
 
-[node name="AdvancedExpressionOptions" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+[node name="AdvancedFilterOptions" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
-[node name="OverwriteCheckBox" type="CheckBox" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedExpressionOptions"]
+[node name="OverwriteCheckBox" type="CheckBox" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
 layout_mode = 2
 text = "Overwrite"
 
-[node name="CategoriesOptionButton" type="OptionButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedExpressionOptions"]
+[node name="CategoriesOptionButton" type="OptionButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
 layout_mode = 2
+text_overrun_behavior = 3
+fit_to_longest_item = false
 
-[node name="Button" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedExpressionOptions"]
+[node name="UpdateCategoryButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
 layout_mode = 2
-text = "Add to category"
+text = "Update category"
 flat = true
 
 [connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/TestingButton" to="." method="_on_testing_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton" to="." method="_on_filters_check_button_toggled"]
 [connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]
-[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_collection"]
+[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_in_collection"]
 [connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/FilterWithExpressionButton" to="." method="_on_filter_with_expression_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/ClearExpressionButton" to="." method="_on_clear_expression_button_pressed"]
+[connection signal="toggled" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptionsCheckButton" to="." method="_on_advanced_filter_options_check_button_toggled"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton" to="." method="_on_update_category_button_pressed"]
