@@ -22,13 +22,14 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export_subgroup("Filters components")
 @export var _filters_check_button: CheckButton
 @export var _filters_panel: PanelContainer
-@export var _category_filters_container: HFlowContainer
+@export var _category_filters_container: VBoxContainer
 @export var _expression_filter_text_edit: TextEdit
 # Advanced filter options
 @export var _advanced_filter_options: VBoxContainer
-@export var overwrite_check_box: CheckBox
+@export var _no_categories_label: Label
 @export var _categories_option_button: OptionButton
 @export var _update_category_button: Button
+@export var _clear_category_button: Button
 
 var DatabaseEditor := Namespace.get_editor_singleton()
 var DatabaseSettings := Namespace.get_settings_singleton()
@@ -303,6 +304,10 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 		_categories_option_button.add_item(String(category))
 		_categories_option_button.set_item_metadata(_categories_option_button.item_count - 1, category)
 	_update_entries()
+	_update_category_button.disabled = _categories_option_button.selected == -1
+	_clear_category_button.disabled = _categories_option_button.selected == -1
+	_no_categories_label.visible = _categories_option_button.selected == -1
+	_categories_option_button.visible = _categories_option_button.selected != -1
 #endregion
 
 
@@ -453,25 +458,21 @@ func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 #region Advanced filter options
 func _on_advanced_filter_options_check_button_toggled(toggled_on: bool) -> void:
 	_advanced_filter_options.visible = toggled_on
-	_update_category_button.disabled = _categories_option_button.selected == -1
 
 
 func _on_update_category_button_pressed() -> void:
-	if not await DatabaseEditor.warn("Update category", "Are you sure you want to update the selected category with the currently filtered IDs?"):
+	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
+	if not await DatabaseEditor.warn("Update category", "Are you sure you want to update the [b]%s[/b] category with the currently filtered IDs?" % category):
 		return
 	var filtered_ids := _get_filtered_ids()
-	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
-	if overwrite_check_box.button_pressed:
-		_get_collection().empty_category(category)
+	_get_collection().clear_category(category)
 	for id: int in filtered_ids:
 		_get_collection().add_category_to_resource(category, id, false)
+
+
+func _on_clear_category_button_pressed() -> void:
+	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
+	if not await DatabaseEditor.warn("Clear category", "Are you sure you want to clear the [b]%s[/b] category?" % category):
+		return
+	_get_collection().clear_category(category)
 #endregion
-
-
-# TESTING
-func _on_testing_button_pressed() -> void:
-	#print(load(_get_collection().get_entries()[&"ints_to_locators"][0] as String).get_script().get_script_property_list())
-	#print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
-	for u in 5:
-		_get_collection().register_test_res()
-	pass

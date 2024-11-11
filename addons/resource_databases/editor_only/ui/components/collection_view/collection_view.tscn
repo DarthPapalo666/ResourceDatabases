@@ -43,7 +43,7 @@ member_keyword_colors = {
 "res_type": Color(1, 0.713726, 0.756863, 1)
 }
 
-[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_advanced_filter_options", "overwrite_check_box", "_categories_option_button", "_update_category_button")]
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_advanced_filter_options", "_no_categories_label", "_categories_option_button", "_update_category_button", "_clear_category_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -65,9 +65,10 @@ _filters_panel = NodePath("VBoxContainer/HSplitContainer/FiltersContainer")
 _category_filters_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer/CategoryFiltersContainer")
 _expression_filter_text_edit = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionFilterTextEdit")
 _advanced_filter_options = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions")
-overwrite_check_box = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/OverwriteCheckBox")
+_no_categories_label = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/NoCategoriesLabel")
 _categories_option_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/CategoriesOptionButton")
 _update_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton")
+_clear_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/ClearCategoryButton")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -135,11 +136,6 @@ popup/item_7/disabled = true
 popup/item_8/text = "Remove category from selected"
 popup/item_8/id = 8
 popup/item_8/disabled = true
-
-[node name="TestingButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
-visible = false
-layout_mode = 2
-text = "Testing"
 
 [node name="FiltersCheckButton" type="CheckButton" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
 layout_mode = 2
@@ -215,12 +211,10 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="CategoryFiltersContainer" type="HFlowContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer"]
+[node name="CategoryFiltersContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
@@ -269,21 +263,29 @@ text = "Advanced"
 visible = false
 layout_mode = 2
 
-[node name="OverwriteCheckBox" type="CheckBox" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+[node name="NoCategoriesLabel" type="Label" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
 layout_mode = 2
-text = "Overwrite"
+text = "No categories"
+horizontal_alignment = 1
 
 [node name="CategoriesOptionButton" type="OptionButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+visible = false
 layout_mode = 2
 text_overrun_behavior = 3
 fit_to_longest_item = false
 
 [node name="UpdateCategoryButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
 layout_mode = 2
+disabled = true
 text = "Update category"
 flat = true
 
-[connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/TestingButton" to="." method="_on_testing_button_pressed"]
+[node name="ClearCategoryButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+layout_mode = 2
+disabled = true
+text = "Clear category"
+flat = true
+
 [connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton" to="." method="_on_filters_check_button_toggled"]
 [connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]
@@ -292,3 +294,4 @@ flat = true
 [connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/ClearExpressionButton" to="." method="_on_clear_expression_button_pressed"]
 [connection signal="toggled" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptionsCheckButton" to="." method="_on_advanced_filter_options_check_button_toggled"]
 [connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton" to="." method="_on_update_category_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/ClearCategoryButton" to="." method="_on_clear_category_button_pressed"]

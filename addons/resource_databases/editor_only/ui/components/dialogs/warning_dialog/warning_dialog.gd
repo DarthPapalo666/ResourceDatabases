@@ -20,3 +20,8 @@ func _on_accept_button_pressed() -> void:
 func _on_cancel_button_pressed() -> void:
 	hide()
 	decision.emit(false)
+
+
+func _on_about_to_popup() -> void:
+	# Forces the window to adopt the minimum size
+	size = Vector2i.ZERO

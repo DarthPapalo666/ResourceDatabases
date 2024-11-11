@@ -19,6 +19,7 @@ corner_radius_bottom_left = 6
 [node name="CategoryFilter" type="PanelContainer" node_paths=PackedStringArray("_button", "_texture")]
 offset_right = 8.0
 offset_bottom = 31.0
+size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_bnakq")
 script = ExtResource("1_iqelm")
 _button = NodePath("Button")
@@ -30,6 +31,7 @@ theme_override_styles/focus = SubResource("StyleBoxEmpty_lr1dy")
 text = "      <category_name>"
 flat = true
 alignment = 0
+text_overrun_behavior = 3
 
 [node name="TextureRect" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(0, 24)
