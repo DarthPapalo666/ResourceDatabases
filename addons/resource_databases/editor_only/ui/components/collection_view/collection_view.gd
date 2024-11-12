@@ -22,8 +22,14 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export_subgroup("Filters components")
 @export var _filters_check_button: CheckButton
 @export var _filters_panel: PanelContainer
-@export var _category_filters_container: HFlowContainer
+@export var _category_filters_container: VBoxContainer
 @export var _expression_filter_text_edit: TextEdit
+# Advanced filter options
+@export var _advanced_filter_options: VBoxContainer
+@export var _no_categories_label: Label
+@export var _categories_option_button: OptionButton
+@export var _update_category_button: Button
+@export var _clear_category_button: Button
 
 var DatabaseEditor := Namespace.get_editor_singleton()
 var DatabaseSettings := Namespace.get_settings_singleton()
@@ -185,7 +191,20 @@ func _get_filtered_ids() -> Array[int]:
 	var expr := _get_filter_expression()
 	if expr == null:
 		return result
+	var expression_ids := _get_expression_ids()
 	result = result.filter(
+		func(int_id: int) -> bool:
+			return int_id in expression_ids
+	)
+	return result
+
+
+func _get_expression_ids() -> Array[int]:
+	var expr := _get_filter_expression()
+	assert(expr != null, "Can't get expression IDs if expression is null.")
+	var entries_ids: Array[int] = []
+	entries_ids.assign(_current_entries.ints_to_locators.keys())
+	var ids = entries_ids.filter(
 		func(int_id: int) -> bool:
 			var locator := _current_entries.ints_to_locators[int_id] as String
 			var locator_references_resource := false
@@ -214,7 +233,7 @@ func _get_filtered_ids() -> Array[int]:
 				return false
 			return expr_result as bool
 	)
-	return result
+	return ids
 
 
 func _get_filter_expression() -> Expression:
@@ -227,7 +246,7 @@ func _get_filter_expression() -> Expression:
 	return expr
 
 
-func _on_evaluate_expression_button_pressed() -> void:
+func _on_filter_with_expression_button_pressed() -> void:
 	_update_entries()
 
 
@@ -237,14 +256,14 @@ func _on_clear_expression_button_pressed() -> void:
 	_update_entries()
 
 
-func _register_resources_collection(paths: PackedStringArray) -> void:
+func _register_resources_in_collection(paths: PackedStringArray) -> void:
 	for path: String in paths:
 		if FileAccess.file_exists(path): # Is file
 			_get_collection().register_resource(path)
 		elif DirAccess.dir_exists_absolute(path): # Is folder
 			_get_collection().register_folder_resources(path)
 		else:
-			print_rich("[color=orange]Error on drag and drop, invalid path [color=yellow](%s)" % path)
+			print_rich("[color=orange][ResourceDatabase] Error on drag and drop, invalid path [color=yellow](%s)" % path)
 
 
 #region Collection callbacks
@@ -267,8 +286,11 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 	for category: StringName in _categories_view_exclude_filter.keys():
 		if category not in categories:
 			_categories_view_exclude_filter.erase(category)
+	# Remove categories from option button of advanced expression options
+	_categories_option_button.clear()
 	# Add new filters
 	for category: StringName in categories:
+		# Update category filters
 		var new_filter: Namespace.CategoryFilter = CATEGORY_FILTER_SCENE.instantiate()
 		var initial_state := 0
 		if _categories_view_include_filter.has(category):
@@ -278,7 +300,14 @@ func _on_collection_categories_changed(categories: Dictionary) -> void:
 		new_filter.set_category(category, initial_state)
 		new_filter.filter_changed.connect(_on_category_filter_state_changed.bind(category))
 		_category_filters_container.add_child(new_filter)
+		# Update category option button for advanced expression options
+		_categories_option_button.add_item(String(category))
+		_categories_option_button.set_item_metadata(_categories_option_button.item_count - 1, category)
 	_update_entries()
+	_update_category_button.disabled = _categories_option_button.selected == -1
+	_clear_category_button.disabled = _categories_option_button.selected == -1
+	_no_categories_label.visible = _categories_option_button.selected == -1
+	_categories_option_button.visible = _categories_option_button.selected != -1
 #endregion
 
 
@@ -426,10 +455,24 @@ func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_update_entries()
 
 
-# TESTING
-func _on_testing_button_pressed() -> void:
-	#print(load(_get_collection().get_entries()[&"ints_to_locators"][0] as String).get_script().get_script_property_list())
-	#print("Size: ", DatabaseEditor.get_database().get_collection(collection_uid).collection_size)
-	for u in 5:
-		_get_collection().register_test_res()
-	pass
+#region Advanced filter options
+func _on_advanced_filter_options_check_button_toggled(toggled_on: bool) -> void:
+	_advanced_filter_options.visible = toggled_on
+
+
+func _on_update_category_button_pressed() -> void:
+	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
+	if not await DatabaseEditor.warn("Update category", "Are you sure you want to update the [b]%s[/b] category with the currently filtered IDs?" % category):
+		return
+	var filtered_ids := _get_filtered_ids()
+	_get_collection().clear_category(category)
+	for id: int in filtered_ids:
+		_get_collection().add_category_to_resource(category, id, false)
+
+
+func _on_clear_category_button_pressed() -> void:
+	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
+	if not await DatabaseEditor.warn("Clear category", "Are you sure you want to clear the [b]%s[/b] category?" % category):
+		return
+	_get_collection().clear_category(category)
+#endregion

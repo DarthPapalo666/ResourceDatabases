@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c6snrkt0lx7rr"]
+[gd_scene load_steps=11 format=3 uid="uid://c6snrkt0lx7rr"]
 
 [ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
 [ext_resource type="PackedScene" uid="uid://drfc1vxe6tdt2" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entries_top_bar.tscn" id="5_yml8w"]
@@ -29,13 +29,21 @@ bg_color = Color(0.113725, 0.133333, 0.160784, 1)
 border_width_left = 2
 border_color = Color(0.439216, 0.729412, 0.980392, 1)
 
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_66tam"]
+color = Color(0.441, 0.728467, 0.98, 0.392157)
+thickness = 2
+
 [sub_resource type="CodeHighlighter" id="CodeHighlighter_jhtmh"]
 number_color = Color(1, 0.70742, 0.783604, 1)
 symbol_color = Color(0.758361, 0.414505, 1, 1)
 function_color = Color(0.177751, 0.378312, 1, 1)
 member_variable_color = Color(0.447388, 0.890726, 1, 1)
+member_keyword_colors = {
+"res": Color(1, 0.627451, 0.478431, 1),
+"res_type": Color(1, 0.713726, 0.756863, 1)
+}
 
-[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit")]
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_advanced_filter_options", "_no_categories_label", "_categories_option_button", "_update_category_button", "_clear_category_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -56,6 +64,11 @@ _filters_check_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/Filter
 _filters_panel = NodePath("VBoxContainer/HSplitContainer/FiltersContainer")
 _category_filters_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer/CategoryFiltersContainer")
 _expression_filter_text_edit = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionFilterTextEdit")
+_advanced_filter_options = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions")
+_no_categories_label = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/NoCategoriesLabel")
+_categories_option_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/CategoriesOptionButton")
+_update_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton")
+_clear_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/ClearCategoryButton")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
@@ -123,11 +136,6 @@ popup/item_7/disabled = true
 popup/item_8/text = "Remove category from selected"
 popup/item_8/id = 8
 popup/item_8/disabled = true
-
-[node name="TestingButton" type="Button" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
-visible = false
-layout_mode = 2
-text = "Testing"
 
 [node name="FiltersCheckButton" type="CheckButton" parent="VBoxContainer/ToolsPanel/ToolsContainer"]
 layout_mode = 2
@@ -203,12 +211,15 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="CategoryFiltersContainer" type="HFlowContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer"]
+[node name="CategoryFiltersContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 7
+theme_override_styles/separator = SubResource("StyleBoxLine_66tam")
 
 [node name="Label2" type="Label" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
 layout_mode = 2
@@ -227,9 +238,10 @@ layout_mode = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="EvaluateExpressionButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer"]
+[node name="FilterWithExpressionButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer"]
 layout_mode = 2
-text = "Evaluate"
+size_flags_horizontal = 3
+text = "Filter"
 flat = true
 
 [node name="ClearExpressionButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer"]
@@ -238,10 +250,48 @@ size_flags_horizontal = 3
 text = "Clear"
 flat = true
 
-[connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/TestingButton" to="." method="_on_testing_button_pressed"]
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 7
+theme_override_styles/separator = SubResource("StyleBoxLine_66tam")
+
+[node name="AdvancedFilterOptionsCheckButton" type="CheckButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+layout_mode = 2
+text = "Advanced"
+
+[node name="AdvancedFilterOptions" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="NoCategoriesLabel" type="Label" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+layout_mode = 2
+text = "No categories"
+horizontal_alignment = 1
+
+[node name="CategoriesOptionButton" type="OptionButton" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+visible = false
+layout_mode = 2
+text_overrun_behavior = 3
+fit_to_longest_item = false
+
+[node name="UpdateCategoryButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+layout_mode = 2
+disabled = true
+text = "Update category"
+flat = true
+
+[node name="ClearCategoryButton" type="Button" parent="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions"]
+layout_mode = 2
+disabled = true
+text = "Clear category"
+flat = true
+
 [connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton" to="." method="_on_filters_check_button_toggled"]
 [connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]
-[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_collection"]
-[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/EvaluateExpressionButton" to="." method="_on_evaluate_expression_button_pressed"]
+[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_in_collection"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/FilterWithExpressionButton" to="." method="_on_filter_with_expression_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/ClearExpressionButton" to="." method="_on_clear_expression_button_pressed"]
+[connection signal="toggled" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptionsCheckButton" to="." method="_on_advanced_filter_options_check_button_toggled"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton" to="." method="_on_update_category_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/ClearCategoryButton" to="." method="_on_clear_category_button_pressed"]
