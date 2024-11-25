@@ -10,9 +10,11 @@ const Namespace := preload("res://addons/resource_databases/editor_only/plugin_n
 
 var DatabaseSettings := Namespace.get_settings_singleton()
 
+# Used to emit changes signals once per frame
 var _emitter_flags: Dictionary
 
-var _all_names_ref: Dictionary # Contains the used names, values are bool placeholders
+# Contains the used names, values are bool placeholders
+var _all_names_ref: Dictionary
 
 # Collection name
 var name: StringName:
@@ -56,28 +58,30 @@ func _notification(what: int) -> void:
 
 
 #region Designation of folders
-func set_designated_folders(folders: String) -> void:
-	var paths := folders.split(",", false)
+func _get_array_from_string(string: String) -> Array[String]:
 	var clean: Array[String]
-	for u: String in paths:
-		var path := u.replace(" ", "")
+	var splitted := string.strip_escapes().split(",", false)
+	for u: String in splitted:
+		clean.append(u.replace(" ", ""))
+	return clean
+
+func set_designated_folders(folders: String) -> void:
+	var clean_folders := _get_array_from_string(folders)
+	var valid: Array[String]
+	for path: String in clean_folders:
 		if DirAccess.dir_exists_absolute(path):
-			clean.append(path)
-	_designated_folders = clean
+			valid.append(path)
+	_designated_folders = valid
 	_emit_collection_settings_changed()
 
 
-func set_path_filters(filters_string: String, type: int) -> void:
-	var filters := filters_string.split(",", false)
-	var clean: Array[String]
-	for u: String in filters:
-		var filter := u.replace(" ", "")
-		clean.append(filter)
+func set_path_filters(filters: String, type: int) -> void:
+	var clean_filters = _get_array_from_string(filters)
 	match type:
 		0: # Include
-			_included_filters = clean
+			_included_filters = clean_filters
 		1: # Exlcude
-			_excluded_filters = clean
+			_excluded_filters = clean_filters
 		_:
 			assert(false, "Error on type of filter.")
 	_emit_collection_settings_changed()
@@ -112,14 +116,14 @@ func _is_resource_inside_filters(locator: String) -> bool:
 		is_in_folders = _designated_folders.any(res_path.contains)
 	var is_excluded := false
 	if not _excluded_filters.is_empty():
-		is_excluded = _excluded_filters.any(has_regex_match.bind(res_path))
+		is_excluded = _excluded_filters.any(_has_regex_match.bind(res_path))
 	var is_included := true
 	if not _included_filters.is_empty():
-		is_included = _included_filters.any(has_regex_match.bind(res_path))
+		is_included = _included_filters.any(_has_regex_match.bind(res_path))
 	return is_in_folders and not is_excluded and is_included
 
 
-func has_regex_match(filter: String, subject: String) -> bool:
+func _has_regex_match(filter: String, subject: String) -> bool:
 	var regex := RegEx.create_from_string(filter)
 	if not regex.is_valid():
 		print_rich("[color=orange][ResourceDatabase] Error when compiling RegEx (%s)." % filter)
@@ -130,11 +134,9 @@ func has_regex_match(filter: String, subject: String) -> bool:
 
 #region Validation of resource classes
 func set_valid_classes(classes: String) -> void:
-	var names := classes.split(",", false)
-	var clean: Array[StringName]
-	for u: String in names:
-		clean.append(StringName(u.replace(" ", "")))
-	_valid_classes = clean
+	var clean_classes := _get_array_from_string(classes)
+	_valid_classes.clear()
+	_valid_classes.assign(clean_classes)
 	_emit_collection_settings_changed()
 
 

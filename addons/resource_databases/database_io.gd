@@ -37,9 +37,17 @@ static func load_database_data(path: String) -> Variant:
 static func _is_database_data_valid(data: Variant) -> bool:
 	if not typeof(data) == TYPE_DICTIONARY:
 		return false
+	data = data as Dictionary
+	if not data.keys().all(func(key: Variant) -> bool: return typeof(key) == TYPE_STRING_NAME):
+		return false
 	for collection_name: StringName in data:
 		if typeof(data[collection_name]) != TYPE_DICTIONARY:
 			return false
-		if not (data[collection_name] as Dictionary).has_all([&"ints_to_strings", &"strings_to_ints", &"ints_to_locators", &"categories_to_ints"]):
+		if not (data[collection_name] as Dictionary).has_all([
+			&"ints_to_strings",
+			&"strings_to_ints",
+			&"ints_to_locators",
+			&"categories_to_ints",
+			]):
 			return false
 	return true

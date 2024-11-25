@@ -50,7 +50,6 @@ func save_to_file(path: String) -> void:
 	has_unsaved_changes = not was_succesful
 	if was_succesful:
 		print_rich("[color=lawngreen]Database exported succesfully!")
-	if not has_unsaved_changes:
 		EditorInterface.get_resource_filesystem().scan_sources()
 #endregion
 
@@ -145,5 +144,5 @@ static func load_serialized(data: Dictionary) -> EditorDatabase:
 
 func _to_string() -> String:
 	return """
-	%s
-	""" % _collections
+%s
+""" % _collections
