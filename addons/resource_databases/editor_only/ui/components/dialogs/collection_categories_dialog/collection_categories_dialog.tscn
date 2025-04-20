@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://qketvrxgm0ya"]
 
 [ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_3rc7n"]
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.gd" id="1_tnh2y"]
+[ext_resource type="Script" uid="uid://bq84swcbye2yf" path="res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.gd" id="1_tnh2y"]
 [ext_resource type="Texture2D" uid="uid://pitjyqj7brld" path="res://addons/resource_databases/editor_only/ui/icons/create_clean.svg" id="2_dex87"]
 
 [node name="CollectionCategoriesDialog" type="Window" node_paths=PackedStringArray("_new_category_line_edit", "_create_category_button", "_categories_container")]

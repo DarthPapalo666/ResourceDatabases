@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://i0c2m81nxr42"]
 
 [ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_7cqnf"]
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/entry_categories_dialog/entry_categories_dialog.gd" id="1_lvtsd"]
+[ext_resource type="Script" uid="uid://baab10j63h87u" path="res://addons/resource_databases/editor_only/ui/components/dialogs/entry_categories_dialog/entry_categories_dialog.gd" id="1_lvtsd"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_koost"]
 

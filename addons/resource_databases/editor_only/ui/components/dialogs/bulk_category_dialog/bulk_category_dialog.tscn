@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://1px3v5fmg1dx"]
 
 [ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_evd1o"]
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.gd" id="2_8vs00"]
+[ext_resource type="Script" uid="uid://cvpspfh7y3qjx" path="res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.gd" id="2_8vs00"]
 
 [node name="BulkCategoryDialog" type="Window" node_paths=PackedStringArray("_categories_container")]
 title = "<action> category to selected entries"

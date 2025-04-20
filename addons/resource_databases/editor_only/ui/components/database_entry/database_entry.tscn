@@ -1,6 +1,6 @@
 [gd_scene load_steps=17 format=3 uid="uid://xy4e3kkw44ru"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entry.gd" id="1_3lc0p"]
+[ext_resource type="Script" uid="uid://brtfc00xcsds3" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entry.gd" id="1_3lc0p"]
 [ext_resource type="PackedScene" uid="uid://dh0myumwsa6i0" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.tscn" id="2_ugfhb"]
 [ext_resource type="Texture2D" uid="uid://be0kkccg6cvjd" path="res://addons/resource_databases/editor_only/ui/icons/remove_clean.svg" id="3_q2dmk"]
 [ext_resource type="Texture2D" uid="uid://co0w2lqnfyg35" path="res://addons/resource_databases/editor_only/ui/icons/change.png" id="3_qdnpw"]

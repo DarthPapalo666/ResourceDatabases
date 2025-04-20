@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://d1p78w1c430sb"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_button/collection_button.gd" id="1_kmau3"]
+[ext_resource type="Script" uid="uid://ck21x43kxka3p" path="res://addons/resource_databases/editor_only/ui/components/collection_button/collection_button.gd" id="1_kmau3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_s4noe"]
 

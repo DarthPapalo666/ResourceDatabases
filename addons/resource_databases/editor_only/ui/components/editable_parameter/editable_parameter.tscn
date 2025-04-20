@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dh0myumwsa6i0"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.gd" id="1_fa5h6"]
+[ext_resource type="Script" uid="uid://cstdhmmgda4i2" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.gd" id="1_fa5h6"]
 [ext_resource type="Texture2D" uid="uid://3yr87ikvahav" path="res://addons/resource_databases/editor_only/ui/icons/tick_clean.svg" id="2_8xfgg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sxvmq"]

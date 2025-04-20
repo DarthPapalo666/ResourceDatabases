@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://sycqukt8d0fy"]
 
 [ext_resource type="Theme" uid="uid://bnltql7b8a71q" path="res://addons/resource_databases/editor_only/ui/database_editor_theme.tres" id="1_0aiqc"]
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/warning_dialog/warning_dialog.gd" id="1_717uu"]
+[ext_resource type="Script" uid="uid://d0h8rwjnol7xd" path="res://addons/resource_databases/editor_only/ui/components/dialogs/warning_dialog/warning_dialog.gd" id="1_717uu"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k53l1"]
 

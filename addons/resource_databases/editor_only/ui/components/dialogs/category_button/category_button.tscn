@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://crtatdwnr4bgq"]
 
 [ext_resource type="Texture2D" uid="uid://pitjyqj7brld" path="res://addons/resource_databases/editor_only/ui/icons/create_clean.svg" id="1_cdksn"]
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.gd" id="1_yn2uu"]
+[ext_resource type="Script" uid="uid://q2ox3sai3uxl" path="res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.gd" id="1_yn2uu"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iulrt"]
 content_margin_left = 10.0

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dgpxlgbitn4fr"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/drag_and_drop_panel/drag_and_drop_panel.gd" id="1_mbs7c"]
+[ext_resource type="Script" uid="uid://dy7it7ik2ss88" path="res://addons/resource_databases/editor_only/ui/components/drag_and_drop_panel/drag_and_drop_panel.gd" id="1_mbs7c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gsket"]
 bg_color = Color(0.235294, 0.286275, 0.356863, 0.490196)

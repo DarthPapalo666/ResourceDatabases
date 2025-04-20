@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://c6snrkt0lx7rr"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
+[ext_resource type="Script" uid="uid://bx01vht87edo1" path="res://addons/resource_databases/editor_only/ui/components/collection_view/collection_view.gd" id="2_r2ggo"]
 [ext_resource type="PackedScene" uid="uid://drfc1vxe6tdt2" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entries_top_bar.tscn" id="5_yml8w"]
 [ext_resource type="PackedScene" uid="uid://cq3tpu7cdhlq4" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.tscn" id="6_fv67i"]
 [ext_resource type="PackedScene" uid="uid://dgpxlgbitn4fr" path="res://addons/resource_databases/editor_only/ui/components/drag_and_drop_panel/drag_and_drop_panel.tscn" id="7_tjc6f"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cwy0p6kbmufgt"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/collection_view/category_filter/category_filter.gd" id="1_iqelm"]
+[ext_resource type="Script" uid="uid://b7n8ttvu02pfx" path="res://addons/resource_databases/editor_only/ui/components/collection_view/category_filter/category_filter.gd" id="1_iqelm"]
 [ext_resource type="Texture2D" uid="uid://duf7splcl7ddr" path="res://addons/resource_databases/editor_only/ui/icons/category_filter/no_filter_clean.svg" id="2_qt1ul"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bnakq"]

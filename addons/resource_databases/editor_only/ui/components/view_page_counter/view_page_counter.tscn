@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cq3tpu7cdhlq4"]
 
-[ext_resource type="Script" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.gd" id="1_3588u"]
+[ext_resource type="Script" uid="uid://dt055ean1tevg" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.gd" id="1_3588u"]
 
 [node name="ViewPageCounter" type="PanelContainer" node_paths=PackedStringArray("counter_label", "left_button", "right_button")]
 anchors_preset = 7

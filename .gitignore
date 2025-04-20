@@ -2,6 +2,9 @@ testing/
 /icon.svg
 /icon.svg.import
 project.godot
+plugin_icon.png.import
+plugin_icon.svg.import
+
 
 # Godot 4+ specific ignores
 .godot/
@@ -18,5 +21,3 @@ export_presets.cfg
 .mono/
 data_*/
 mono_crash.*.json
-plugin_icon.png.import
-plugin_icon.svg.import
