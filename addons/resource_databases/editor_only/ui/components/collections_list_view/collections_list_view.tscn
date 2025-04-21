@@ -55,6 +55,3 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 0
-
-[connection signal="text_changed" from="VBoxContainer/ToolsPanel/ToolsContainer/NewCollectionLineEdit" to="." method="_on_new_collection_line_edit_text_changed"]
-[connection signal="pressed" from="VBoxContainer/ToolsPanel/ToolsContainer/CreateCollectionButton" to="." method="_on_create_collection_button_pressed"]

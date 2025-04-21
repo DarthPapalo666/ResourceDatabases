@@ -5,7 +5,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k53l1"]
 
-[node name="WarningDialog" type="Window" node_paths=PackedStringArray("warning_text")]
+[node name="WarningDialog" type="Window"]
 auto_translate_mode = 1
 title = "Warning!"
 initial_position = 4
@@ -16,7 +16,6 @@ exclusive = true
 unresizable = true
 theme = ExtResource("1_0aiqc")
 script = ExtResource("1_717uu")
-warning_text = NodePath("PanelContainer/VBoxContainer/WarningRichTextLabel")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = 15
@@ -55,8 +54,3 @@ text = "Accept"
 [node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Cancel"
-
-[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
-[connection signal="close_requested" from="." to="." method="_on_cancel_button_pressed"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/AcceptButton" to="." method="_on_accept_button_pressed"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/CancelButton" to="." method="_on_cancel_button_pressed"]

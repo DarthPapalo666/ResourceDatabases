@@ -9,28 +9,42 @@ const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _create_category_button: Button
 @export var _categories_container: HFlowContainer
 
-var DatabaseEditor := Namespace.get_editor_singleton()
+var _correctly_initialized := false
 
-var collection_uid: int = -1
+var _database_editor: Namespace.DatabaseEditor:
+	set(v):
+		_database_editor = v
+		_database_editor.loaded_database.collection_name_changed.connect(_on_collection_name_changed)
+		
+
+var _collection_name: StringName:
+	set(v):
+		_collection_name = v
+		title = "%s categories" % String(_collection_name).capitalize()
+
+var _collection: DatabaseCollection:
+	set(v):
+		_collection = v
+		_collection.entries_changed.connect(_update_categories)
+		_update_categories(_collection.get_entries_data())
 
 
-func setup_collection_categories_dialog(ncollection_uid: int) -> void:
-	collection_uid = ncollection_uid
-	_get_collection().name_changed.connect(_on_collection_name_changed)
-	_on_collection_name_changed(_get_collection().name)
-	_get_collection().categories_changed.connect(_update_categories)
-	_update_categories(_get_collection().get_categories())
+func setup_collection_categories_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName) -> void:
+	_database_editor = pdatabase_editor
+	_collection_name = pcollection_name
 
 
-func _get_collection() -> EditorDatabaseCollection:
-	return DatabaseEditor.get_database().get_collection(collection_uid)
+func _ready() -> void:
+	assert(_correctly_initialized)
 
 
-func _on_collection_name_changed(new_name: StringName) -> void:
-	title = "%s categories" % new_name.capitalize()
+func _on_collection_name_changed(old: StringName, new: StringName) -> void:
+	if old == _collection_name:
+		_collection_name = new
 
 
-func _update_categories(categories: Dictionary) -> void:
+func _update_categories(entries_data: Dictionary) -> void:
+	var categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints
 	for child: Node in _categories_container.get_children():
 		child.queue_free()
 	for category: StringName in categories:
@@ -41,17 +55,19 @@ func _update_categories(categories: Dictionary) -> void:
 
 
 func _category_removed(category: StringName, _added: bool) -> void:
-	if await DatabaseEditor.warn("Remove category",
-	"Are you sure you want to remove the [b]%s[/b] category?" % String(category)):
-		_get_collection().remove_category(category)
+	if await _database_editor.warn(
+		"Remove category",
+		"Are you sure you want to remove the [b]%s[/b] category?" % String(category)
+	):
+		_collection.remove_category(category)
 	grab_focus()
 
 
 func _on_new_category_line_edit_text_changed(new_text: String) -> void:
-	_create_category_button.disabled = not _get_collection().is_category_name_available(StringName(new_text))
+	_create_category_button.disabled = not _collection.is_category_name_available(StringName(new_text))
 
 
 func _on_create_category_button_pressed() -> void:
-	_get_collection().create_category(_new_category_line_edit.text)
+	_collection.create_category(_new_category_line_edit.text)
 	_new_category_line_edit.text = ""
 	_create_category_button.disabled = true

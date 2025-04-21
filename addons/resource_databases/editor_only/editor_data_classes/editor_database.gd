@@ -1,4 +1,3 @@
-@tool
 class_name EditorDatabase
 ## Editor class to edit resource databases.
 
@@ -100,7 +99,7 @@ func remove_collection(collection_uid: int) -> void:
 	_emit_collections_list_changed()
 
 
-func _connect_collection_signals(uid: int, collection: EditorDatabaseCollection) -> void:
+func _connect_collection_signals(collection: EditorDatabaseCollection) -> void:
 	collection.name_changed.connect(_collection_changed.unbind(1))
 	collection.entries_changed.connect(_collection_changed.unbind(1))
 	collection.settings_changed.connect(_collection_changed.unbind(1))

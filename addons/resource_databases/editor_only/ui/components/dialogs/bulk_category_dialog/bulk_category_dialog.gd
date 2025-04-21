@@ -9,28 +9,39 @@ const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_o
 
 @export var _categories_container: HFlowContainer
 
-var DatabaseEditor := Namespace.get_editor_singleton()
+var _correctly_initialized := false
 
-var _collection_uid: int = -1
+var _database_editor: Namespace.DatabaseEditor
+var _collection_name: StringName:
+	set(v):
+		_collection_name = v
+		_collection.entries_changed.connect(_on_categories_changed)
+		_on_categories_changed(_collection.get_entries_data())
+
+var _collection: DatabaseCollection:
+	get:
+		return _database_editor.loaded_database.get_collection(_collection_name)
 
 var _is_for_adding: bool
 
 
-func setup_bulk_category_dialog(ncollection_uid: int, for_adding: bool) -> void:
-	_collection_uid = ncollection_uid
-	_is_for_adding = for_adding
+func setup_bulk_category_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName, pis_for_adding: bool) -> void:
+	_database_editor = pdatabase_editor
+	_collection_name = pcollection_name
+	_is_for_adding = pis_for_adding
 	title = "%s category %s selected entries" % ["Add" if _is_for_adding else "Remove", "to" if _is_for_adding else "from"]
-	_get_collection().categories_changed.connect(_on_categories_changed)
-	_on_categories_changed(_get_collection().get_categories())
+	_correctly_initialized = true
 
 
-func _get_collection() -> EditorDatabaseCollection:
-	return DatabaseEditor.get_database().get_collection(_collection_uid)
+func _ready() -> void:
+	assert(_correctly_initialized)
 
 
-func _on_categories_changed(categories: Dictionary) -> void:
+func _on_categories_changed(entries_data: Dictionary) -> void:
+	var categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints
 	for child: Node in _categories_container.get_children():
 		child.queue_free()
+	
 	for category: StringName in categories:
 		var new_button: Namespace.CategoryButton = CATEGORY_BUTTON_SCENE.instantiate()
 		new_button.set_category(category, _is_for_adding)

@@ -104,6 +104,7 @@ text = "Collection"
 switch_on_hover = true
 item_count = 2
 popup/item_0/text = "Settings"
+popup/item_0/id = 0
 popup/item_1/text = "Categories"
 popup/item_1/id = 1
 
@@ -115,6 +116,7 @@ text = "Selection"
 switch_on_hover = true
 item_count = 9
 popup/item_0/text = "Select all"
+popup/item_0/id = 0
 popup/item_1/text = "Unselect all"
 popup/item_1/id = 1
 popup/item_1/disabled = true
@@ -192,7 +194,6 @@ size_flags_vertical = 8
 layout_mode = 1
 
 [node name="FiltersContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
-visible = false
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3

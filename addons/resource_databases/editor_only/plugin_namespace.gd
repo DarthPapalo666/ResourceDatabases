@@ -25,17 +25,3 @@ const WarningDialog := preload("res://addons/resource_databases/editor_only/ui/c
 const CollectionCategoriesDialog := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.gd")
 const CollectionSettingsDialog := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_settings_dialog/collection_settings_dialog.gd")
 const EntryCategoriesDialog := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/entry_categories_dialog/entry_categories_dialog.gd")
-
-
-static func get_editor_singleton() -> DatabaseEditor:
-	if not Engine.has_singleton(EDITOR_SINGLETON_NAME):
-		print_rich("[color=orange][ResourceDatabases][color=red] Error accessing database editor singleton!")
-		return null
-	return Engine.get_singleton(EDITOR_SINGLETON_NAME)
-
-
-static func get_settings_singleton() -> DatabaseSettings:
-	if not Engine.has_singleton(SETTINGS_SINGLETON_NAME):
-		print_rich("[color=orange][ResourceDatabases][color=red] Error accessing database settings singleton!")
-		return null
-	return Engine.get_singleton(SETTINGS_SINGLETON_NAME)

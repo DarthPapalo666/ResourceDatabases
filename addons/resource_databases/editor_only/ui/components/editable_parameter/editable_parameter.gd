@@ -4,7 +4,7 @@ extends HBoxContainer
 ## When changed [signal change_made] is emmited with an argument holding the new value.
 
 # Signal emmited when the parameter is changed, [new_value] can be either an int or String.
-signal change_made(new_value: String, old_value: String)
+signal change_made(old_value: String, new_value: String)
 
 @export var line_edit: LineEdit
 @export var confirm_button: Button
@@ -61,6 +61,6 @@ func _input(event: InputEvent) -> void:
 
 func _on_confirm_button_pressed() -> void:
 	if not line_edit.text == _original:
-		change_made.emit(line_edit.text, _original)
+		change_made.emit(_original, line_edit.text)
 	_set_editable(false)
 	line_edit.text = _original

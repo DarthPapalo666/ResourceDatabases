@@ -43,7 +43,7 @@ _string_id_parameter = NodePath("MarginContainer/HBoxContainer/StringIDParameter
 _resource_locator_label = NodePath("MarginContainer/HBoxContainer/HBoxContainer/ResourceLocatorLabel")
 _selection_box = NodePath("MarginContainer/HBoxContainer/OptionsContainer/SelectionBox")
 _make_invalid_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/MakeInvalidButton")
-_open_categories_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/CategoriesButton")
+_open_categories_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/OpenCategoriesButton")
 _open_inspector_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/OpenInspectorButton")
 _color_bg = NodePath("ColorBG")
 
@@ -132,7 +132,7 @@ theme_override_styles/focus = SubResource("StyleBoxEmpty_tp4gl")
 icon = ExtResource("3_q2dmk")
 flat = true
 
-[node name="CategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="OpenCategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
 layout_mode = 2
 theme_override_constants/icon_max_width = 22
 theme_override_styles/focus = SubResource("StyleBoxEmpty_3ox36")
@@ -156,13 +156,3 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.391381, 0.391381, 0.391381, 1)
-
-[connection signal="change_made" from="MarginContainer/HBoxContainer/IntIDParameter" to="." method="_on_parameter_changed" binds= [0]]
-[connection signal="change_made" from="MarginContainer/HBoxContainer/StringIDParameter" to="." method="_on_parameter_changed" binds= [1]]
-[connection signal="gui_input" from="MarginContainer/HBoxContainer/HBoxContainer/ResourceLocatorLabel" to="." method="_on_resource_locator_label_gui_input"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/HBoxContainer/ChangeResourceButton" to="." method="_on_change_resource_button_pressed"]
-[connection signal="toggled" from="MarginContainer/HBoxContainer/OptionsContainer/SelectionBox" to="." method="_on_selection_box_toggled"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/MakeInvalidButton" to="." method="_on_make_invalid_button_pressed"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/RemoveButton" to="." method="_on_remove_button_pressed"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/CategoriesButton" to="." method="_on_categories_button_pressed"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/OptionsContainer/OpenInspectorButton" to="." method="_on_open_inspector_button_pressed"]

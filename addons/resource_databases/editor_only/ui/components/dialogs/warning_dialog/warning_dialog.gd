@@ -1,25 +1,37 @@
 @tool
 extends Window
 
-signal decision(accepted: bool)
+signal accepted(yes_or_no: bool)
 
-@export var warning_text: RichTextLabel
+@export var _warning_text: RichTextLabel
+
+@onready var _accept_button: Button = $PanelContainer/VBoxContainer/HBoxContainer/AcceptButton
+@onready var _cancel_button: Button = $PanelContainer/VBoxContainer/HBoxContainer/CancelButton
 
 
-func make_warning(ntitle: String, text: String) -> void:
+func _ready() -> void:
+	about_to_popup.connect(_on_about_to_popup)
+	close_requested.connect(_on_cancel_button_pressed)
+	
+	_accept_button.pressed.connect(_on_accept_button_pressed)
+	_cancel_button.pressed.connect(_on_cancel_button_pressed)
+
+
+func make_warning(ntitle: String, text: String) -> Signal:
 	title = ntitle
-	warning_text.text = "[center]%s" % text
+	_warning_text.text = "[center]%s" % text
 	popup()
+	return accepted
 
 
 func _on_accept_button_pressed() -> void:
 	hide()
-	decision.emit(true)
+	accepted.emit(true)
 
 
 func _on_cancel_button_pressed() -> void:
 	hide()
-	decision.emit(false)
+	accepted.emit(false)
 
 
 func _on_about_to_popup() -> void:

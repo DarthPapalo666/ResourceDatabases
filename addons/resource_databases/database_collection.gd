@@ -1,29 +1,14 @@
-class_name EditorDatabaseCollection
+class_name DatabaseCollection
 
-signal name_changed(new_name: StringName)
-signal settings_changed(collection_settings: Dictionary)
+signal settings_changed(settings_data: Dictionary)
 signal entries_changed(entries_data: Dictionary)
-signal categories_changed(categories: Dictionary)
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+enum PathFilterType {INCLUDE, EXCLUDE}
 
-var DatabaseSettings := Namespace.get_settings_singleton()
+## Locator for invalid resources. (Invalid resources are not fetched and don't push errors.)[br]
+## Used for empty entries or as placeholder for IDs
+const INVALID_RESOURCE_LOCATOR := "<invalid>"
 
-var _emitter_flags: Dictionary
-
-var _all_names_ref: Dictionary # Contains the used names, values are bool placeholders
-
-# Collection name
-var name: StringName:
-	set(v):
-		if v in _all_names_ref:
-			print_rich("[color=red]Error changing collection name, already registered.")
-			return
-		if name != v:
-			_all_names_ref.erase(name)
-			name = v
-			_all_names_ref[name] = true
-			name_changed.emit(name)
 
 # Settings
 var _valid_classes: Array[StringName]
@@ -32,63 +17,85 @@ var _included_filters: Array[String]
 var _excluded_filters: Array[String]
 
 # Entries
-var _ints_to_strings: Dictionary
-var _strings_to_ints: Dictionary
-var _ints_to_locators: Dictionary # Maps Int IDs to locator Strings (either UIDs or paths)
+var _ints_to_strings: Dictionary[int, StringName]
+var _strings_to_ints: Dictionary[StringName, int]
+var _ints_to_locators: Dictionary[int, String] # Maps Int IDs to locator Strings (either UIDs or paths)
 
 # Categories
-var _categories_to_ints: Dictionary # Maps Categories to Int IDs (Dictionary[int, bool])
+var _categories_to_ints: Dictionary[StringName, Dictionary] # Maps Categories to Int IDs (Dictionary[int, bool])
 
 var collection_size: int:
 	get:
 		return _ints_to_locators.size()
 
 
-func _init(collection_name: StringName, all_names: Dictionary) -> void:
-	_all_names_ref = all_names
-	name = collection_name
+#region Fetching methods
+## Returns the corresponding resource from the collection by it's Int ID.
+func fetch_resource(id: Variant) -> Resource:
+	var int_id: int = ensure_int_id(id)
+	assert(_ints_to_locators.has(int_id))
+	if get_locator(int_id) == INVALID_RESOURCE_LOCATOR:
+		return null
+	assert(ResourceLoader.exists(get_locator(int_id)), "[ResourceDatabase] Error, can't load non-invalid resource.")
+	return load(get_locator(int_id))
 
 
-func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE:
-		_all_names_ref.erase(name)
+## Returns all resources from the collection.
+func fetch_all_resources(include_invalid: bool) -> Dictionary[int, Resource]:
+	var fetched: Dictionary[int, Resource] = {}
+	for int_id: int in _ints_to_locators:
+		var res = fetch_resource(int_id)
+		if res != null or include_invalid:
+			fetched[int_id] = res
+	return fetched
 
 
-#region Designation of folders
-func set_designated_folders(folders: String) -> void:
-	var paths := folders.split(",", false)
-	var clean: Array[String]
-	for u: String in paths:
-		var path := u.replace(" ", "")
-		if DirAccess.dir_exists_absolute(path):
-			clean.append(path)
-	_designated_folders = clean
+## Returns all then resources from a given [param category].
+func fetch_category_resources(category: StringName, include_invalid: bool) -> Dictionary[int, Resource]:
+	assert(has_category(category), "[ResourceDatabase] Can't fetch category data from inexistent category.")
+	var fetched: Dictionary[int, Resource] = {}
+	for int_id: int in _categories_to_ints[category] as Dictionary[int, bool]:
+		var data := fetch_resource(int_id)
+		if data != null or include_invalid:
+			fetched[int_id] = data
+	return fetched
+#endregion
+
+
+#region Designation of folders / Locator filtering
+## Sets the designated folders for the collection, all resources[br]
+## from the folders will be added to the collection automatically.
+func set_designated_folders(folders_string: String) -> void:
+	var paths: Array[String] = str_to_var(folders_string)
+	paths = paths.filter(
+		func(path: String) -> bool: return DirAccess.dir_exists_absolute(path)
+	)
+	_designated_folders = paths
 	_emit_collection_settings_changed()
 
 
-func set_path_filters(filters_string: String, type: int) -> void:
-	var filters := filters_string.split(",", false)
-	var clean: Array[String]
-	for u: String in filters:
-		var filter := u.replace(" ", "")
-		clean.append(filter)
+## Sets the include and exclude filters for the resource paths.
+func set_path_filters(filters_string: String, type: PathFilterType) -> void:
+	var filters: Array[String] = str_to_var(filters_string)
 	match type:
-		0: # Include
-			_included_filters = clean
-		1: # Exlcude
-			_excluded_filters = clean
+		PathFilterType.INCLUDE:
+			_included_filters = filters
+		PathFilterType.EXCLUDE:
+			_excluded_filters = filters
 		_:
 			assert(false, "Error on type of filter.")
 	_emit_collection_settings_changed()
 
 
+## Adds all new resources from the designated folders and removes entries of missing ones.
 func update_designated_folders_resources() -> void:
 	# Check existing resources
 	for int_id: int in _ints_to_locators.keys():
-		var locator: String = _ints_to_locators[int_id]
-		if not _is_resource_inside_filters(locator):
+		var locator: String = get_locator(int_id)
+		if not _is_resource_inside_filters(locator) or ResourceLoader.exists(locator):
 			set_invalid_resource(int_id)
 			continue
+	
 	# Add missing resources in folders
 	for folder: String in _designated_folders:
 		register_folder_resources(folder)
@@ -164,104 +171,99 @@ func is_resource_valid_class(res: Resource) -> bool:
 
 
 #region Category management
+## Creates a new empty category provided that the name is valid.
 func create_category(category: StringName) -> void:
-	if _categories_to_ints.has(category):
+	if has_category(category):
 		print_rich("[color=red]Can't register category, already registered.")
 		return
-	if category.is_empty() or not category.is_valid_identifier():
+	if category.is_empty() or not category.is_valid_ascii_identifier():
 		print_rich("[color=red]Can't register category, invalid identifier.")
 		return
 	_categories_to_ints[category] = {}
-	_emit_categories_changed()
+	_emit_collection_entries_changed()
 
 
+## Removes a category from the collection provided it exists.
 func remove_category(category: StringName) -> void:
 	if not _categories_to_ints.has(category):
 		print_rich("[color=red]Can't remove inexistent category.")
 		return
-	var was_empty := (_categories_to_ints[category] as Dictionary).size() == 0
 	_categories_to_ints.erase(category)
-	_emit_categories_changed()
-	if not was_empty:
-		_emit_collection_entries_changed()
+	_emit_collection_entries_changed()
 
 
+## Erases all IDs assigned to a category.
 func clear_category(category: StringName) -> void:
 	assert(has_category(category))
-	var was_empty := (_categories_to_ints[category] as Dictionary).size() == 0
-	(_categories_to_ints[category] as Dictionary).clear()
-	_emit_categories_changed()
-	if not was_empty:
-		_emit_collection_entries_changed()
+	(_categories_to_ints[category] as Dictionary[int, bool]).clear()
+	_emit_collection_entries_changed()
 
 
+## Returns the names of all categories.
 func get_all_categories() -> Array[StringName]:
 	var arr: Array[StringName]
 	arr.assign(_categories_to_ints.keys())
 	return arr
 
 
+## Returns [code]true[/code] if [param category] is present in the collection.
 func has_category(category: StringName) -> bool:
 	return category in get_all_categories()
 
 
+## Returns [code]true[/code] if the category name is available to add to the collection.
 func is_category_name_available(category: StringName) -> bool:
-	return not category.is_empty() and category.is_valid_identifier() and not has_category(category)
+	return not category.is_empty() and category.is_valid_ascii_identifier() and not has_category(category)
 
 
-## Adds a category to a resource.
-func add_category_to_resource(category: StringName, res_id: int, show_error := true) -> void:
-	if not _categories_to_ints.has(category):
+## Adds a [param category] to a resource by it's [param id].
+func add_category_to_resource(category: StringName, id: Variant, show_error := true) -> void:
+	if not has_category(category):
 		print_rich("[color=orange]Can't add inexistent category to resource.")
 		return
 	var category_dict := _categories_to_ints[category] as Dictionary
-	if category_dict.has(res_id):
+	var int_id: int = ensure_int_id(id)
+	if category_dict.has(int_id):
 		if show_error:
 			print_rich("[color=red]Resource already in category.")
 		return
-	category_dict[res_id] = true # true is a placeholder
-	_emit_categories_changed()
+	category_dict[int_id] = true # NOTE: true is a placeholder
+	_emit_collection_entries_changed()
 
 
-## Removes a category from a resource
-func remove_category_from_resource(category: StringName, res_id: int, show_error := true) -> void:
+## Removes a [param category] from a resource by it's [param id].
+func remove_category_from_resource(category: StringName, id: Variant, show_error := true) -> void:
 	if not _categories_to_ints.has(category):
 		print_rich("[color=red]Can't remove resource from inexistent category.")
 		return
-	var category_dict := _categories_to_ints[category] as Dictionary
-	if not category_dict.has(res_id):
+	var category_dict := _categories_to_ints[category] as Dictionary[int, bool]
+	var int_id: int = ensure_int_id(id)
+	if not category_dict.has(int_id):
 		if show_error:
 			print_rich("[color=red]Resource is not in category, can't remove it.")
 		return
-	category_dict.erase(res_id)
-	_emit_categories_changed()
+	category_dict.erase(int_id)
+	_emit_collection_entries_changed()
 
 
-func get_categories_of_resource(res_id: int) -> Array[StringName]:
+## Returns the list of categories of a resource by it's [param id].
+func get_categories_of_resource(id: Variant) -> Array[StringName]:
 	var arr: Array[StringName]
 	for category: StringName in _categories_to_ints:
-		if (_categories_to_ints[category] as Dictionary).has(res_id):
+		if (_categories_to_ints[category] as Dictionary[int, bool]).has(ensure_int_id(id)):
 			arr.append(category)
 	return arr
 #endregion
 
 
 #region Resource registering
-func register_test_res() -> void:
-	var rand := randi()
-	_ints_to_strings[rand] = str(rand)
-	_strings_to_ints[str(rand)] = rand
-	_ints_to_locators[rand] = "test_locator%s" % rand
-	_emit_collection_entries_changed()
-
-
 ## Registers the resources of a folder.
 func register_folder_resources(dir: String) -> void:
 	if not DirAccess.dir_exists_absolute(dir):
-		print_rich("[color=orange]Error registering resources from: %s" % dir)
+		print_rich("[color=orange]Error registering resources, path doesn't exist: %s" % dir)
 		return
 	var all_paths: PackedStringArray
-	if DatabaseSettings.get_setting("recursive_folder_search"):
+	if ProjectSettings.get_setting("resource_databases/recursive_folder_search"):
 		all_paths = _recursive_file_search(dir)
 	else:
 		all_paths = _get_files_from_dir(dir)
@@ -270,40 +272,46 @@ func register_folder_resources(dir: String) -> void:
 	_emit_collection_entries_changed()
 
 
-## Registers resources by path within the database with locators.
-func register_resource(path: String, in_bulk := false) -> void:
-	if not ResourceLoader.exists(path):
-		print_rich("[color=red]Error registering resource, doesn't exist. [color=yellow](%s)" % path)
+## Registers resources by path within the database with locators.[br]
+## IDs are assigned automatically, can be modified later.
+func register_resource(locator: String, in_bulk := false) -> void:
+	if not ResourceLoader.exists(locator):
+		if not in_bulk:
+			print_rich("[color=red]Error registering resource, doesn't exist. [color=yellow](%s)" % locator)
 		return
-	var locator := _resource_locator_from_path(path)
 	if locator.is_empty():
 		if not in_bulk:
-			print_rich("[color=red]Error registering resource, invalid locator. [color=yellow](%s)" % path)
+			print_rich("[color=red]Error registering resource, invalid locator. [color=yellow](%s)" % locator)
 		return
 	if not _is_resource_inside_filters(locator):
 		if not in_bulk:
-			print_rich("[color=red]Can't register resource, not included in path filters. [color=yellow](%s)" % path)
+			print_rich("[color=red]Can't register resource, not included in path filters. [color=yellow](%s)" % locator)
 		return
 	if not is_resource_valid_class(load(locator)):
 		if not in_bulk:
-			print_rich("[color=red]Resource class is not valid in this collection. [color=yellow](%s)" % path)
+			print_rich("[color=red]Resource class is not valid in this collection. [color=yellow](%s)" % locator)
 		return
-	if not DatabaseSettings.get_setting("allow_repeated_locators"):
+	if not ProjectSettings.get_setting("resource_databases/allow_repeated_locators"):
 		if _ints_to_locators.values().has(locator):
 			if not in_bulk:
-				print_rich("[color=red]Can't add resource to collection, locator already registered. [color=yellow](%s)" % path)
+				print_rich("[color=red]Can't add resource to collection, locator already registered. [color=yellow](%s)" % locator)
 			return
+	
 	var file_name: String
 	if locator.begins_with("uid://"):
 		var resource_path := ResourceUID.get_id_path(ResourceUID.text_to_id(locator))
 		file_name = _get_file_name(resource_path)
 	else:
 		file_name = _get_file_name(locator)
-	while file_name in _strings_to_ints: # Generation of unique String ID.
+		
+	# Generation of unique String ID
+	while file_name in _strings_to_ints: 
 		if file_name[-1] in "012345678":
 			file_name = file_name.left(len(file_name)-1) + str(int(file_name[-1]) + 1)
 		else:
 			file_name = file_name + "0"
+	
+	# Assignation of new Int ID
 	var int_id: int = (_ints_to_locators.keys().max() + 1) as int if _ints_to_locators.size() > 0 else 0
 	_ints_to_strings[int_id] = file_name
 	_strings_to_ints[file_name] = int_id
@@ -311,13 +319,18 @@ func register_resource(path: String, in_bulk := false) -> void:
 	_emit_collection_entries_changed()
 
 
-func set_invalid_resource(int_id: int) -> void:
+## Sets the locator of an entry to: [constant DatabaseCollection.INVALID_RESOURCE_LOCATOR][br]
+## The invalid locator enables entries to act as [b]placeholders[/b].
+func set_invalid_resource(id: Variant) -> void:
+	var int_id: int = ensure_int_id(id)
 	assert(_ints_to_locators.has(int_id), "Can't make inexistent resource invalid")
-	_ints_to_locators[int_id] = Database.INVALID_RESOURCE_LOCATOR
+	_ints_to_locators[int_id] = INVALID_RESOURCE_LOCATOR
 	_emit_collection_entries_changed()
 
 
-func unregister_resource(int_id: int) -> void:
+## Removes a resource from the collection by it's [param id]
+func unregister_resource(id: Variant) -> void:
+	var int_id: int = ensure_int_id(id)
 	assert(_ints_to_locators.has(int_id), "Can't unregister inexistent resource.")
 	_ints_to_locators.erase(int_id)
 	for category: StringName in _categories_to_ints:
@@ -328,16 +341,18 @@ func unregister_resource(int_id: int) -> void:
 #endregion
 
 
-#region Changing IDs
-func change_resource_locator(int_id: int, path: String) -> void:
+#region Entry modification methods
+## Changes the locator of a collection entry by it's [param id].
+func change_resource_locator(id: Variant, locator: String) -> void:
+	var int_id: int = ensure_int_id(id)
 	if not _ints_to_locators.has(int_id):
-		print_rich("[color=red]Error changing the locator, inexistent resource.")
+		print_rich("[color=red]Error changing the locator, inexistent resource Int ID.")
 		return
-	var locator := _resource_locator_from_path(path)
 	if locator.is_empty():
+		print_rich("[color=red]Error changing the locator, empty locator provided.")
 		return
-	if not DatabaseSettings.get_setting("allow_repeated_locators"):
-		if _ints_to_locators.values().has(locator):
+	if not ProjectSettings.get_setting("resource_databases/allow_repeated_locators"):
+		if _ints_to_locators.values().has(locator): # WARNING compute cost :p
 			print_rich("[color=red]Can't change locator, already registered.")
 			return
 	_ints_to_locators[int_id] = locator
@@ -378,51 +393,34 @@ func change_resource_int_id(new_int: int, old_int: int) -> void:
 #endregion
 
 
-#region Collection data secure getters
-## Returns only readeable copies of the collection data dictionaries.
-func get_entries() -> Dictionary:
-	var copy_int := _ints_to_strings.duplicate()
-	copy_int.make_read_only()
-	var copy_locator := _ints_to_locators.duplicate()
-	copy_locator.make_read_only()
+#region Common methods
+## Ensures that the id results in the Int ID of the resource (If valid).
+func ensure_int_id(id: Variant) -> int:
+	match typeof(id):
+		TYPE_STRING_NAME:
+			assert(_strings_to_ints.has(id), "[ResourceDatabase] Error getting Int ID from String ID, String ID doesn't exist.")
+			return _strings_to_ints[id]
+		TYPE_INT:
+			assert(_ints_to_locators.has(id), "[ResourceDatabase] Int ID doesn't exist.")
+			return id
+		_:
+			assert(false, "[ResourceDatabase] Invalid ID type.")
+			return -1
+
+
+## Returns data related with the entries of the collection.
+func get_entries_data() -> Dictionary[StringName, Variant]:
 	return {
-		ints_to_strings = copy_int,
-		ints_to_locators = copy_locator,
-		categories_to_ints = _categories_to_ints,
-		valid_classes = _valid_classes,
-	}
-
-
-## Returns the collection settings data dictionary.
-func get_settings() -> Dictionary:
-	var copy_classes := _valid_classes.duplicate()
-	copy_classes.make_read_only()
-	var copy_folders := _designated_folders.duplicate()
-	copy_folders.make_read_only()
-	return {
-		valid_classes = copy_classes,
-		designated_folders = _designated_folders,
-		included_filters = _included_filters,
-		excluded_filters = _excluded_filters,
-	}
-
-
-func get_categories() -> Dictionary:
-	var copy_categories := _categories_to_ints.duplicate()
-	copy_categories.make_read_only()
-	return copy_categories
-#endregion
-
-
-#region Serialization
-## Serializes the collection into a Dictionary
-func serialize() -> Dictionary:
-	return {
-		name = name,
 		ints_to_strings = _ints_to_strings,
 		strings_to_ints = _strings_to_ints,
 		ints_to_locators = _ints_to_locators,
 		categories_to_ints = _categories_to_ints,
+	}
+
+
+## Returns data related with the settings of the collection.
+func get_settings_data() -> Dictionary[StringName, Variant]:
+	return {
 		valid_classes = _valid_classes,
 		designated_folders = _designated_folders,
 		included_filters = _included_filters,
@@ -430,26 +428,26 @@ func serialize() -> Dictionary:
 	}
 
 
-## Creates a collection from a serialization dictionary.
-static func load_serialized(name: StringName, data: Dictionary, all_names: Dictionary) -> EditorDatabaseCollection:
-	var n := EditorDatabaseCollection.new(name, all_names)
-	n._ints_to_strings = data.ints_to_strings
-	n._strings_to_ints = data.strings_to_ints
-	n._ints_to_locators = data.ints_to_locators
-	n._categories_to_ints = data.categories_to_ints
-	n._valid_classes = data.valid_classes
-	n._designated_folders = data.designated_folders
-	n._included_filters = data.included_filters
-	n._excluded_filters = data.excluded_filters
-	return n
-#endregion
+## Returns the corresponding locator for an ID.
+func get_locator(id: Variant) -> String:
+	return _ints_to_locators[ensure_int_id(id)]
 
 
-#region Helper methods
+# Prints the collection as text, used for debugging purposes.
+func _to_string() -> String:
+	return """ints_to_strings : %s
+	strings_to_ints : %s
+	ints_to_locators : %s""" % [str(_ints_to_strings), str(_strings_to_ints), str(_ints_to_locators)]
+
+
+#func _get_readable_array(text: String) -> PackedStringArray:
+	#return text.strip_escapes().replace(" ", "").split(",", false)
+
+
 func _resource_locator_from_path(path: String) -> String:
 	var int_uid := ResourceLoader.get_resource_uid(path)
 	if int_uid == -1:
-		if DatabaseSettings.get_setting("allow_file_paths"):
+		if ProjectSettings.get_setting("resource_databases/allow_file_paths"):
 			if ResourceLoader.exists(path):
 				return path
 			else:
@@ -487,36 +485,10 @@ func _get_file_name(path: String) -> String:
 
 
 #region Signal emission methods
-func _has_emitter_flag(flag: StringName) -> bool:
-	return _emitter_flags.has(flag)
-
-func _add_emitter_flag(flag: StringName) -> void:
-	_emitter_flags[flag] = true
-	Callable.create(_emitter_flags, &"erase").call_deferred(flag)
-
-
 func _emit_collection_entries_changed() -> void:
-	if not _has_emitter_flag(&"entries"):
-		(func() -> void: entries_changed.emit(get_entries())).call_deferred()
-		_add_emitter_flag(&"entries")
+	entries_changed.emit(get_entries_data())
 
 
 func _emit_collection_settings_changed() -> void:
-	if not _has_emitter_flag(&"settings"):
-		(func() -> void: settings_changed.emit(get_settings())).call_deferred()
-		_add_emitter_flag(&"settings")
-
-
-func _emit_categories_changed() -> void:
-	if not _has_emitter_flag(&"categories"):
-		(func() -> void: categories_changed.emit(get_categories())).call_deferred()
-		_add_emitter_flag(&"categories")
+	settings_changed.emit(get_settings_data())
 #endregion
-
-
-## Prints the collection as text, used for debugging purposes.
-func _to_string() -> String:
-	return """
-	ints_to_strings : %s
-	strings_to_ints : %s
-	ints_to_locators : %s""" % [str(_ints_to_strings), str(_strings_to_ints), str(_ints_to_locators)]
