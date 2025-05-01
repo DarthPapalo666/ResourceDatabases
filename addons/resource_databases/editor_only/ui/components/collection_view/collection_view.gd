@@ -13,9 +13,10 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export_subgroup("Menu buttons")
 @export var _collection_button: MenuButton
 @export var _selection_button: MenuButton
-@export_subgroup("_collection info display")
+@export_subgroup("Collection info display")
 @export var _selected_collection_label: RichTextLabel
 @export_subgroup("Entries components")
+@export var _drag_and_drop_panel: Namespace.DragAndDropPanel
 @export var _collection_entries_container: Container
 @export var _search_line_edit: LineEdit
 @export var _entries_view_page_counter: Namespace.CollectionViewPageCounter
@@ -24,37 +25,39 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _filters_panel: PanelContainer
 @export var _category_filters_container: VBoxContainer
 @export var _expression_filter_text_edit: TextEdit
+@export var _filter_with_expression_button: Button
+@export var _clear_expression_button: Button
 # Advanced filter options
-@export var _advanced_filter_options: VBoxContainer
+@export var _advanced_filter_options_button: Button
+@export var _advanced_filter_options_container: VBoxContainer
 @export var _no_categories_label: Label
 @export var _categories_option_button: OptionButton
 @export var _update_category_button: Button
 @export var _clear_category_button: Button
 
-var correctly_initialized := false
+var _database_editor: Namespace.DatabaseEditor:
+	set(v):
+		_database_editor = v
+		_database_editor.loaded_database.collection_name_changed.connect(_on_collection_name_changed)
 
-var _database_editor: Namespace.DatabaseEditor
 var _collection_name: StringName:
 	set(v):
 		_collection_name = v
-		_collection.entries_changed.connect(
-			func(entries_data: Dictionary) -> void: _current_entries = entries_data
-		)
-		_collection.settings_changed.connect(
-			func(entries_data: Dictionary) -> void: _current_entries = entries_data
-		)
-		_current_entries = _collection.get_entries_data()
-		update_collection_name()
+		if (not _collection.entries_changed.is_connected(_update_entries) and
+			not _collection.settings_changed.is_connected(_update_entries)
+		):
+			_collection.entries_changed.connect(_update_entries )
+			_collection.settings_changed.connect(_update_entries)
+		_collection_button.disabled = false
+		_selected_collection_label.text = "[b]%s" % _collection_name
 
 var _collection: DatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
 var _current_entries: Dictionary:
-	set(v):
-		_current_entries = v
-		_selection_button.disabled = _current_entries.is_empty()
-		_update_entries()
+	get:
+		return _collection.get_entries_data()
 
 var _view_page: int = 1
 
@@ -65,6 +68,8 @@ var _categories_view_exclude_filter: Dictionary
 
 # Flag to update the view only once per frame when needed.
 var _was_updated := false
+
+var correctly_initialized := false
 
 
 func setup_collection_view(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName) -> void:
@@ -80,13 +85,30 @@ func _ready() -> void:
 	# NOTE This signal seems to be emitted a lot, when saving, etc...
 	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
 	_expression_filter_text_edit.syntax_highlighter.member_keyword_colors = {"res": Color.LIGHT_SALMON, "res_type": Color.LIGHT_PINK}
+	
+	# Menu buttons
 	_collection_button.get_popup().id_pressed.connect(_on_collection_button_id_selected)
 	_update_collection_button_options()
 	_selection_button.get_popup().id_pressed.connect(_on_selection_button_id_selected)
 	_update_selection_button_options()
+	
+	# Drag and Drop
+	_drag_and_drop_panel.paths_dropped.connect(_register_resources_from_paths)
+	
+	# Filters buttons
+	_filters_check_button.toggled.connect(_on_filters_check_button_toggled)
+	_filter_with_expression_button.pressed.connect(_update_entries)
+	_clear_expression_button.pressed.connect(_on_clear_expression_button_pressed)
+	# Advanced filters
+	_advanced_filter_options_button.toggled.connect(_on_advanced_filter_options_button_toggled)
+	_update_category_button.pressed.connect(_on_update_category_button_pressed)
+	_clear_category_button.pressed.connect(_on_clear_category_button_pressed)
+	
+	# Initialize entries when ready
+	_update_entries()
 
 
-#region _collection menu button
+#region Collection menu button
 func _on_collection_button_id_selected(id: int) -> void:
 	match id:
 		0: # Settings
@@ -136,6 +158,8 @@ func _update_selection_button_options() -> void:
 #endregion
 
 
+#region IDs quering methods
+# Gets all the entries that should be visible with the current filters
 func _get_filtered_ids() -> Array[int]:
 	if _current_entries.is_empty():
 		return []
@@ -171,6 +195,7 @@ func _get_filtered_ids() -> Array[int]:
 	return result
 
 
+# Executes the expression and returns the IDs of the entries that satisfy it
 func _get_expression_ids() -> Array[int]:
 	var expr := _get_filter_expression()
 	assert(expr != null, "Can't get expression IDs if expression is null.")
@@ -208,34 +233,33 @@ func _get_expression_ids() -> Array[int]:
 	return ids
 
 
+# Returns the expression specified in the code editor control
 func _get_filter_expression() -> Expression:
 	if _expression_filter_text_edit.text.is_empty():
 		return null
 	var expr := Expression.new()
 	if expr.parse(_expression_filter_text_edit.text, PackedStringArray(["res", "res_type"])) != OK:
-		print_rich("[color=orange][ResourceDatabase] Error parsing filter expression.")
+		print_rich(Namespace.CONSOLE_MSGS.expression_parsing_error)
 		return null
 	return expr
+#endregion
 
-
-func _on_filter_with_expression_button_pressed() -> void:
-	_update_entries()
-
-
+# Erases the current expression and reloads the entries
 func _on_clear_expression_button_pressed() -> void:
 	if not _expression_filter_text_edit.text.is_empty():
 		_expression_filter_text_edit.clear()
 	_update_entries()
 
 
-func _register_resources_in_collection(paths: PackedStringArray) -> void:
+# Registers the resources in paths to the collection
+func _register_resources_from_paths(paths: PackedStringArray) -> void:
 	for path: String in paths:
 		if FileAccess.file_exists(path): # Is file
 			_collection.register_resource(path)
 		elif DirAccess.dir_exists_absolute(path): # Is folder
 			_collection.register_folder_resources(path)
 		else:
-			print_rich("[color=orange][ResourceDatabase] Error on drag and drop, invalid path [color=yellow](%s)" % path)
+			print_rich(Namespace.CONSOLE_MSGS.drag_and_drop_error % path)
 
 
 func _on_category_filter_state_changed(state: int, category: StringName) -> void:
@@ -258,6 +282,8 @@ func _update_entries(page: int = -1) -> void:
 	_was_updated = true
 	await get_tree().process_frame
 	_was_updated = false
+	
+	_selection_button.disabled = _current_entries.is_empty()
 	
 	# Free category filters
 	for category_filter: Namespace.CategoryFilter in _category_filters_container.get_children():
@@ -346,6 +372,7 @@ func _update_entries(page: int = -1) -> void:
 		_collection_entries_container.add_child(n_entry)
 		index += 1
 
+
 #region Selection methods
 func _on_entry_selection_changed(int_id: int, is_selected: bool) -> void:
 	if is_selected:
@@ -369,7 +396,7 @@ func _unselect_entries() -> void:
 
 func _invert_entries_selection() -> void:
 	var result: Dictionary
-	for int_id: int in _current_entries[&"ints_to_locators"]:
+	for int_id: int in _collection.get_entries_data().ints_to_locators:
 		if int_id not in _selected_ids:
 			result[int_id] = true
 	_selected_ids = result
@@ -377,20 +404,14 @@ func _invert_entries_selection() -> void:
 
 
 func _invalidate_selected_entries() -> void:
-	if not await _database_editor.warn(
-		"Bulk invalidation",
-		"Are you sure you want to invalidate all selected resources?"
-	):
+	if not await _database_editor.warn(&"bulk_invalidation"):
 		return
 	for int_id: int in _selected_ids:
 		_collection.set_invalid_resource(int_id)
 
 
 func _remove_selected_entries() -> void:
-	if not await _database_editor.warn(
-		"Bulk removal",
-		"Are you sure you want to remove all selected resources?"
-	):
+	if not await _database_editor.warn(&"bulk_removal"):
 		return
 	for int_id: int in _selected_ids:
 		_collection.unregister_resource(int_id)
@@ -415,19 +436,15 @@ func _bulk_category_selected(category: StringName, was_added: bool) -> void:
 #endregion
 
 
+# Actually the view page is only updated when the entries get updated
 func _set_view_page(page: int, max_page: int) -> void:
 	_view_page = clampi(page, 1, max_page)
-	_entries_view_page_counter.set_page(_view_page, max_page)
+	_entries_view_page_counter.setup_view_page_counter(_view_page, max_page)
 
 
 func _on_collection_name_changed(old_name: StringName, new_name: StringName) -> void:
 	if old_name == _collection_name:
 		_collection_name = new_name
-		update_collection_name()
-		
-
-func update_collection_name() -> void:
-	_selected_collection_label.text = "[b]%s" % _collection_name
 
 
 func _on_view_page_counter_change_page_requested(change: int) -> void:
@@ -444,16 +461,13 @@ func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 
 
 #region Advanced filter options
-func _on_advanced_filter_options_check_button_toggled(toggled_on: bool) -> void:
-	_advanced_filter_options.visible = toggled_on
+func _on_advanced_filter_options_button_toggled(toggled_on: bool) -> void:
+	_advanced_filter_options_container.visible = toggled_on
 
 
 func _on_update_category_button_pressed() -> void:
 	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
-	if not await _database_editor.warn(
-		"Update category",
-		"Are you sure you want to update the [b]%s[/b] category with the currently filtered IDs?" % category
-	):
+	if not await _database_editor.warn(&"update_category"):
 		return
 	var filtered_ids := _get_filtered_ids()
 	_collection.clear_category(category)
@@ -463,10 +477,7 @@ func _on_update_category_button_pressed() -> void:
 
 func _on_clear_category_button_pressed() -> void:
 	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
-	if not await _database_editor.warn(
-		"Clear category",
-		"Are you sure you want to clear the [b]%s[/b] category?" % category
-	):
+	if not await _database_editor.warn(&"clean_category"):
 		return
 	_collection.clear_category(category)
 #endregion

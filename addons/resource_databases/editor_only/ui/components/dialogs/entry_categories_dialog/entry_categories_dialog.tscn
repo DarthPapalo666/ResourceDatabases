@@ -64,5 +64,3 @@ layout_mode = 2
 [node name="Label" type="Label" parent="PanelContainer/NoCategories"]
 layout_mode = 2
 text = "No categories in this collection."
-
-[connection signal="close_requested" from="." to="." method="queue_free"]

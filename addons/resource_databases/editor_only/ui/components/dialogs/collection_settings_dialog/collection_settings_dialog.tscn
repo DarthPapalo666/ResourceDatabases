@@ -12,7 +12,7 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="CollectionSettingsDialog" type="Window" node_paths=PackedStringArray("_collection_name_parameter", "_classes_parameter", "_folders_parameter", "_included_filters_parameter", "_excluded_filters_parameter")]
+[node name="CollectionSettingsDialog" type="Window" node_paths=PackedStringArray("_collection_name_parameter", "_classes_parameter", "_validate_classes_button", "_designated_folders_parameter", "_included_filters_parameter", "_excluded_filters_parameter", "_update_folder_resources_button", "_remove_collection_button")]
 title = "Collection settings"
 initial_position = 4
 size = Vector2i(350, 483)
@@ -22,9 +22,12 @@ theme = ExtResource("2_tlbha")
 script = ExtResource("1_p4jef")
 _collection_name_parameter = NodePath("PanelContainer/VBoxContainer/HBoxContainer/NameEditableParameter")
 _classes_parameter = NodePath("PanelContainer/VBoxContainer/HBoxContainer2/ClassesEditableParameter")
-_folders_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/FoldersEditableParameter")
+_validate_classes_button = NodePath("PanelContainer/VBoxContainer/HBoxContainer2/ValidateClassesButton")
+_designated_folders_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/DesignatedFoldersEditableParameter")
 _included_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/IncludedEditableParameter")
 _excluded_filters_parameter = NodePath("PanelContainer/VBoxContainer/VBoxContainer/ExcludedEditableParameter")
+_update_folder_resources_button = NodePath("PanelContainer/VBoxContainer/VBoxContainer/UpdateFolderResourcesButton")
+_remove_collection_button = NodePath("PanelContainer/VBoxContainer/RemoveCollectionButton")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(350, 0)
@@ -89,7 +92,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 text = "Designated folders"
 
-[node name="FoldersEditableParameter" parent="PanelContainer/VBoxContainer/VBoxContainer" instance=ExtResource("3_o8teb")]
+[node name="DesignatedFoldersEditableParameter" parent="PanelContainer/VBoxContainer/VBoxContainer" instance=ExtResource("3_o8teb")]
 layout_mode = 2
 size_flags_vertical = 3
 parameter_read_box = SubResource("StyleBoxFlat_whqg7")
@@ -131,16 +134,6 @@ theme_override_constants/separation = 25
 [node name="RemoveCollectionButton" type="Button" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_hover_color = Color(1, 0.552612, 0.552612, 1)
-theme_override_colors/font_pressed_color = Color(0.581464, 0, 0, 1)
 theme_override_colors/font_color = Color(1, 0.302705, 0.302705, 1)
+theme_override_colors/font_pressed_color = Color(0.581464, 0, 0, 1)
 text = "Remove collection"
-
-[connection signal="close_requested" from="." to="." method="queue_free"]
-[connection signal="change_made" from="PanelContainer/VBoxContainer/HBoxContainer/NameEditableParameter" to="." method="_on_name_editable_parameter_change_made"]
-[connection signal="change_made" from="PanelContainer/VBoxContainer/HBoxContainer2/ClassesEditableParameter" to="." method="_on_classes_editable_parameter_change_made"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer2/ValidateClassesButton" to="." method="_on_validate_classes_button_pressed"]
-[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/FoldersEditableParameter" to="." method="_on_folders_editable_parameter_change_made"]
-[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/IncludedEditableParameter" to="." method="_on_included_editable_parameter_change_made"]
-[connection signal="change_made" from="PanelContainer/VBoxContainer/VBoxContainer/ExcludedEditableParameter" to="." method="_on_excluded_editable_parameter_change_made"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/VBoxContainer/UpdateFolderResourcesButton" to="." method="_on_update_folder_resources_button_pressed"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/RemoveCollectionButton" to="." method="_on_remove_collection_button_pressed"]

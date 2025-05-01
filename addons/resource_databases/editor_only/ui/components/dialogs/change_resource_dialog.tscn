@@ -3,7 +3,7 @@
 [node name="ChangeResourceDialog" type="FileDialog"]
 title = "Change resource"
 initial_position = 4
-size = Vector2i(275, 180)
+size = Vector2i(304, 180)
 ok_button_text = "Open"
 dialog_hide_on_ok = true
 mode_overrides_title = false

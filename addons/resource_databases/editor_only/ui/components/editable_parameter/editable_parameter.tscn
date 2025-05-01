@@ -35,6 +35,3 @@ theme_override_constants/icon_max_width = 16
 icon = ExtResource("2_8xfgg")
 flat = true
 icon_alignment = 1
-
-[connection signal="gui_input" from="EditableLineEdit" to="." method="_line_edit_gui_input"]
-[connection signal="pressed" from="ConfirmButton" to="." method="_on_confirm_button_pressed"]

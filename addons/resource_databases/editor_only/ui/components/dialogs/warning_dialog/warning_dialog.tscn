@@ -5,7 +5,7 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k53l1"]
 
-[node name="WarningDialog" type="Window"]
+[node name="WarningDialog" type="Window" node_paths=PackedStringArray("_warning_text")]
 auto_translate_mode = 1
 title = "Warning!"
 initial_position = 4
@@ -16,6 +16,7 @@ exclusive = true
 unresizable = true
 theme = ExtResource("1_0aiqc")
 script = ExtResource("1_717uu")
+_warning_text = NodePath("PanelContainer/VBoxContainer/WarningRichTextLabel")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 anchors_preset = 15

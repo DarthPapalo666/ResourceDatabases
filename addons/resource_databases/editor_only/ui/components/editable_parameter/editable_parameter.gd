@@ -1,9 +1,9 @@
 @tool
 extends HBoxContainer
 ## Double click enables to modify de value.
-## When changed [signal change_made] is emmited with an argument holding the new value.
+## When changed, [signal change_made] is emmited with an argument holding the new value.
 
-# Signal emmited when the parameter is changed, [new_value] can be either an int or String.
+# Signal emmited when the parameter is changed.
 signal change_made(old_value: String, new_value: String)
 
 @export var line_edit: LineEdit
@@ -18,8 +18,11 @@ signal change_made(old_value: String, new_value: String)
 
 var _original: String # Variable used to keep track of the original value, prior to editing.
 
+var _correctly_initialized := false
+
 
 func _ready() -> void:
+	assert(_correctly_initialized)
 	if parameter_read_box:
 		line_edit.add_theme_stylebox_override(&"read_only", parameter_read_box)
 	if parameter_font:
@@ -27,11 +30,14 @@ func _ready() -> void:
 	line_edit.add_theme_color_override(&"font_uneditable_color", parameter_color)
 	line_edit.placeholder_text = parameter_placeholder
 	line_edit.alignment = parameter_alignment
+	line_edit.gui_input.connect(_on_line_edit_gui_input)
+	confirm_button.pressed.connect(_on_confirm_button_pressed)
 
 
-func set_parameter(param: String) -> void:
+func setup_parameter(param: String) -> void:
 	_original = param
 	line_edit.text = param
+	_correctly_initialized = true
 
 
 func get_value() -> String:
@@ -44,7 +50,7 @@ func _set_editable(editing: bool) -> void:
 	confirm_button.visible = editing
 
 
-func _line_edit_gui_input(event: InputEvent) -> void:
+func _on_line_edit_gui_input(event: InputEvent) -> void:
 	if not line_edit.editable and event is InputEventMouseButton:
 		if (event as InputEventMouseButton).double_click:
 			_set_editable(true)
@@ -63,4 +69,6 @@ func _on_confirm_button_pressed() -> void:
 	if not line_edit.text == _original:
 		change_made.emit(_original, line_edit.text)
 	_set_editable(false)
+	# The EditableParameter never changes it's own _original
+	# It has to be set externally using setup_parameter()
 	line_edit.text = _original

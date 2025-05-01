@@ -37,5 +37,3 @@ mouse_filter = 2
 texture = ExtResource("1_cdksn")
 expand_mode = 5
 stretch_mode = 5
-
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

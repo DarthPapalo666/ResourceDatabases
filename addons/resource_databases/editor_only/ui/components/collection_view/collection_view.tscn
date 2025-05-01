@@ -43,7 +43,7 @@ member_keyword_colors = {
 "res_type": Color(1, 0.713726, 0.756863, 1)
 }
 
-[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_advanced_filter_options", "_no_categories_label", "_categories_option_button", "_update_category_button", "_clear_category_button")]
+[node name="CollectionView" type="PanelContainer" node_paths=PackedStringArray("_collection_button", "_selection_button", "_selected_collection_label", "_drag_and_drop_panel", "_collection_entries_container", "_search_line_edit", "_entries_view_page_counter", "_filters_check_button", "_filters_panel", "_category_filters_container", "_expression_filter_text_edit", "_filter_with_expression_button", "_clear_expression_button", "_advanced_filter_options_button", "_advanced_filter_options_container", "_no_categories_label", "_categories_option_button", "_update_category_button", "_clear_category_button")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -57,6 +57,7 @@ script = ExtResource("2_r2ggo")
 _collection_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/CollectionMenuButton")
 _selection_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/SelectionMenuButton")
 _selected_collection_label = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/SelectedCollectionLabel")
+_drag_and_drop_panel = NodePath("VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel")
 _collection_entries_container = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ScrollContainer/CollectionEntriesContainer")
 _search_line_edit = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit")
 _entries_view_page_counter = NodePath("VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter")
@@ -64,7 +65,10 @@ _filters_check_button = NodePath("VBoxContainer/ToolsPanel/ToolsContainer/Filter
 _filters_panel = NodePath("VBoxContainer/HSplitContainer/FiltersContainer")
 _category_filters_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ScrollContainer/CategoryFiltersContainer")
 _expression_filter_text_edit = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionFilterTextEdit")
-_advanced_filter_options = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions")
+_filter_with_expression_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/FilterWithExpressionButton")
+_clear_expression_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/ClearExpressionButton")
+_advanced_filter_options_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptionsCheckButton")
+_advanced_filter_options_container = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions")
 _no_categories_label = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/NoCategoriesLabel")
 _categories_option_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/CategoriesOptionButton")
 _update_category_button = NodePath("VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton")
@@ -194,6 +198,7 @@ size_flags_vertical = 8
 layout_mode = 1
 
 [node name="FiltersContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer"]
+visible = false
 custom_minimum_size = Vector2(165, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -287,12 +292,5 @@ disabled = true
 text = "Clear category"
 flat = true
 
-[connection signal="toggled" from="VBoxContainer/ToolsPanel/ToolsContainer/FiltersCheckButton" to="." method="_on_filters_check_button_toggled"]
 [connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
 [connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]
-[connection signal="paths_dropped" from="VBoxContainer/HSplitContainer/EntriesElements/DragAndDropPanel" to="." method="_register_resources_in_collection"]
-[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/FilterWithExpressionButton" to="." method="_on_filter_with_expression_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/ExpressionOptionsContainer/ClearExpressionButton" to="." method="_on_clear_expression_button_pressed"]
-[connection signal="toggled" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptionsCheckButton" to="." method="_on_advanced_filter_options_check_button_toggled"]
-[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/UpdateCategoryButton" to="." method="_on_update_category_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/HSplitContainer/FiltersContainer/VBoxContainer/AdvancedFilterOptions/ClearCategoryButton" to="." method="_on_clear_category_button_pressed"]

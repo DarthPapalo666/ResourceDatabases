@@ -39,7 +39,7 @@ content_margin_right = 12.0
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3gbxt"]
 
-[node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_start_screen_version", "_database_path_label", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
+[node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_start_screen_version", "_database_path_label", "_database_view", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -55,6 +55,7 @@ script = ExtResource("2_hsw1r")
 _start_screen = NodePath("VBoxContainer/StartScreen")
 _start_screen_version = NodePath("VBoxContainer/StartScreen/PanelContainer/VBoxContainer/ColorRect/HBoxContainer/StartScreenVersion")
 _database_path_label = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabasePathLabel")
+_database_view = NodePath("VBoxContainer/DatabaseView")
 _database_button = NodePath("VBoxContainer/EditorTopBar/HBoxContainer/DatabaseMenuButton")
 _warning_dialog = NodePath("WarningDialog")
 _load_dialog = NodePath("LoadDatabaseFileDialog")
@@ -109,11 +110,11 @@ fit_content = true
 autowrap_mode = 0
 
 [node name="DatabaseView" type="HSplitContainer" parent="VBoxContainer"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="StartScreen" type="CenterContainer" parent="VBoxContainer"]
-visible = false
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2

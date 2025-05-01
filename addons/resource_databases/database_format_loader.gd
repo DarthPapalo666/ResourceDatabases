@@ -35,34 +35,42 @@ func _parse_text_database_file(text: String) -> Dictionary[StringName, Dictionar
 	
 	for line in text.split("\n", false):
 		line = line.strip_edges()
-		if line.begins_with("@"):
+		if line.begins_with("@"): # New collection
 			current_collection = StringName(line.substr(1))
 			collections_data[current_collection] = {}
+			collections_data[current_collection].ints_to_strings = {}
+			collections_data[current_collection].strings_to_ints = {}
+			collections_data[current_collection].ints_to_locators = {}
+			collections_data[current_collection].categories_to_ints = {}
 		
-		elif line.begins_with("v"):
-			collections_data[current_collection].valid_classes = str_to_var(line.substr(1))
+		elif line.begins_with("{") and line.ends_with("}"): # Valid classes
+			collections_data[current_collection].valid_classes = line.left(-1).right(-1)
 		
-		elif line.begins_with("d"):
-			collections_data[current_collection].designated_folders = str_to_var(line.substr(1))
+		elif line.begins_with("/"): # Designated folders
+			collections_data[current_collection].designated_folders = line.substr(1)
 		
-		elif line.begins_with("+") or line.begins_with("-"):
-			var arr: Array[String] = str_to_var(line.substr(1))
+		elif line.begins_with("+") or line.begins_with("-"): # Path filter
 			var filter_type: StringName = &"included_filters" if line.begins_with("+") else &"excluded_filters"
-			collections_data[current_collection][filter_type] = arr
+			collections_data[current_collection][filter_type] = line.substr(1)
 		
-		elif "»" in line:
+		elif line[0] in "0123456789": # Entry
 			var entry_parts := line.split("»", false, 4)
-			assert(entry_parts.size() == 4)
+			if not entry_parts.size() == 4:
+				push_error("Invalid ResourceDatabase entry text line, skipping. (%s)" % line)
+				continue
 			var int_id: int = entry_parts[0].to_int()
 			var string_id := StringName(entry_parts[1])
 			var uid := entry_parts[2]
-			var categories: Array[StringName] = str_to_var(entry_parts[3])
+			var categories: Array[StringName] = string_to_names_array(entry_parts[3])
 			
 			collections_data[current_collection].ints_to_strings[int_id] = string_id
 			collections_data[current_collection].strings_to_ints[string_id] = int_id
 			collections_data[current_collection].ints_to_locators[int_id] = uid
 			for category in categories:
 				collections_data[current_collection].categories_to_ints[category][int_id] = true
+		
+		elif line.begins_with("#"): # Comment
+			continue
 		else:
 			printerr("Unparsed line in ResourceDatabase: %s" % line)
 	
@@ -79,9 +87,8 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 		
 		# Load settings
 		collection.set_valid_classes(collection_data.valid_classes)
-		collection.set_designated_folders(collection_data.designated_folders)
 		collection.set_path_filters(collection_data.included_filters, DatabaseCollection.PathFilterType.INCLUDE)
-		collection.set_path_filters(collection_data.exclude_filters, DatabaseCollection.PathFilterType.EXCLUDE)
+		collection.set_path_filters(collection_data.excluded_filters, DatabaseCollection.PathFilterType.EXCLUDE)
 		
 		# Create the categories
 		for category: StringName in collection_data.categories_to_ints.keys():
@@ -93,9 +100,27 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 			var locator: String = collection_data.ints_to_locators[int_id]
 			collection.register_resource(locator)
 			
-			# Add categories to resource
+			# Add categories to entry
 			for category: StringName in collection_data.categories_to_ints:
 				if int_id in collection_data.categories_to_ints[category]:
 					collection.add_category_to_resource(category, int_id)
 	
 	return new_database
+
+
+# Transform a String into a typed Array[String]
+static func string_to_strings_array(text: String) -> Array[String]:
+	var typed: Array[String] = []
+	text = text.replace("[", "").replace("]", "")
+	for u in text.split(","):
+		typed.append(u.strip_edges())
+	return typed
+
+
+# Transform a String into a typed Array[StringName]
+static func string_to_names_array(text: String) -> Array[StringName]:
+	var typed: Array[StringName] = []
+	text = text.replace("[", "").replace("]", "")
+	for u in text.split(","):
+		typed.append(StringName(u.strip_edges()))
+	return typed

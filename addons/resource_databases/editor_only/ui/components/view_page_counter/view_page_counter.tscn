@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dt055ean1tevg" path="res://addons/resource_databases/editor_only/ui/components/view_page_counter/view_page_counter.gd" id="1_3588u"]
 
-[node name="ViewPageCounter" type="PanelContainer" node_paths=PackedStringArray("counter_label", "left_button", "right_button")]
+[node name="ViewPageCounter" type="PanelContainer" node_paths=PackedStringArray("_counter_label", "_page_left_button", "_page_right_button")]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -16,9 +16,9 @@ grow_vertical = 0
 size_flags_horizontal = 6
 size_flags_vertical = 10
 script = ExtResource("1_3588u")
-counter_label = NodePath("HBoxContainer/CounterLabel")
-left_button = NodePath("HBoxContainer/PageLeftButton")
-right_button = NodePath("HBoxContainer/PageRightButton")
+_counter_label = NodePath("HBoxContainer/CounterLabel")
+_page_left_button = NodePath("HBoxContainer/PageLeftButton")
+_page_right_button = NodePath("HBoxContainer/PageRightButton")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -41,6 +41,3 @@ layout_mode = 2
 disabled = true
 text = ">"
 flat = true
-
-[connection signal="pressed" from="HBoxContainer/PageLeftButton" to="." method="_on_page_left_button_pressed"]
-[connection signal="pressed" from="HBoxContainer/PageRightButton" to="." method="_on_page_right_button_pressed"]

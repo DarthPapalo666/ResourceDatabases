@@ -1,10 +1,11 @@
+@tool
 class_name Database
 extends Resource
 ## Database of resources. Load and access data dynamically![br]
 ## Part of the [i]Resource Databases[/i] plugin by DarthPapalo.
 
 signal collection_name_changed(old: StringName, new: StringName)
-signal collections_list_changed(names: Array[StringName])
+signal collections_list_changed
 signal saved_changes
 signal unsaved_changes
 
@@ -24,14 +25,18 @@ var db_size: int:
 
 var has_unsaved_changes := true: set = _set_unsaved_changes
 
-var last_save_path: String
 
-
-#region Common methods
+#region Fetch methods
 ## Returns the resource from the given [param collection] with the given [param id].[br]
 ## Returns [code]null[/code] on invalid resource (An Invalid ID or resource locator will result in an error).
 func fetch_data(collection: StringName, id: Variant) -> Resource:
 	return get_collection(collection).fetch_resource(id)
+
+
+## Returns all the data from a [param collection].[br]
+## The dictionary contains [code]Int ID : Resource/null[/code]
+func fetch_collection_data(collection: StringName, include_invalid: bool = false) -> Dictionary[int, Resource]:
+	return get_collection(collection).fetch_all_resources(include_invalid)
 
 
 ## Returns the resource associated with a DB path:[br]
@@ -56,12 +61,25 @@ func fetch_data_string(string: String) -> Variant:
 	return null
 
 
+## Returns all the data from a [param category] of a [param collection].[br]
+## The dictionary contains [code]Int ID : Resource/null[/code]
+func fetch_category_data(collection: StringName, category: StringName, include_invalid := false) -> Dictionary[int, Resource]:
+	return get_collection(collection).fetch_category_resources(category, include_invalid)
+
+
+## Return an [class Array[StringName]] with the categories of the resource with the given [param id].
+func fetch_data_categories(collection: StringName, id: Variant) -> Array[StringName]:
+	return get_collection(collection).get_categories_of_resource(id)
+#endregion
+
+
+#region Common methods
 ## Given an [param id] (either String or Int) of a [param collection], it will always return the [param id] as an [int].
 func ensure_int_id(collection: StringName, id: Variant) -> int:
 	return get_collection(collection).ensure_int_id(id)
 
 
-## Updates the database's state to reflect unsaved changes.
+# Used internally,updates the database's state to reflect unsaved changes.
 func _set_unsaved_changes(value: bool) -> void:
 	has_unsaved_changes = value
 	if has_unsaved_changes:
@@ -73,12 +91,16 @@ func _set_unsaved_changes(value: bool) -> void:
 
 # Used internally when the collections list changes.
 func _emit_collections_list_changed() -> void:
-	collections_list_changed.emit(_collections.keys())
+	collections_list_changed.emit()
 	_set_unsaved_changes(true)
 #endregion
 
 
 #region Collection methods
+## Returns [code]true[/code] if the database has the given [param collection].
+func has_collection(collection: StringName) -> bool:
+	return _collections.has(collection)
+
 ## Returns the names of the collections present in the database.
 func get_collections_list() -> Array[StringName]:
 	return _collections.keys()
@@ -86,7 +108,9 @@ func get_collections_list() -> Array[StringName]:
 
 ## Returns the collection with the given [param collection_name].
 func get_collection(collection_name: StringName) -> DatabaseCollection:
-	assert(has_collection(collection_name))
+	if not has_collection(collection_name):
+		push_error("Can't get inexistent collection. (%s)" % collection_name)
+		return null
 	return _collections[collection_name]
 
 
@@ -97,7 +121,9 @@ func is_collection_name_available(name: StringName) -> bool:
 
 ## Creates a collection in the database if the given name is available.
 func create_collection(collection_name: StringName) -> DatabaseCollection:
-	assert(is_collection_name_available(collection_name))
+	if not is_collection_name_available(collection_name):
+		push_error("Can't create new collection, name is not available. (%s)" % collection_name)
+		return null
 	var new_collection := DatabaseCollection.new()
 	_collections[collection_name] = new_collection
 	_connect_collection_signals(new_collection)
@@ -108,10 +134,8 @@ func create_collection(collection_name: StringName) -> DatabaseCollection:
 # Used interanally to update unsaved changes when collections change.
 func _connect_collection_signals(collection: DatabaseCollection) -> void:
 	var relevant_signals: Array[Signal] = [
-		collection.name_changed,
 		collection.entries_changed,
 		collection.settings_changed,
-		collection.categories_changed,
 		]
 	for s in relevant_signals:
 		s.connect(_set_unsaved_changes.bind(true))
@@ -120,31 +144,21 @@ func _connect_collection_signals(collection: DatabaseCollection) -> void:
 ## Removes a colelction from the database if it exists.
 func remove_collection(collection_name: StringName) -> void:
 	if not has_collection(collection_name):
-		print_rich("[color=orange]Can't remove inexistent collection.")
+		push_error("Can't rename inexistent collection. (%s)" % collection_name)
 		return
-	get_collection(collection_name).removed.emit()
 	_collections.erase(collection_name)
 	_emit_collections_list_changed()
 
 
 ## Changes the name of a collection from [param old] to [param new].
 func rename_collection(old: StringName, new: StringName) -> void:
-	assert(has_collection(old))
+	if not has_collection(old):
+		push_error("Can't rename inexistent collection. (%s)" % old)
+		return
 	_collections[new] = _collections[old]
 	_collections.erase(old)
 	collection_name_changed.emit(old, new)
-
-
-## Returns all the data from a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
-func fetch_collection_data(collection: StringName, include_invalid: bool = false) -> Dictionary[int, Resource]:
-	assert(has_collection(collection), "Can't fetch inexistent collection.")
-	return get_collection(collection).fetch_all_resources(include_invalid)
-
-
-## Returns [code]true[/code] if the database has the given [param collection].
-func has_collection(collection: StringName) -> bool:
-	return _collections.has(collection)
+	collections_list_changed.emit()
 #endregion
 
 
@@ -153,15 +167,4 @@ func has_collection(collection: StringName) -> bool:
 ## If the [param collection], [param id], or [param category] doesn't exist, returns [code]false[/code].
 func is_data_in_category(collection: StringName, id: Variant, category: StringName) -> bool:
 	return category in get_collection(collection).get_categories_of_resource(id)
-
-
-## Return an [class Array[StringName]] with the categories of the resource with the given [param id].
-func get_data_categories(collection: StringName, id: Variant) -> Array[StringName]:
-	return get_collection(collection).get_categories_of_resource(id)
-
-
-## Returns all the data from a [param category] of a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
-func fetch_category_data(collection: StringName, category: StringName, include_invalid := false) -> Dictionary[int, Resource]:
-	return get_collection(collection).fetch_category_resources(category, include_invalid)
 #endregion

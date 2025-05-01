@@ -11,31 +11,69 @@ const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_o
 @export var _remaining_categories_container: HFlowContainer
 @export var _no_categories_container: CenterContainer
 
-var _correctly_initialized := false
+var _database_editor: Namespace.DatabaseEditor:
+	set(v):
+		_database_editor = v
+		_database_editor.loaded_database.collection_name_changed.connect(_on_collection_name_changed)
+		_database_editor.loaded_database.collections_list_changed.connect(_on_collections_list_changed)
 
-var _database_editor: Namespace.DatabaseEditor
-var _collection_name: StringName
+var _collection_name: StringName:
+	set(v):
+		_collection_name = v
+		_collection.entries_changed.connect(_update_categories)
+		_collection.int_id_changed.connect(_on_int_id_changed)
+		_update_categories(_collection.get_categories())
+		title = "%s settings" % _collection_name.capitalize()
+
 var _collection: DatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
-var _int_id: int = -1
+
+var _int_id: int = -1:
+	set(v):
+		_int_id = v
+		var new_name: StringName = _collection.get_entries_data().ints_to_strings[_int_id]
+		title = "[\"%s\"] categories" % String(new_name)
+
+var _correctly_initialized := false
 
 
 func setup_entry_categories_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName, pint_id: int) -> void:
 	_collection_name = pcollection_name
 	_int_id = pint_id
-	_set_dialogue_title(_collection.get_entries().ints_to_strings[pint_id])
-	_collection.entries_changed.connect(_on_collection_entries_changed)
-	_database_editor.get_database().collections_list_changed.connect(_on_collections_list_changed)
-	_collection.categories_changed.connect(_update_categories)
-	_update_categories(_collection.get_categories())
+	_correctly_initialized = true
+
+
+func get_collection_name() -> StringName:
+	return _collection_name
+
+
+func get_int_id() -> int:
+	return _int_id
 
 
 func _ready() -> void:
 	assert(_correctly_initialized)
+	close_requested.connect(queue_free)
 
 
-func _update_categories(all_categories: Dictionary) -> void:
+#region Collection callbacks
+func _on_collection_name_changed(old: StringName, new: StringName) -> void:
+	if _collection_name == old:
+		_collection_name = new
+
+
+# Needed to ensure the dialog is updated on reassignation of IDs
+func _on_int_id_changed(old: int, new: int) -> void:
+	if _int_id == old:
+		_int_id = new
+
+
+func _update_categories(entries_data: Dictionary) -> void:
+	if _int_id not in entries_data.ints_to_locators:
+		queue_free()
+		return
+	var all_categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints
 	var all_buttons: Array[Node] = _current_categories_container.get_children()
 	all_buttons.append_array(_remaining_categories_container.get_children())
 	for button in all_buttons:
@@ -60,17 +98,7 @@ func _update_categories(all_categories: Dictionary) -> void:
 func _on_collections_list_changed(collection_names: Array[StringName]) -> void:
 	if _collection_name not in collection_names:
 		queue_free()
-
-
-func _on_collection_entries_changed(entries_data: Dictionary) -> void:
-	if _int_id not in entries_data.ints_to_locators:
-		queue_free()
-		return
-	_set_dialogue_title(entries_data.ints_to_strings[_int_id])
-
-
-func _set_dialogue_title(new_name: StringName) -> void:
-	title = "[\"%s\"] categories" % String(new_name)
+#endregion
 
 
 func _on_category_button_clicked(category: StringName, is_added: bool) -> void:

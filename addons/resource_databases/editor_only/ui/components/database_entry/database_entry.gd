@@ -29,12 +29,12 @@ var _collection: DatabaseCollection:
 var _int_id: int:
 	set(v):
 		_int_id = v
-		_int_id_parameter.set_parameter(var_to_str(_int_id))
+		_int_id_parameter.setup_parameter(var_to_str(_int_id))
 
 var _string_id: StringName:
 	set(v):
 		_string_id = v
-		_string_id_parameter.set_parameter(String(_string_id))
+		_string_id_parameter.setup_parameter(String(_string_id))
 
 var _locator: String:
 	set(v):
@@ -87,12 +87,12 @@ func _on_parameter_changed(new_value: String, old_value: String, param_type: int
 			if not new_value.is_valid_int():
 				print_rich("[color=orange]New Int ID not valid.")
 				return
-			_collection.change_resource_int_id(new_value.to_int(), old_value.to_int())
+			_collection.change_resource_int_id(old_value.to_int(), new_value.to_int())
 		1: # String ID
 			if not new_value.is_valid_identifier():
 				print_rich("[color=orange]New String ID not valid.")
 				return
-			_collection.change_resource_string_id(StringName(new_value), StringName(old_value))
+			_collection.change_resource_string_id(StringName(old_value), StringName(new_value))
 
 
 func _on_resource_locator_label_gui_input(event: InputEvent) -> void:
@@ -127,20 +127,14 @@ func _on_selection_box_toggled(toggled_on: bool) -> void:
 
 func _on_make_invalid_button_pressed() -> void:
 	if ProjectSettings.get_setting("resource_databases/ask_for_invalidation_confirmation"):
-		if not await _database_editor.warn(
-			"Make resource invalid?",
-			"Are you sure you want to make this resource invalid?"
-		):
+		if not await _database_editor.warn(&"make_resource_invalid"):
 			return
 	_collection.set_invalid_resource(_int_id_parameter.get_value().to_int())
 
 
 func _on_remove_button_pressed() -> void:
 	if ProjectSettings.get_setting("resource_databases/ask_for_deletion_confirmation"):
-		if not await _database_editor.warn(
-			"Unregistering resource",
-			"Are you sure you want to unregister this resource?"
-		):
+		if not await _database_editor.warn(&"unregister_resource"):
 			return
 	_collection.unregister_resource(_int_id_parameter.get_value().to_int())
 

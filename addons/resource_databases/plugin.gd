@@ -4,6 +4,7 @@ extends EditorPlugin
 const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
 
 const SETTINGS_PREFIX := "resource_databases"
+
 const DATABASE_EDITOR_SCENE := preload("res://addons/resource_databases/editor_only/ui/database_editor.tscn")
 
 var database_editor_instance: Namespace.DatabaseEditor
@@ -12,20 +13,18 @@ var settings_list: PackedStringArray
 
 # Initialization of the plugin.
 func _enter_tree() -> void:
-	if not Engine.is_editor_hint():
-		print_rich("[color=orange][ResourceDatabases][/color] [color=red]Not executing editor in game...")
-		return
+	# If game is running in editor, add the DatabaseEditor UI
+	if Engine.is_editor_hint():
+		database_editor_instance = DATABASE_EDITOR_SCENE.instantiate()
 		
-	database_editor_instance = DATABASE_EDITOR_SCENE.instantiate()
-	
-	# Adds the database editor to the mainscreen
-	database_editor_instance.set_plugin_version(get_plugin_version())
-	EditorInterface.get_editor_main_screen().add_child(database_editor_instance)
+		# Adds the database editor to the mainscreen
+		database_editor_instance.set_plugin_version(get_plugin_version())
+		EditorInterface.get_editor_main_screen().add_child(database_editor_instance)
+		
+		_make_visible(false)
 	
 	# Add plugin settings
 	_add_settings()
-	
-	_make_visible(false)
 	
 	print_rich("[color=sky_blue][Resource Databases] Plugin loaded!")
 
@@ -33,7 +32,7 @@ func _enter_tree() -> void:
 # Clean-up of the plugin.
 func _exit_tree() -> void:
 	# Removes mainscreen instance
-	if database_editor_instance:
+	if database_editor_instance != null:
 		database_editor_instance.free()
 	
 	# Remove plugin settings
@@ -43,7 +42,7 @@ func _exit_tree() -> void:
 
 
 func _make_visible(visible: bool) -> void:
-	if database_editor_instance:
+	if database_editor_instance != null:
 		database_editor_instance.visible = visible
 
 
@@ -56,19 +55,21 @@ func _get_plugin_name() -> String:
 
 
 func _get_plugin_icon() -> Texture2D:
-	# Must return some kind of Texture for the icon.
 	return EditorInterface.get_editor_theme().get_icon("ResourcePreloader", "EditorIcons")
 
 
 func _handles(object: Object) -> bool:
-	return object is Database
+	var db := object as Database
+	return db != null and not db.resource_path.is_empty()
 
 
 func _edit(object: Object) -> void:
-	if not object:
+	var db := object as Database
+	if (db == null or
+		not ResourceLoader.exists(db.resource_path) or
+		database_editor_instance == null):
 		return
-	var edited_db := object as Database
-	database_editor_instance.load_database(edited_db.resource_path)
+	database_editor_instance.load_database(db.resource_path)
 
 
 #region Plugin settings
@@ -85,7 +86,7 @@ func _add_settings() -> void:
 
 func _remove_settings() -> void:
 	for setting_name in settings_list:
-		var full_setting_name := SETTINGS_PREFIX + setting_name
+		var full_setting_name := r"%s/%s" % [SETTINGS_PREFIX, setting_name]
 		if not ProjectSettings.has_setting(full_setting_name):
 			continue
 		ProjectSettings.set_setting(full_setting_name, null)
@@ -94,7 +95,7 @@ func _remove_settings() -> void:
 
 
 func _create_setting(setting_name: String, value: Variant, property_hint: int = 0, property_hint_string: String = "") -> void:
-	var full_setting_name := SETTINGS_PREFIX + setting_name
+	var full_setting_name := r"%s/%s" % [SETTINGS_PREFIX, setting_name]
 	settings_list.append(setting_name)
 	if ProjectSettings.has_setting(full_setting_name):
 		push_warning("Setting already existed: %s" % full_setting_name)

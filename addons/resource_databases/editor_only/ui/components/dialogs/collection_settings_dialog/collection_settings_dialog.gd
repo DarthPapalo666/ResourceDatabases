@@ -5,24 +5,33 @@ const Namespace := preload("res://addons/resource_databases/editor_only/plugin_n
 
 @export var _collection_name_parameter: Namespace.EditableParameter
 @export var _classes_parameter: Namespace.EditableParameter
-@export var _folders_parameter: Namespace.EditableParameter
+@export var _validate_classes_button: Button
+@export var _designated_folders_parameter: Namespace.EditableParameter
 @export var _included_filters_parameter: Namespace.EditableParameter
 @export var _excluded_filters_parameter: Namespace.EditableParameter
+@export var _update_folder_resources_button: Button
+@export var _remove_collection_button: Button
 
-var _correctly_initialized := false
-
-var _database_editor: Namespace.DatabaseEditor
+var _database_editor: Namespace.DatabaseEditor:
+	set(v):
+		_database_editor = v
+		_database_editor.loaded_database.collection_name_changed.connect(_on_collection_name_changed)
+		_database_editor.loaded_database.collections_list_changed.connect(_on_collections_list_changed)
 
 var _collection_name: StringName:
 	set(v):
 		_collection_name = v
-		_collection = _database_editor.loaded_database.get_collection(_collection_name)
+		if not _collection.settings_changed.is_connected(_on_collection_settings_changed):
+			_collection.settings_changed.connect(_on_collection_settings_changed)
+		_on_collection_settings_changed(_collection.get_settings_data())
+		_collection_name_parameter.setup_parameter(String(_collection_name))
+		title = "%s settings" % _collection_name.capitalize()
 
 var _collection: DatabaseCollection:
-	set(v):
-		_collection = v
-		_collection.settings_changed.connect(_on_collection_settings_changed)
-		_on_collection_settings_changed(_collection.get_settings())
+	get:
+		return _database_editor.loaded_database.get_collection(_collection_name)
+
+var _correctly_initialized := false
 
 
 func setup_settings_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName) -> void:
@@ -31,42 +40,60 @@ func setup_settings_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollecti
 	_correctly_initialized = true
 
 
-func _on_collection_name_changed(new_name: StringName) -> void:
-	_collection_name_parameter.set_parameter(String(new_name))
-	title = "%s settings" % new_name.capitalize()
+func get_collection_name() -> StringName:
+	return _collection_name
+
+
+func _ready() -> void:
+	assert(_correctly_initialized)
+	close_requested.connect(queue_free)
+	# Editable parameters signals
+	_collection_name_parameter.change_made.connect(_on_collection_name_editable_parameter_change_made)
+	_classes_parameter.change_made.connect(_on_classes_editable_parameter_change_made)
+	_designated_folders_parameter.change_made.connect(_on_designated_folders_editable_parameter_change_made)
+	_included_filters_parameter.change_made.connect(_on_included_editable_parameter_change_made)
+	_excluded_filters_parameter.change_made.connect(_on_excluded_editable_parameter_change_made)
+	
+	# Button signals
+	_validate_classes_button.pressed.connect(_on_validate_classes_button_pressed)
+	_update_folder_resources_button.pressed.connect(_on_update_folder_resources_button_pressed)
+	_remove_collection_button.pressed.connect(_on_remove_collection_button_pressed)
+
+
+#region Collection callbacks
+func _on_collection_name_changed(old: StringName, new: StringName) -> void:
+	if _collection_name == old:
+		_collection_name = new
+
+
+func _on_collections_list_changed() -> void:
+	if _collection_name not in _database_editor.loaded_database.get_collections_list():
+		queue_free()
 
 
 func _on_collection_settings_changed(settings: Dictionary) -> void:
-	_classes_parameter.set_parameter(var_to_str(settings.valid_classes))
-	_folders_parameter.set_parameter(var_to_str(settings.designated_folders))
-	_included_filters_parameter.set_parameter(var_to_str(settings.included_filters))
-	_excluded_filters_parameter.set_parameter(var_to_str(settings.excluded_filters))
+	_classes_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.valid_classes, false))
+	_designated_folders_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.designated_folders))
+	_included_filters_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.included_filters))
+	_excluded_filters_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.excluded_filters))
+#endregion
 
 
-func _on_name_editable_parameter_change_made(old_value: String, new_value: String) -> void:
-	if not _database_editor.loaded_database.is_collection_name_available(new_value):
-		_database_editor.warn(
-			"Can't rename _collection",
-			"Invalid new _collection name."
-		)
+#region Editable parameters callbacks
+func _on_collection_name_editable_parameter_change_made(old: String, new: String) -> void:
+	if not _database_editor.loaded_database.is_collection_name_available(new):
+		_database_editor.warn(&"cant_rename_collection", [new])
+		grab_focus()
 		return
-	_database_editor.loaded_database.change_collection_name(old_value, new_value)
+	_database_editor.loaded_database.rename_collection(old, new)
 
 
 func _on_classes_editable_parameter_change_made(_old: String, new: String) -> void:
 	_collection.set_valid_classes(new)
 
 
-func _on_validate_classes_button_pressed() -> void:
-	_collection.validate_resource_classes()
-
-
-func _on_folders_editable_parameter_change_made(_old: String, new: String) -> void:
+func _on_designated_folders_editable_parameter_change_made(_old: String, new: String) -> void:
 	_collection.set_designated_folders(new)
-
-
-func _on_update_folder_resources_button_pressed() -> void:
-	_collection.update_designated_folders_resources()
 
 
 func _on_included_editable_parameter_change_made(_old: String, new: String) -> void:
@@ -75,14 +102,20 @@ func _on_included_editable_parameter_change_made(_old: String, new: String) -> v
 
 func _on_excluded_editable_parameter_change_made(_old: String, new: String) -> void:
 	_collection.set_path_filters(new, DatabaseCollection.PathFilterType.EXCLUDE)
+#endregion
+
+#region Button callbacks
+func _on_validate_classes_button_pressed() -> void:
+	_collection.validate_resource_classes()
+
+
+func _on_update_folder_resources_button_pressed() -> void:
+	_collection.update_designated_resources()
 
 
 func _on_remove_collection_button_pressed() -> void:
-	if not await _database_editor.warn(
-		"Remove [%s] _collection" % _collection_name_parameter.get_value(),
-		"Are you sure you want to remove the [b][i]%s[/i][/b] _collection?" % _collection_name_parameter.get_value()
-	):
+	if not await _database_editor.warn(&"remove_collection", [_collection_name_parameter.get_value()]):
 		grab_focus()
 		return
 	_database_editor.loaded_database.remove_collection(_collection_name_parameter.get_value())
-	
+#endregion

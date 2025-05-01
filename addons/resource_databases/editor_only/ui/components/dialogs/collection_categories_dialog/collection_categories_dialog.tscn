@@ -62,5 +62,3 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [connection signal="close_requested" from="." to="." method="queue_free"]
-[connection signal="text_changed" from="PanelContainer/VBoxContainer/HBoxContainer/NewCategoryLineEdit" to="." method="_on_new_category_line_edit_text_changed"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/CreateCategoryButton" to="." method="_on_create_category_button_pressed"]
