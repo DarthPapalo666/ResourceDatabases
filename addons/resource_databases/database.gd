@@ -168,3 +168,11 @@ func rename_collection(old: StringName, new: StringName) -> void:
 func is_data_in_category(collection: StringName, id: Variant, category: StringName) -> bool:
 	return category in get_collection(collection).get_categories_of_resource(id)
 #endregion
+
+
+# TESTING
+func _to_string() -> String:
+	var t: String = ""
+	for u in _collections:
+		t = t + "%s	:	%s\n" % [u, str(_collections[u])]
+	return t

@@ -23,7 +23,7 @@ var _collection_name: StringName:
 		_collection_name = v
 		if not _collection.settings_changed.is_connected(_on_collection_settings_changed):
 			_collection.settings_changed.connect(_on_collection_settings_changed)
-		_on_collection_settings_changed(_collection.get_settings_data())
+		_on_collection_settings_changed()
 		_collection_name_parameter.setup_parameter(String(_collection_name))
 		title = "%s settings" % _collection_name.capitalize()
 
@@ -71,7 +71,8 @@ func _on_collections_list_changed() -> void:
 		queue_free()
 
 
-func _on_collection_settings_changed(settings: Dictionary) -> void:
+func _on_collection_settings_changed() -> void:
+	var settings: Dictionary = _collection.get_settings_data()
 	_classes_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.valid_classes, false))
 	_designated_folders_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.designated_folders))
 	_included_filters_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.included_filters))

@@ -74,6 +74,7 @@ func _ready() -> void:
 		func(path: String) -> void:
 			loaded_database = load(path)
 	)
+	$VBoxContainer/EditorTopBar/HBoxContainer/DebugButton.pressed.connect(_debug)
 
 
 #region DatabaseEditor methods
@@ -231,3 +232,8 @@ func _on_collection_selected(collection_name: StringName, embedded: bool) -> voi
 		_database_view.add_child(_embedded_collection_view)
 	else:
 		pass # TODO floating windows
+
+# TESTING
+func _debug() -> void:
+	await get_tree().process_frame
+	print(loaded_database)

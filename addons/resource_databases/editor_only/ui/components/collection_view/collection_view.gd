@@ -360,7 +360,7 @@ func _update_entries(page: int = -1) -> void:
 	var index: int = 0
 	for int_id: int in ids_in_view:
 		var n_entry := DATABASE_ENTRY_SCENE.instantiate() as Namespace.CollectionEntry
-		n_entry.set_entry(
+		n_entry.setup_entry(
 			_collection_name,
 			int_id,
 			ints_to_strings[int_id],

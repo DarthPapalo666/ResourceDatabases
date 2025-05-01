@@ -77,8 +77,12 @@ func set_designated_folders(folders: String) -> void:
 	for u in folders_array:
 		if not DirAccess.dir_exists_absolute(u):
 			push_error("Can't change designated folders, inexistent path: (%s)." % u)
+			return
 	_designated_folders = folders_array
+	print_debug("Setted designated folders: ", _designated_folders)
+	settings_changed.emit()
 	update_designated_resources()
+
 
 ## Sets the include and exclude filters for the resource paths.
 func set_path_filters(filters_string: String, type: PathFilterType) -> void:
@@ -86,8 +90,10 @@ func set_path_filters(filters_string: String, type: PathFilterType) -> void:
 	match type:
 		PathFilterType.INCLUDE:
 			_included_filters = filters
+			print_debug("Setted include filters: %s" % filters)
 		PathFilterType.EXCLUDE:
 			_excluded_filters = filters
+			print_debug("Setted exclude filters: %s" % filters)
 		_:
 			push_error("Invalid type of path filter.")
 	settings_changed.emit()
@@ -103,8 +109,9 @@ func update_designated_resources() -> void:
 			continue
 	
 	# Add missing resources in filters
-	for folder: String in _designated_folders if not _designated_folders.is_empty() else ["res://"]:
-		register_folder_resources(folder)
+	if not _designated_folders.is_empty():
+		for folder: String in _designated_folders:
+			register_folder_resources(folder)
 	entries_changed.emit()
 
 
@@ -432,10 +439,10 @@ func _has_id(id: Variant) -> bool:
 ## Returns data related with the entries of the collection.
 func get_entries_data() -> Dictionary[StringName, Variant]:
 	return {
-		ints_to_strings = _ints_to_strings,
-		strings_to_ints = _strings_to_ints,
-		ints_to_locators = _ints_to_locators,
-		categories_to_ints = _categories_to_ints,
+		ints_to_strings = _ints_to_strings.duplicate(true),
+		strings_to_ints = _strings_to_ints.duplicate(true),
+		ints_to_locators = _ints_to_locators.duplicate(true),
+		categories_to_ints = _categories_to_ints.duplicate(true),
 	}
 
 
@@ -443,9 +450,9 @@ func get_entries_data() -> Dictionary[StringName, Variant]:
 func get_settings_data() -> Dictionary[StringName, Variant]:
 	return {
 		valid_classes = _valid_classes,
-		designated_folders = _designated_folders,
-		included_filters = _included_filters,
-		excluded_filters = _excluded_filters,
+		designated_folders = _designated_folders.duplicate(true),
+		included_filters = _included_filters.duplicate(true),
+		excluded_filters = _excluded_filters.duplicate(true),
 	}
 
 
@@ -456,9 +463,23 @@ func get_locator(id: Variant) -> String:
 
 # Prints the collection as text, used for debugging purposes.
 func _to_string() -> String:
-	return """ints_to_strings : %s
+	return """
+	ints_to_strings : %s
 	strings_to_ints : %s
-	ints_to_locators : %s""" % [str(_ints_to_strings), str(_strings_to_ints), str(_ints_to_locators)]
+	ints_to_locators : %s
+	----------------
+	valid_classes : %s
+	designated_folders : %s
+	included_filters : %s
+	excluded_filters: %s""" % [
+		_ints_to_strings,
+		_strings_to_ints,
+		_ints_to_locators,
+		_valid_classes,
+		_designated_folders,
+		_included_filters,
+		_excluded_filters,
+		]
 
 
 func _resource_locator_from_path(path: String) -> String:

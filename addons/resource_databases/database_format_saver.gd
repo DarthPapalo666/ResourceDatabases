@@ -65,7 +65,13 @@ func _save(resource: Resource, path: String, flags: int) -> Error:
 static func array_to_string(array: Array, as_paths := true) -> String:
 	if array.is_empty():
 		return ""
-	var text := array.pop_front() as String
+	var uniques: Dictionary[String, bool]
+	var text := str(array.pop_front()) if not as_paths else "\"%s\"" % str(array.pop_front())
+	uniques[text] = true
 	for u: Variant in array:
-		text = text + ", " + (str(u) if not as_paths else "\"%s\"" % str(u))
+		var converted = str(u)
+		if converted in uniques:
+			continue
+		uniques[converted] = true
+		text = text + ", " + (str(converted) if not as_paths else "\"%s\"" % str(converted))
 	return text

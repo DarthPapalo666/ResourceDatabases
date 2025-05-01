@@ -111,16 +111,20 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 # Transform a String into a typed Array[String]
 static func string_to_strings_array(text: String) -> Array[String]:
 	var typed: Array[String] = []
-	text = text.replace("[", "").replace("]", "")
-	for u in text.split(","):
-		typed.append(u.strip_edges())
+	text = text.replace("[", "").replace("]", "").replace("\"", "")
+	var uniques: Dictionary[String, bool]
+	for u in text.split(",", false):
+		uniques[u.strip_edges()] = true
+	typed.assign(uniques.keys())
 	return typed
 
 
 # Transform a String into a typed Array[StringName]
 static func string_to_names_array(text: String) -> Array[StringName]:
 	var typed: Array[StringName] = []
-	text = text.replace("[", "").replace("]", "")
-	for u in text.split(","):
-		typed.append(StringName(u.strip_edges()))
+	text = text.replace("[", "").replace("]", "").replace("\"", "")
+	var uniques: Dictionary[StringName, bool]
+	for u in text.split(",", false):
+		uniques[StringName(u.strip_edges())] = true
+	typed.assign(uniques.keys())
 	return typed

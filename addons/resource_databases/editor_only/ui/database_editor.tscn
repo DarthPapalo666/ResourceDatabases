@@ -109,6 +109,10 @@ bbcode_enabled = true
 fit_content = true
 autowrap_mode = 0
 
+[node name="DebugButton" type="Button" parent="VBoxContainer/EditorTopBar/HBoxContainer"]
+layout_mode = 2
+text = "DEBUG"
+
 [node name="DatabaseView" type="HSplitContainer" parent="VBoxContainer"]
 visible = false
 layout_mode = 2
