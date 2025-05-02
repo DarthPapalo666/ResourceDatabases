@@ -157,7 +157,6 @@ theme_override_constants/minimum_grab_thickness = 16
 theme_override_icons/grabber = SubResource("CompressedTexture2D_00b4q")
 
 [node name="EntriesElements" type="Control" parent="VBoxContainer/HSplitContainer"]
-custom_minimum_size = Vector2(700, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -181,7 +180,7 @@ size_flags_vertical = 3
 [node name="CollectionEntriesContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_vertical = 2
 theme_override_constants/separation = 0
 
 [node name="SearchLineEdit" type="LineEdit" parent="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer"]
@@ -291,6 +290,3 @@ layout_mode = 2
 disabled = true
 text = "Clear category"
 flat = true
-
-[connection signal="text_changed" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/SearchLineEdit" to="." method="_on_search_line_edit_text_changed"]
-[connection signal="change_page_requested" from="VBoxContainer/HSplitContainer/EntriesElements/VBoxContainer/ViewPageCounter" to="." method="_on_view_page_counter_change_page_requested"]

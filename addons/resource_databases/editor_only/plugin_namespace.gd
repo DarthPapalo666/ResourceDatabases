@@ -36,11 +36,11 @@ const WARNING_MSGS := {
 	],
 	update_category = [
 		"Update category",
-		"Are you sure you want to update the [b]%s[/b] category with the currently filtered IDs?"
+		"Are you sure you want to update the \"[i]%s[/i]\" category with the currently filtered IDs?"
 	],
 	remove_category = [
 		"Remove category",
-		"Are you sure you want to remove the [b]%s[/b] category?"
+		"Are you sure you want to remove the \"[i]%s[/i]\" category?"
 	],
 	unsaved_database = [
 		"Unsaved changes in Database",
@@ -48,7 +48,7 @@ const WARNING_MSGS := {
 	],
 	clean_category = [
 		"Clear category",
-		"Are you sure you want to clear the [b]%s[/b] category?"
+		"Are you sure you want to clear the \"[i]%s[/i]\" category?"
 	],
 	make_resource_invalid = [
 		"Make resource invalid?",
@@ -63,8 +63,8 @@ const WARNING_MSGS := {
 		"Invalid new collection name: %s"
 	],
 	remove_collection = [
-		"Remove [%s] _collection",
-		"Are you sure you want to remove the [b][i]%s[/i][/b] _collection?"
+		"Remove collection",
+		"Are you sure you want to remove the \"[i]%s[/i]\" collection?"
 	]
 }
 

@@ -1,9 +1,9 @@
 @tool
-extends Control
+extends PanelContainer
 
 signal entry_selection_changed(_int_id: int, selected: bool)
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const CHANGE_RESOURCE_DIALOG := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/change_resource_dialog.tscn")
 
@@ -16,12 +16,12 @@ const CHANGE_RESOURCE_DIALOG := preload("res://addons/resource_databases/editor_
 @export var _remove_button: Button
 @export var _open_categories_button: Button
 @export var _open_inspector_button: Button
-@export var _color_bg: ColorRect
 
 var correctly_initialized := false
 
 var _database_editor: Namespace.DatabaseEditor
 var _collection_name: StringName
+
 var _collection: DatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
@@ -40,31 +40,32 @@ var _locator: String:
 	set(v):
 		_locator = v
 		if _locator.begins_with("uid://"):
-			if not _is_invalid:
+			if _entry_locator_is_valid:
 				_resource_locator_label.tooltip_text = ResourceUID.get_id_path(ResourceUID.text_to_id(_locator))
-		var locator_visible_text := "[right][color=%s]%s"
+		var locator_visible_text := "[center][color=%s]%s"
 		var truncated_locator := _locator.right(47) # WARNING magic number :o
 		if not _locator == truncated_locator:
-			locator_visible_text = locator_visible_text % ["light_blue" if not _is_invalid else "light_coral", "..." + truncated_locator]
+			locator_visible_text = locator_visible_text % ["light_blue" if _entry_locator_is_valid else "light_coral", "..." + truncated_locator]
 		else:
-			locator_visible_text = locator_visible_text % ["light_blue" if not _is_invalid else "light_coral", _locator]
+			locator_visible_text = locator_visible_text % ["light_blue" if _entry_locator_is_valid else "light_coral", _locator]
 		_resource_locator_label.text = locator_visible_text
-		_open_inspector_button.disabled = _is_invalid
+		_open_inspector_button.disabled = not _entry_locator_is_valid
 		if _locator == DatabaseCollection.INVALID_RESOURCE_LOCATOR:
 			_make_invalid_button.disabled = true
 
-var _is_invalid: bool:
+var _entry_locator_is_valid: bool:
 	get:
 		return ResourceLoader.exists(_locator)
 
 
-func setup_entry(pcollection_name: StringName, pint_id: int, pstring_id: StringName, plocator: String, is_selected: bool, index: int) -> void:
+func setup_entry(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName, pint_id: int, pstring_id: StringName, plocator: String, is_selected: bool, index: int) -> void:
+	_database_editor = pdatabase_editor
 	_collection_name = pcollection_name
 	_int_id = pint_id
 	_string_id = pstring_id
 	_locator = plocator
 	_selection_box.set_pressed_no_signal(is_selected)
-	_color_bg.color = Color("#181c21") if index % 2 == 0 else Color("#22272e")
+	self_modulate = Color("#181c21") if index % 2 == 0 else Color("#22272e")
 	correctly_initialized = true
 
 
@@ -81,16 +82,18 @@ func _ready() -> void:
 	_open_inspector_button.pressed.connect(_on_open_inspector_button_pressed)
 
 
-func _on_parameter_changed(new_value: String, old_value: String, param_type: int) -> void:
+func _on_parameter_changed(old_value: String, new_value: String, param_type: int) -> void:
+	if new_value.is_empty():
+		return
 	match param_type:
 		0: # Int ID
 			if not new_value.is_valid_int():
-				print_rich("[color=orange]New Int ID not valid.")
+				printerr("New provided Int ID is not valid: %s" % new_value)
 				return
 			_collection.change_resource_int_id(old_value.to_int(), new_value.to_int())
 		1: # String ID
 			if not new_value.is_valid_identifier():
-				print_rich("[color=orange]New String ID not valid.")
+				printerr("New provided String ID is not valid: %s" % new_value)
 				return
 			_collection.change_resource_string_id(StringName(old_value), StringName(new_value))
 
@@ -104,7 +107,8 @@ func _on_resource_locator_label_gui_input(event: InputEvent) -> void:
 			var path := _locator
 			if path.begins_with("uid://"):
 				path = ResourceUID.get_id_path(ResourceUID.text_to_id(path))
-			EditorInterface.get_file_system_dock().navigate_to_path(path) # TODO try with uid directly
+			# NOTE: UID doesn't work in the line below as of Godot 4.4.1.stable
+			EditorInterface.get_file_system_dock().navigate_to_path(path)
 
 
 func _on_change_resource_button_pressed() -> void:

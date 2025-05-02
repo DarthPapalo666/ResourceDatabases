@@ -1,25 +1,25 @@
 @tool
 extends EditorPlugin
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const SETTINGS_PREFIX := "resource_databases"
 
 const DATABASE_EDITOR_SCENE := preload("res://addons/resource_databases/editor_only/ui/database_editor.tscn")
 
-var database_editor_instance: Namespace.DatabaseEditor
-var settings_list: PackedStringArray
+var _database_editor_instance: Namespace.DatabaseEditor
+var _settings_list: PackedStringArray
 
 
 # Initialization of the plugin.
 func _enter_tree() -> void:
 	# If game is running in editor, add the DatabaseEditor UI
 	if Engine.is_editor_hint():
-		database_editor_instance = DATABASE_EDITOR_SCENE.instantiate()
+		_database_editor_instance = DATABASE_EDITOR_SCENE.instantiate()
 		
 		# Adds the database editor to the mainscreen
-		database_editor_instance.set_plugin_version(get_plugin_version())
-		EditorInterface.get_editor_main_screen().add_child(database_editor_instance)
+		_database_editor_instance.set_plugin_version(get_plugin_version())
+		EditorInterface.get_editor_main_screen().add_child(_database_editor_instance)
 		
 		_make_visible(false)
 	
@@ -32,8 +32,8 @@ func _enter_tree() -> void:
 # Clean-up of the plugin.
 func _exit_tree() -> void:
 	# Removes mainscreen instance
-	if database_editor_instance != null:
-		database_editor_instance.free()
+	if _database_editor_instance != null:
+		_database_editor_instance.free()
 	
 	# Remove plugin settings
 	_remove_settings()
@@ -42,8 +42,8 @@ func _exit_tree() -> void:
 
 
 func _make_visible(visible: bool) -> void:
-	if database_editor_instance != null:
-		database_editor_instance.visible = visible
+	if _database_editor_instance != null:
+		_database_editor_instance.visible = visible
 
 
 func _has_main_screen() -> bool:
@@ -65,11 +65,13 @@ func _handles(object: Object) -> bool:
 
 func _edit(object: Object) -> void:
 	var db := object as Database
-	if (db == null or
+	if (
+		db == null or
 		not ResourceLoader.exists(db.resource_path) or
-		database_editor_instance == null):
+		_database_editor_instance == null
+	):
 		return
-	database_editor_instance.load_database(db.resource_path)
+	_database_editor_instance.loaded_database = db
 
 
 #region Plugin settings
@@ -85,20 +87,22 @@ func _add_settings() -> void:
 
 
 func _remove_settings() -> void:
-	for setting_name in settings_list:
+	for setting_name in _settings_list:
 		var full_setting_name := r"%s/%s" % [SETTINGS_PREFIX, setting_name]
 		if not ProjectSettings.has_setting(full_setting_name):
 			continue
 		ProjectSettings.set_setting(full_setting_name, null)
-	settings_list.clear()
+	_settings_list.clear()
 	ProjectSettings.save()
 
 
 func _create_setting(setting_name: String, value: Variant, property_hint: int = 0, property_hint_string: String = "") -> void:
 	var full_setting_name := r"%s/%s" % [SETTINGS_PREFIX, setting_name]
-	settings_list.append(setting_name)
+	_settings_list.append(setting_name)
 	if ProjectSettings.has_setting(full_setting_name):
-		push_warning("Setting already existed: %s" % full_setting_name)
+		#push_warning("Setting already existed: %s" % full_setting_name)
+		# Might exist due to being saved in the project settings file
+		return
 	var property_info := {
 		"name": full_setting_name,
 		"type": typeof(value),

@@ -1,22 +1,19 @@
-[gd_scene format=3 uid="uid://drfc1vxe6tdt2"]
+[gd_scene load_steps=2 format=3 uid="uid://drfc1vxe6tdt2"]
 
-[node name="DatabaseEntryTopBar" type="Control"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 3
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mgox4"]
+bg_color = Color(0.113725, 0.133333, 0.160784, 1)
+
+[node name="DatabaseEntryTopBar" type="PanelContainer"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 28.0
+offset_bottom = 30.0
 grow_horizontal = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_mgox4")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_right = 6
 
@@ -27,12 +24,13 @@ theme_override_constants/separation = 0
 [node name="IntLabel" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.09
+size_flags_stretch_ratio = 1.2
 text = "Int ID"
 horizontal_alignment = 2
 
 [node name="Label" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = ":"
 
 [node name="StringLabel" type="Label" parent="MarginContainer/HBoxContainer"]
@@ -44,23 +42,15 @@ text = "String ID"
 [node name="LocatorLabel" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
 text = "Resource Locator"
 horizontal_alignment = 1
 
 [node name="OptionsLabel" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 1
 size_flags_stretch_ratio = 3.0
 text = "Entry options"
 horizontal_alignment = 1
-
-[node name="ColorRect" type="ColorRect" parent="."]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.113725, 0.133333, 0.160784, 1)

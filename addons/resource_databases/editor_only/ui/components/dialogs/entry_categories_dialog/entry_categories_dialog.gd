@@ -1,7 +1,7 @@
 @tool
 extends Window
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.tscn")
 
@@ -22,8 +22,6 @@ var _collection_name: StringName:
 		_collection_name = v
 		_collection.entries_changed.connect(_update_categories)
 		_collection.int_id_changed.connect(_on_int_id_changed)
-		_update_categories(_collection.get_categories())
-		title = "%s settings" % _collection_name.capitalize()
 
 var _collection: DatabaseCollection:
 	get:
@@ -33,12 +31,14 @@ var _int_id: int = -1:
 	set(v):
 		_int_id = v
 		var new_name: StringName = _collection.get_entries_data().ints_to_strings[_int_id]
+		_update_categories()
 		title = "[\"%s\"] categories" % String(new_name)
 
 var _correctly_initialized := false
 
 
 func setup_entry_categories_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcollection_name: StringName, pint_id: int) -> void:
+	_database_editor = pdatabase_editor
 	_collection_name = pcollection_name
 	_int_id = pint_id
 	_correctly_initialized = true
@@ -69,8 +69,11 @@ func _on_int_id_changed(old: int, new: int) -> void:
 		_int_id = new
 
 
-func _update_categories(entries_data: Dictionary) -> void:
+func _update_categories() -> void:
+	var entries_data := _collection.get_entries_data()
+	
 	if _int_id not in entries_data.ints_to_locators:
+		print(_int_id)
 		queue_free()
 		return
 	var all_categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints
@@ -83,15 +86,15 @@ func _update_categories(entries_data: Dictionary) -> void:
 	_categories_container.visible = not all_categories.is_empty()
 	if all_categories.is_empty():
 		return
-	_entry_name_label.text = "[color=purple][i]%s[/i][color=white] categories:" % _collection.get_entries()[&"ints_to_strings"][_int_id]
+	_entry_name_label.text = "[color=purple][i]%s[/i][color=white] categories:" % entries_data.ints_to_strings[_int_id]
 	for category: StringName in all_categories:
 		var nbutton := CATEGORY_BUTTON_SCENE.instantiate() as Namespace.CategoryButton
 		nbutton.clicked.connect(_on_category_button_clicked)
 		if category in resource_categories:
-			nbutton.set_category(category, false)
+			nbutton.setup_category_button(category, false)
 			_current_categories_container.add_child(nbutton)
 		else:
-			nbutton.set_category(category, true)
+			nbutton.setup_category_button(category, true)
 			_remaining_categories_container.add_child(nbutton)
 
 

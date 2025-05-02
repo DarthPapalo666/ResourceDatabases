@@ -54,10 +54,12 @@ func _save(resource: Resource, path: String, flags: int) -> Error:
 						int_id, # TODO: maybe add padding depending on the db_size
 						str(string_id),
 						locator,
-						array_to_string(categories, false)
+						"[%s]" % array_to_string(categories, false)
 					])
 		_:
 			return ERR_FILE_BAD_PATH
+	
+	
 	return OK
 
 

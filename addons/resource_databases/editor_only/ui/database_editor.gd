@@ -5,15 +5,15 @@ extends MarginContainer
 ## If loaded_database == null the database should be removed from memory.
 
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const DATABASE_COLLECTION_LIST_VIEW_SCENE := preload("uid://bblabb1i6dmcp")
 const DATABASE_COLLECTION_VIEW_SCENE := preload("uid://c6snrkt0lx7rr")
 
-const COLLECTION_CATEGORIES_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_categories_dialog/collection_categories_dialog.tscn")
-const COLLECTION_SETTINGS_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/collection_settings_dialog/collection_settings_dialog.tscn")
+const COLLECTION_CATEGORIES_DIALOG_SCENE := preload("uid://qketvrxgm0ya")
+const COLLECTION_SETTINGS_DIALOG_SCENE := preload("uid://c47p7j84pq5ci")
 
-const ENTRY_CATEGORIES_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/entry_categories_dialog/entry_categories_dialog.tscn")
+const ENTRY_CATEGORIES_DIALOG_SCENE := preload("uid://i0c2m81nxr42")
 
 @export_subgroup("Editor components")
 @export var _start_screen: CenterContainer
@@ -36,25 +36,30 @@ var _embedded_collection_view: Namespace.CollectionView
 
 var loaded_database: Database = null:
 	set(v):
+		if v == loaded_database:
+			print_debug("Database already opened.")
+			return
+		
 		loaded_database = v
-		print_debug("loaded_database changed: %s" % loaded_database)
+		#print_debug("Loaded database changed:\n%s" % loaded_database)
+		
+		# Clean UI
+		for child: Node in _database_view.get_children():
+			child.queue_free()
+		
+		_start_screen.visible = loaded_database == null
+		_database_view.visible = loaded_database != null
+		
 		_update_database_button_options()
 		
-		if loaded_database == null: # Database closed
-			# Clean UI
-			for child: Node in _database_view.get_children():
-				child.queue_free()
-			_start_screen.visible = true
-			_database_view.visible = false
-		
-		else: # Database opened
-			_start_screen.visible = false
-			_database_view.visible = true
+		if loaded_database != null: # Database opened
 			# Add the CollectionsListView
 			_collections_list_view = DATABASE_COLLECTION_LIST_VIEW_SCENE.instantiate()
 			_collections_list_view.collection_selected.connect(_on_collection_selected)
 			_collections_list_view.setup_collections_list_view(self)
 			_database_view.add_child(_collections_list_view)
+			
+			print_debug("This should always be false: ", loaded_database.has_unsaved_changes)
 
 
 func _ready() -> void:
@@ -67,7 +72,8 @@ func _ready() -> void:
 	_save_dialog.filters = filters_array
 	_save_dialog.file_selected.connect(
 		func(path: String) -> void:
-			ResourceSaver.save(loaded_database, path)
+			ResourceSaver.save(loaded_database, path, ResourceSaver.FLAG_CHANGE_PATH)
+			loaded_database.has_unsaved_changes = false
 	)
 	_load_dialog.filters = filters_array
 	_load_dialog.file_selected.connect(
@@ -87,11 +93,10 @@ func set_plugin_version(version: String) -> void:
 func warn(warning: StringName, params: Array[String] = []) -> Signal:
 	var error_msg: Array[String]
 	error_msg.assign(Namespace.WARNING_MSGS[warning])
-	return _warning_dialog.make_warning(error_msg[0] % params, error_msg[1] % params)
+	return _warning_dialog.make_warning(error_msg[0], error_msg[1] % params)
 
 
 func open_collection_settings_dialog(collection_name: StringName) -> void:
-	print_debug("Collection settings dialog opened: %s" % collection_name)
 	for dialogue: Namespace.CollectionSettingsDialog in _settings_dialogues_container.get_children():
 		if dialogue.get_collection_name() == collection_name:
 			dialogue.grab_focus()
@@ -103,7 +108,6 @@ func open_collection_settings_dialog(collection_name: StringName) -> void:
 
 
 func open_collection_categories_dialog(collection_name: StringName) -> void:
-	print_debug("Collection categories dialog opened: %s" % collection_name)
 	for dialogue: Namespace.CollectionCategoriesDialog in _collection_categories_dialogues_container.get_children():
 		if dialogue.get_collection_name() == collection_name:
 			dialogue.grab_focus()
@@ -115,13 +119,12 @@ func open_collection_categories_dialog(collection_name: StringName) -> void:
 
 
 func open_entry_categories_dialog(collection_name: StringName, entry_int_id: int) -> void:
-	print_debug("Entry categories dialog opened: %s" % collection_name)
 	for dialogue: Namespace.EntryCategoriesDialog in _categories_dialogues_container.get_children():
 		if dialogue.get_collection_name() == collection_name and dialogue.get_int_id() == entry_int_id:
 			dialogue.grab_focus()
 			return
 	var new_dialogue: Namespace.EntryCategoriesDialog = ENTRY_CATEGORIES_DIALOG_SCENE.instantiate()
-	new_dialogue.setup_categories_dialog(collection_name, entry_int_id)
+	new_dialogue.setup_entry_categories_dialog(self, collection_name, entry_int_id)
 	_categories_dialogues_container.add_child(new_dialogue)
 	new_dialogue.popup()
 #endregion
@@ -171,13 +174,13 @@ func close_loaded_database() -> void:
 		loaded_database.has_unsaved_changes or
 		loaded_database.resource_path.is_empty()
 	):
-		if await warn(&"unsaved_database"):
-			loaded_database = null
+		if not await warn(&"unsaved_database"):
+			return
+	loaded_database = null
 
 
 # Creates a new Database notifying the user if any data might be lost.
 func create_new_database() -> void:
-	print_debug("Creating new database")
 	if loaded_database != null:
 		if loaded_database.has_unsaved_changes:
 			if not await warn(&"unsaved_database"):
@@ -185,16 +188,13 @@ func create_new_database() -> void:
 	loaded_database = Database.new()
 
 
-# Loads a database into the editor. If the path is empty, the load_dialog will be prompted.
-func load_database(path := "") -> void:
-	print_debug("Loading database with path: %s" % path)
+# Prompts the load dialog.
+func load_database() -> void:
+	print_debug("Loading database with dialog.")
 	if loaded_database != null and loaded_database.has_unsaved_changes:
 		if not await warn(&"unsaved_database"):
 			return
-	if path.is_empty():
-		_load_dialog.popup()
-		return
-	loaded_database = load(path)
+	_load_dialog.popup()
 
 
 # Saves the currently loaded database to its last save path.
@@ -206,7 +206,8 @@ func save_database(force_dialog := false) -> void:
 	if loaded_database.resource_path.is_empty() or force_dialog:
 		_save_dialog.popup()
 	else:
-		ResourceSaver.save(loaded_database, loaded_database.resource_path)
+		ResourceSaver.save(loaded_database, loaded_database.resource_path, ResourceSaver.FLAG_CHANGE_PATH)
+		loaded_database.has_unsaved_changes = false
 #endregion
 
 
@@ -235,5 +236,4 @@ func _on_collection_selected(collection_name: StringName, embedded: bool) -> voi
 
 # TESTING
 func _debug() -> void:
-	await get_tree().process_frame
 	print(loaded_database)

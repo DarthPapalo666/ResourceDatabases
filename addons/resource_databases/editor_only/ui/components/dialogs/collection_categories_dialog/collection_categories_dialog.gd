@@ -1,7 +1,7 @@
 @tool
 extends Window
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.tscn")
 
@@ -18,8 +18,9 @@ var _database_editor: Namespace.DatabaseEditor:
 var _collection_name: StringName:
 	set(v):
 		_collection_name = v
-		_collection.entries_changed.connect(_update_categories) # NOTE might reconnect on rename
-		_update_categories(_collection.get_entries_data())
+		if not _collection.entries_changed.is_connected(_update_categories):
+			_collection.entries_changed.connect(_update_categories)
+		_update_categories()
 		title = "%s categories" % String(_collection_name).capitalize()
 
 var _collection: DatabaseCollection:
@@ -42,6 +43,7 @@ func get_collection_name() -> StringName:
 func _ready() -> void:
 	assert(_correctly_initialized)
 	_new_category_line_edit.text_changed.connect(_on_new_category_line_edit_text_changed)
+	_new_category_line_edit.text_submitted.connect(_on_create_category_button_pressed.unbind(1))
 	_create_category_button.pressed.connect(_on_create_category_button_pressed)
 
 
@@ -56,15 +58,20 @@ func _on_collections_list_changed() -> void:
 		queue_free()
 
 
-func _update_categories(entries_data: Dictionary) -> void:
+func _update_categories() -> void:
+	var entries_data := _collection.get_entries_data()
 	var categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints
 	for child: Node in _categories_container.get_children():
 		child.queue_free()
+	
 	for category: StringName in categories:
 		var new_button: Namespace.CategoryButton = CATEGORY_BUTTON_SCENE.instantiate()
-		new_button.setup_category(category, false)
+		new_button.setup_category_button(category, false)
 		new_button.clicked.connect(_on_remove_category_button_clicked)
 		_categories_container.add_child(new_button)
+	
+	# We force an update to see if whatever is written is now available as a category name.
+	_on_new_category_line_edit_text_changed(_new_category_line_edit.text)
 
 
 func _on_remove_category_button_clicked(category: StringName, _added: bool) -> void:

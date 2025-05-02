@@ -8,6 +8,7 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3b6at"]
 
 [node name="EditableParameter" type="HBoxContainer" node_paths=PackedStringArray("line_edit", "confirm_button")]
+clip_contents = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -20,12 +21,11 @@ confirm_button = NodePath("ConfirmButton")
 [node name="EditableLineEdit" type="LineEdit" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
 theme_override_colors/font_uneditable_color = Color(0, 0, 0, 1)
+theme_override_constants/minimum_character_width = 0
 theme_override_styles/focus = SubResource("StyleBoxEmpty_sxvmq")
 theme_override_styles/read_only = SubResource("StyleBoxEmpty_3b6at")
 editable = false
-context_menu_enabled = false
 selecting_enabled = false
 
 [node name="ConfirmButton" type="Button" parent="."]

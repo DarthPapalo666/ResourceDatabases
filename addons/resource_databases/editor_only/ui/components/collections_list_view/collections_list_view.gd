@@ -3,7 +3,7 @@ extends PanelContainer
 
 signal collection_selected(collection_name: StringName, embedded: bool)
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const COLLECTION_BUTTON_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/collection_button/collection_button.tscn")
 
@@ -17,8 +17,14 @@ var _correctly_initialized := false
 var _database_editor: Namespace.DatabaseEditor:
 	set(v):
 		_database_editor = v
-		_update_list()
-		_current_database.collections_list_changed.connect(_update_list)
+		_current_database.collections_list_changed.connect(
+			func() -> void:
+				if selected_collection in _current_database.get_collections_list():
+					_update_list()
+				else:
+					selected_collection = StringName()
+		)
+		selected_collection = StringName()
 
 var _current_database: Database:
 	get:
@@ -39,15 +45,18 @@ func setup_collections_list_view(pdatabase_editor: Namespace.DatabaseEditor) -> 
 func _ready() -> void:
 	assert(_correctly_initialized)
 	_new_collection_line_edit.text_changed.connect(_on_new_collection_line_edit_text_changed)
+	_new_collection_line_edit.text_submitted.connect(_on_create_collection_button_pressed.unbind(1))
 	_create_collection_button.pressed.connect(_on_create_collection_button_pressed)
 
 
 func _update_list() -> void:
+	print_debug("Updating collections list view")
 	for child: Node in _collection_buttons_container.get_children():
 		child.queue_free()
+	
 	if _current_database == null:
 		return
-
+	
 	var idx := 0
 	for collection_name: StringName in _current_database.get_collections_list():
 		var new_button := COLLECTION_BUTTON_SCENE.instantiate() as Namespace.DatabaseCollectionButton

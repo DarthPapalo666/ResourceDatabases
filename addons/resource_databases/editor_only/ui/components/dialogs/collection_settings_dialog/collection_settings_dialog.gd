@@ -1,7 +1,7 @@
 @tool
 extends Window
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 @export var _collection_name_parameter: Namespace.EditableParameter
 @export var _classes_parameter: Namespace.EditableParameter

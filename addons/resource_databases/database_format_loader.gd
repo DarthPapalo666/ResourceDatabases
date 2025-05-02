@@ -26,6 +26,8 @@ func _load(path: String, _original_path: String, _use_sub_threads: bool, _cache_
 	var n := _collections_data_to_database(data)
 	if n == null:
 		return ERR_INVALID_DATA
+	
+	n.has_unsaved_changes = false
 	return n
 
 
@@ -67,7 +69,8 @@ func _parse_text_database_file(text: String) -> Dictionary[StringName, Dictionar
 			collections_data[current_collection].strings_to_ints[string_id] = int_id
 			collections_data[current_collection].ints_to_locators[int_id] = uid
 			for category in categories:
-				collections_data[current_collection].categories_to_ints[category][int_id] = true
+				var categories_to_ints := (collections_data[current_collection].categories_to_ints as Dictionary)
+				categories_to_ints.get_or_add(category, {})[int_id] = true
 		
 		elif line.begins_with("#"): # Comment
 			continue
@@ -87,6 +90,7 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 		
 		# Load settings
 		collection.set_valid_classes(collection_data.valid_classes)
+		collection.set_designated_folders(collection_data.designated_folders)
 		collection.set_path_filters(collection_data.included_filters, DatabaseCollection.PathFilterType.INCLUDE)
 		collection.set_path_filters(collection_data.excluded_filters, DatabaseCollection.PathFilterType.EXCLUDE)
 		

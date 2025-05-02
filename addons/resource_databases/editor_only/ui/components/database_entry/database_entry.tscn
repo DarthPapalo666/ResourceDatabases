@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://xy4e3kkw44ru"]
+[gd_scene load_steps=18 format=3 uid="uid://xy4e3kkw44ru"]
 
 [ext_resource type="Script" uid="uid://brtfc00xcsds3" path="res://addons/resource_databases/editor_only/ui/components/database_entry/database_entry.gd" id="1_3lc0p"]
 [ext_resource type="PackedScene" uid="uid://dh0myumwsa6i0" path="res://addons/resource_databases/editor_only/ui/components/editable_parameter/editable_parameter.tscn" id="2_ugfhb"]
@@ -6,6 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://co0w2lqnfyg35" path="res://addons/resource_databases/editor_only/ui/icons/change.png" id="3_qdnpw"]
 [ext_resource type="Texture2D" uid="uid://ddrw1s2scl7h3" path="res://addons/resource_databases/editor_only/ui/icons/inspect_clean.svg" id="4_sn6fc"]
 [ext_resource type="Texture2D" uid="uid://dfxlfjb6ydvy8" path="res://addons/resource_databases/editor_only/ui/icons/categories_clean.svg" id="5_7so76"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7xw81"]
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0g4q0"]
 
@@ -27,38 +30,33 @@
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cubkw"]
 
-[node name="DatabaseEntry" type="Control" node_paths=PackedStringArray("_int_id_parameter", "_string_id_parameter", "_resource_locator_label", "_selection_box", "_make_invalid_button", "_open_categories_button", "_open_inspector_button", "_color_bg")]
-clip_contents = true
-custom_minimum_size = Vector2(0, 38)
-layout_mode = 3
+[node name="DatabaseEntry" type="PanelContainer" node_paths=PackedStringArray("_int_id_parameter", "_string_id_parameter", "_resource_locator_label", "_change_resource_button", "_selection_box", "_make_invalid_button", "_remove_button", "_open_categories_button", "_open_inspector_button")]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 40.0
 grow_horizontal = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
+size_flags_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_7xw81")
 script = ExtResource("1_3lc0p")
 _int_id_parameter = NodePath("MarginContainer/HBoxContainer/IntIDParameter")
 _string_id_parameter = NodePath("MarginContainer/HBoxContainer/StringIDParameter")
 _resource_locator_label = NodePath("MarginContainer/HBoxContainer/HBoxContainer/ResourceLocatorLabel")
-_selection_box = NodePath("MarginContainer/HBoxContainer/OptionsContainer/SelectionBox")
-_make_invalid_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/MakeInvalidButton")
-_open_categories_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/OpenCategoriesButton")
-_open_inspector_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/OpenInspectorButton")
-_color_bg = NodePath("ColorBG")
+_change_resource_button = NodePath("MarginContainer/HBoxContainer/HBoxContainer/ChangeResourceButton")
+_selection_box = NodePath("MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer/SelectionBox")
+_make_invalid_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer/MakeInvalidButton")
+_remove_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer/RemoveButton")
+_open_categories_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer/OpenCategoriesButton")
+_open_inspector_button = NodePath("MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer/OpenInspectorButton")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_right = 6
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 0
 
 [node name="IntIDParameter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_ugfhb")]
 layout_mode = 2
@@ -71,6 +69,7 @@ parameter_alignment = 2
 
 [node name="Label" type="Label" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
 text = ":"
 
 [node name="StringIDParameter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_ugfhb")]
@@ -85,6 +84,7 @@ parameter_placeholder = "String ID..."
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
+theme_override_constants/separation = 0
 alignment = 1
 
 [node name="ResourceLocatorLabel" type="RichTextLabel" parent="MarginContainer/HBoxContainer/HBoxContainer"]
@@ -107,18 +107,23 @@ theme_override_styles/focus = SubResource("StyleBoxEmpty_1icof")
 icon = ExtResource("3_qdnpw")
 flat = true
 
-[node name="OptionsContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+[node name="OptionsContainer" type="ScrollContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
+vertical_scroll_mode = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 alignment = 1
 
-[node name="SelectionBox" type="CheckBox" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="SelectionBox" type="CheckBox" parent="MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_2yabm")
 flat = true
 
-[node name="MakeInvalidButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="MakeInvalidButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_disabled_color = Color(0.38, 0.31825, 0.133, 1)
 theme_override_colors/font_color = Color(1, 0.836282, 0.329412, 1)
@@ -126,33 +131,22 @@ theme_override_styles/focus = SubResource("StyleBoxEmpty_262ie")
 text = "Make invalid"
 flat = true
 
-[node name="RemoveButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="RemoveButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_tp4gl")
 icon = ExtResource("3_q2dmk")
 flat = true
 
-[node name="OpenCategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="OpenCategoriesButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/icon_max_width = 22
 theme_override_styles/focus = SubResource("StyleBoxEmpty_3ox36")
 icon = ExtResource("5_7so76")
 flat = true
 
-[node name="OpenInspectorButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer"]
+[node name="OpenInspectorButton" type="Button" parent="MarginContainer/HBoxContainer/OptionsContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/icon_max_width = 24
 theme_override_styles/focus = SubResource("StyleBoxEmpty_cubkw")
 icon = ExtResource("4_sn6fc")
 flat = true
-
-[node name="ColorBG" type="ColorRect" parent="."]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.391381, 0.391381, 0.391381, 1)

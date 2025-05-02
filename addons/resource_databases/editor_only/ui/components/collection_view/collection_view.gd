@@ -1,7 +1,7 @@
 @tool
 extends PanelContainer
 
-const Namespace := preload("res://addons/resource_databases/editor_only/plugin_namespace.gd")
+const Namespace := preload("uid://b7ra0aicagaes")
 
 const BulkCategoryDialog := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.gd")
 const BULK_CATEGORY_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.tscn")
@@ -38,7 +38,16 @@ const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_o
 var _database_editor: Namespace.DatabaseEditor:
 	set(v):
 		_database_editor = v
-		_database_editor.loaded_database.collection_name_changed.connect(_on_collection_name_changed)
+		_database_editor.loaded_database.collection_name_changed.connect(
+			func(old_name: StringName, new_name: StringName) -> void:
+				if old_name == _collection_name:
+					_collection_name = new_name
+		)
+		_database_editor.loaded_database.collections_list_changed.connect(
+			func() -> void:
+				if _collection_name not in _database_editor.loaded_database.get_collections_list():
+					queue_free()
+		)
 
 var _collection_name: StringName:
 	set(v):
@@ -46,7 +55,7 @@ var _collection_name: StringName:
 		if (not _collection.entries_changed.is_connected(_update_entries) and
 			not _collection.settings_changed.is_connected(_update_entries)
 		):
-			_collection.entries_changed.connect(_update_entries )
+			_collection.entries_changed.connect(_update_entries)
 			_collection.settings_changed.connect(_update_entries)
 		_collection_button.disabled = false
 		_selected_collection_label.text = "[b]%s" % _collection_name
@@ -80,10 +89,15 @@ func setup_collection_view(pdatabase_editor: Namespace.DatabaseEditor, pcollecti
 
 func _ready() -> void:
 	assert(correctly_initialized)
-	# NOTE This signal is also emitted when a file is moved for some reason
-	ProjectSettings.settings_changed.connect(_update_entries)
-	# NOTE This signal seems to be emitted a lot, when saving, etc...
-	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
+	
+	# Connect editor signals with DatabaseEditor
+	if Engine.is_editor_hint():
+		# NOTE This signal is also emitted when a file is moved for some reason
+		ProjectSettings.settings_changed.connect(_update_entries)
+		# NOTE This signal seems to be emitted a lot, when saving, etc...
+		EditorInterface.get_resource_filesystem().filesystem_changed.connect(_update_entries)
+	
+	# Syntax highlighting in expression editor
 	_expression_filter_text_edit.syntax_highlighter.member_keyword_colors = {"res": Color.LIGHT_SALMON, "res_type": Color.LIGHT_PINK}
 	
 	# Menu buttons
@@ -94,6 +108,14 @@ func _ready() -> void:
 	
 	# Drag and Drop
 	_drag_and_drop_panel.paths_dropped.connect(_register_resources_from_paths)
+	
+	# Search box
+	_search_line_edit.text_changed.connect(_update_entries.unbind(1))
+	
+	# View page counter
+	_entries_view_page_counter.change_page_requested.connect(
+		func(change: int) -> void: _update_entries(_view_page + change)
+	)
 	
 	# Filters buttons
 	_filters_check_button.toggled.connect(_on_filters_check_button_toggled)
@@ -165,6 +187,21 @@ func _get_filtered_ids() -> Array[int]:
 		return []
 	var result: Array[int]
 	result.assign((_current_entries.ints_to_locators as Dictionary[int, String]).keys())
+	
+	# Search box filtering
+	if not _search_line_edit.text.is_empty():
+		result = result.filter(
+			func(int_id: int) -> bool:
+				return (
+					_search_line_edit.text in (_current_entries.ints_to_strings[int_id] as String) or
+					_search_line_edit.text in DatabaseCollection.resource_path_from_locator(_current_entries.ints_to_locators[int_id], false)
+				)
+		)
+	
+	# If the right-side filters panel is closed don't execute the rest of filters
+	if not _filters_check_button.button_pressed:
+		return result
+	
 	# The category filter does a check for all categories in the categories_filter array
 	# Int ID must be in all of them to appear
 	if not _categories_view_include_filter.is_empty() or not _categories_view_exclude_filter.is_empty():
@@ -178,29 +215,28 @@ func _get_filtered_ids() -> Array[int]:
 						return false
 				return true
 				)
-	if not _search_line_edit.text.is_empty():
-		result = result.filter(
-			func(int_id: int) -> bool:
-				return (_current_entries.ints_to_strings[int_id] as String).contains(_search_line_edit.text)
-				)
+	
 	# Expression filtering:
 	var expr := _get_filter_expression()
-	if expr == null:
-		return result
-	var expression_ids := _get_expression_ids()
-	result = result.filter(
-		func(int_id: int) -> bool:
-			return int_id in expression_ids
-	)
+	if expr != null:
+		var expression_ids := _get_expression_ids()
+		result = result.filter(
+			func(int_id: int) -> bool:
+				return int_id in expression_ids
+		)
+	
 	return result
 
 
 # Executes the expression and returns the IDs of the entries that satisfy it
 func _get_expression_ids() -> Array[int]:
-	var expr := _get_filter_expression()
-	assert(expr != null, "Can't get expression IDs if expression is null.")
 	var entries_ids: Array[int] = []
 	entries_ids.assign(_current_entries.ints_to_locators.keys())
+	
+	var expr := _get_filter_expression()
+	if expr == null:
+		printerr("Can't get expression IDs if expression is null.")
+		return entries_ids
 	
 	var ids = entries_ids.filter(
 		func(int_id: int) -> bool:
@@ -208,7 +244,7 @@ func _get_expression_ids() -> Array[int]:
 			var locator_references_resource := ResourceLoader.exists(locator)
 			var res: Resource
 			var res_script: Script
-			var res_class: StringName
+			var res_class: String
 			
 			if not locator_references_resource:
 				res = null
@@ -239,7 +275,7 @@ func _get_filter_expression() -> Expression:
 		return null
 	var expr := Expression.new()
 	if expr.parse(_expression_filter_text_edit.text, PackedStringArray(["res", "res_type"])) != OK:
-		print_rich(Namespace.CONSOLE_MSGS.expression_parsing_error)
+		printerr("Error parsing filter expression.")
 		return null
 	return expr
 #endregion
@@ -283,6 +319,7 @@ func _update_entries(page: int = -1) -> void:
 	await get_tree().process_frame
 	_was_updated = false
 	
+	print_debug("Updating collection view entries.")
 	_selection_button.disabled = _current_entries.is_empty()
 	
 	# Free category filters
@@ -300,7 +337,7 @@ func _update_entries(page: int = -1) -> void:
 	# Remove categories from option button of advanced expression options
 	_categories_option_button.clear()
 	
-	# Add new filters
+	# Add new category filters
 	for category: StringName in _current_entries.categories_to_ints:
 		# Update category filters
 		var new_filter: Namespace.CategoryFilter = CATEGORY_FILTER_SCENE.instantiate()
@@ -336,19 +373,14 @@ func _update_entries(page: int = -1) -> void:
 			_selected_ids.erase(int_id)
 	_update_selection_button_options()
 	
-	# Get sorted int ids
-	var ordered_ids: Array[int]
-	# Just display filtered ids if the filters button is checked
-	if _filters_check_button.button_pressed:
-		ordered_ids = _get_filtered_ids()
-	else:
-		ordered_ids.assign(ints_to_strings.keys())
+	var ordered_ids: Array[int] = _get_filtered_ids()
 	ordered_ids.sort()
-	var max_entries: int = ProjectSettings.get_setting("resource_databases/max_view_entries")
+	var max_entries: int = ProjectSettings.get_setting("resource_databases/max_view_entries", 25)
 	var max_page: int = maxi(1, ceili(float(ordered_ids.size()) / max_entries))
 	
 	# Updates the view page to clamp it in case filters are active
-	_set_view_page(_view_page if page < 0 else page, max_page)
+	_view_page = clampi(_view_page if page < 0 else page, 1, max_page)
+	_entries_view_page_counter.setup_view_page_counter(_view_page, max_page)
 	
 	if ordered_ids.is_empty():
 		return # Nothing to update
@@ -361,6 +393,7 @@ func _update_entries(page: int = -1) -> void:
 	for int_id: int in ids_in_view:
 		var n_entry := DATABASE_ENTRY_SCENE.instantiate() as Namespace.CollectionEntry
 		n_entry.setup_entry(
+			_database_editor,
 			_collection_name,
 			int_id,
 			ints_to_strings[int_id],
@@ -436,25 +469,6 @@ func _bulk_category_selected(category: StringName, was_added: bool) -> void:
 #endregion
 
 
-# Actually the view page is only updated when the entries get updated
-func _set_view_page(page: int, max_page: int) -> void:
-	_view_page = clampi(page, 1, max_page)
-	_entries_view_page_counter.setup_view_page_counter(_view_page, max_page)
-
-
-func _on_collection_name_changed(old_name: StringName, new_name: StringName) -> void:
-	if old_name == _collection_name:
-		_collection_name = new_name
-
-
-func _on_view_page_counter_change_page_requested(change: int) -> void:
-	_update_entries(_view_page + change)
-
-
-func _on_search_line_edit_text_changed(_new_text: String) -> void:
-	_update_entries()
-
-
 func _on_filters_check_button_toggled(toggled_on: bool) -> void:
 	_filters_panel.visible = toggled_on
 	_update_entries()
@@ -467,7 +481,7 @@ func _on_advanced_filter_options_button_toggled(toggled_on: bool) -> void:
 
 func _on_update_category_button_pressed() -> void:
 	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
-	if not await _database_editor.warn(&"update_category"):
+	if not await _database_editor.warn(&"update_category", [category]):
 		return
 	var filtered_ids := _get_filtered_ids()
 	_collection.clear_category(category)
@@ -477,7 +491,7 @@ func _on_update_category_button_pressed() -> void:
 
 func _on_clear_category_button_pressed() -> void:
 	var category: StringName = _categories_option_button.get_item_metadata(_categories_option_button.selected)
-	if not await _database_editor.warn(&"clean_category"):
+	if not await _database_editor.warn(&"clean_category", [category]):
 		return
 	_collection.clear_category(category)
 #endregion

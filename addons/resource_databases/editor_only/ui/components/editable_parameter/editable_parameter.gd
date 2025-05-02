@@ -31,6 +31,7 @@ func _ready() -> void:
 	line_edit.placeholder_text = parameter_placeholder
 	line_edit.alignment = parameter_alignment
 	line_edit.gui_input.connect(_on_line_edit_gui_input)
+	line_edit.text_submitted.connect(_on_confirm_button_pressed.unbind(1))
 	confirm_button.pressed.connect(_on_confirm_button_pressed)
 
 

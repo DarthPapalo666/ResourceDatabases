@@ -6,13 +6,9 @@ extends Resource
 
 signal collection_name_changed(old: StringName, new: StringName)
 signal collections_list_changed
-signal saved_changes
-signal unsaved_changes
-
 
 const BINARY_FORMAT_EXTENSION := "gddb"
 const TEXT_FORMAT_EXTENSION := "tgddb"
-
 
 var _collections: Dictionary[StringName, DatabaseCollection]
 
@@ -23,7 +19,7 @@ var db_size: int:
 			size += coll.collection_size
 		return size
 
-var has_unsaved_changes := true: set = _set_unsaved_changes
+var has_unsaved_changes := false: set = _set_unsaved_changes
 
 
 #region Fetch methods
@@ -37,28 +33,6 @@ func fetch_data(collection: StringName, id: Variant) -> Resource:
 ## The dictionary contains [code]Int ID : Resource/null[/code]
 func fetch_collection_data(collection: StringName, include_invalid: bool = false) -> Dictionary[int, Resource]:
 	return get_collection(collection).fetch_all_resources(include_invalid)
-
-
-## Returns the resource associated with a DB path:[br]
-## [codeblock]
-## # Get a resource from a collection:
-## var item1_data := my_database.fetch_data_string("items/item1") # Resource or null
-##
-## # Get all resources from a collection with a specific category:
-## var usable_items_data := my_database.fetch_data_string("items:usable") # Dictionary with int_id : resource
-## [/codeblock]
-## Pushes an error if the string is invalid.
-func fetch_data_string(string: String) -> Variant:
-	var valid_string_id := RegEx.create_from_string(r"[A-Za-z_][A-Za-z_0-9]*\/[A-Za-z_][A-Za-z_0-9]*").search(string) != null
-	var valid_category := RegEx.create_from_string(r"[A-Za-z_][A-Za-z_0-9]*:[A-Za-z_][A-Za-z_0-9]*").search(string) != null
-	assert((valid_string_id or valid_category) and not (valid_string_id and valid_category), "[ResourceDatabase] Can't fetch data string, invalid format.")
-	var parts := string.split("/" if valid_string_id else ":", false)
-	assert(parts.size() == 2, "[ResourceDatabase] Can't fetch data string, invalid format.")
-	if valid_string_id:
-		return fetch_data(StringName(parts[0]), StringName(parts[1]))
-	elif valid_category:
-		return fetch_category_data(StringName(parts[0]), StringName(parts[1]))
-	return null
 
 
 ## Returns all the data from a [param category] of a [param collection].[br]
@@ -82,11 +56,7 @@ func ensure_int_id(collection: StringName, id: Variant) -> int:
 # Used internally,updates the database's state to reflect unsaved changes.
 func _set_unsaved_changes(value: bool) -> void:
 	has_unsaved_changes = value
-	if has_unsaved_changes:
-		unsaved_changes.emit()
-	else:
-		emit_changed()
-		saved_changes.emit()
+	emit_changed()
 
 
 # Used internally when the collections list changes.
@@ -109,7 +79,7 @@ func get_collections_list() -> Array[StringName]:
 ## Returns the collection with the given [param collection_name].
 func get_collection(collection_name: StringName) -> DatabaseCollection:
 	if not has_collection(collection_name):
-		push_error("Can't get inexistent collection. (%s)" % collection_name)
+		printerr("Can't get inexistent collection from resource database. (%s)" % collection_name)
 		return null
 	return _collections[collection_name]
 
@@ -122,7 +92,7 @@ func is_collection_name_available(name: StringName) -> bool:
 ## Creates a collection in the database if the given name is available.
 func create_collection(collection_name: StringName) -> DatabaseCollection:
 	if not is_collection_name_available(collection_name):
-		push_error("Can't create new collection, name is not available. (%s)" % collection_name)
+		printerr("Can't create new collection in resource database, name is not available. (%s)" % collection_name)
 		return null
 	var new_collection := DatabaseCollection.new()
 	_collections[collection_name] = new_collection
@@ -144,7 +114,7 @@ func _connect_collection_signals(collection: DatabaseCollection) -> void:
 ## Removes a colelction from the database if it exists.
 func remove_collection(collection_name: StringName) -> void:
 	if not has_collection(collection_name):
-		push_error("Can't rename inexistent collection. (%s)" % collection_name)
+		printerr("Can't rename inexistent collection from resource database. (%s)" % collection_name)
 		return
 	_collections.erase(collection_name)
 	_emit_collections_list_changed()
@@ -153,7 +123,7 @@ func remove_collection(collection_name: StringName) -> void:
 ## Changes the name of a collection from [param old] to [param new].
 func rename_collection(old: StringName, new: StringName) -> void:
 	if not has_collection(old):
-		push_error("Can't rename inexistent collection. (%s)" % old)
+		printerr("Can't rename inexistent collection from resource database. (%s)" % old)
 		return
 	_collections[new] = _collections[old]
 	_collections.erase(old)
