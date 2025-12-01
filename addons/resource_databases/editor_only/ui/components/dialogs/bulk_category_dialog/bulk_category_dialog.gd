@@ -18,7 +18,7 @@ var _collection_name: StringName:
 		_collection.entries_changed.connect(_update_categories)
 		_update_categories()
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 

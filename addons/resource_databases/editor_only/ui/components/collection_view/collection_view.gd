@@ -60,7 +60,7 @@ var _collection_name: StringName:
 		_collection_button.disabled = false
 		_selected_collection_label.text = "[b]%s" % _collection_name
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
@@ -194,7 +194,7 @@ func _get_filtered_ids() -> Array[int]:
 			func(int_id: int) -> bool:
 				return (
 					_search_line_edit.text in (_current_entries.ints_to_strings[int_id] as String) or
-					_search_line_edit.text in DatabaseCollection.resource_path_from_locator(_current_entries.ints_to_locators[int_id], false)
+					_search_line_edit.text in ResourceDatabaseCollection.resource_path_from_locator(_current_entries.ints_to_locators[int_id], false)
 				)
 		)
 	

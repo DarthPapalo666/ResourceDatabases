@@ -23,7 +23,7 @@ var _collection_name: StringName:
 		_collection.entries_changed.connect(_update_categories)
 		_collection.int_id_changed.connect(_on_int_id_changed)
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 

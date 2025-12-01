@@ -34,10 +34,10 @@ var _embedded_collection_view: Namespace.CollectionView
 @export var _collection_categories_dialogues_container: Node
 
 
-var loaded_database: Database = null:
+var loaded_database: ResourceDatabase = null:
 	set(v):
 		if v == loaded_database:
-			print_debug("Database already opened.")
+			print_debug("ResourceDatabase already opened.")
 			return
 		
 		loaded_database = v
@@ -52,7 +52,7 @@ var loaded_database: Database = null:
 		
 		_update_database_button_options()
 		
-		if loaded_database != null: # Database opened
+		if loaded_database != null: # ResourceDatabase opened
 			# Add the CollectionsListView
 			_collections_list_view = DATABASE_COLLECTION_LIST_VIEW_SCENE.instantiate()
 			_collections_list_view.collection_selected.connect(_on_collection_selected)
@@ -66,8 +66,8 @@ func _ready() -> void:
 	_database_button.get_popup().id_pressed.connect(_on_database_button_id_selected)
 	_update_database_button_options()
 	var filters_array := PackedStringArray([
-		"*.%s ; Text Database Files" % Database.TEXT_FORMAT_EXTENSION,
-		"*.%s ; Binary Database Files" % Database.BINARY_FORMAT_EXTENSION,
+		"*.%s ; Text ResourceDatabase Files" % ResourceDatabase.TEXT_FORMAT_EXTENSION,
+		"*.%s ; Binary ResourceDatabase Files" % ResourceDatabase.BINARY_FORMAT_EXTENSION,
 	])
 	_save_dialog.filters = filters_array
 	_save_dialog.file_selected.connect(
@@ -130,7 +130,7 @@ func open_entry_categories_dialog(collection_name: StringName, entry_int_id: int
 #endregion
 
 
-#region Database menu button
+#region ResourceDatabase menu button
 # Callback for the database menu buttons popup.
 func _on_database_button_id_selected(id: int) -> void:
 	var menu := _database_button.get_popup()
@@ -160,7 +160,7 @@ func _update_database_button_options() -> void:
 #endregion
 
 
-#region Database management
+#region ResourceDatabase management
 # Callback for when the database changes.
 func _on_database_changed(is_saved: bool) -> void:
 	_database_path_label.text = "%s%s" % ["" if is_saved else "[i]*", loaded_database.resource_path]
@@ -179,13 +179,13 @@ func close_loaded_database() -> void:
 	loaded_database = null
 
 
-# Creates a new Database notifying the user if any data might be lost.
+# Creates a new ResourceDatabase notifying the user if any data might be lost.
 func create_new_database() -> void:
 	if loaded_database != null:
 		if loaded_database.has_unsaved_changes:
 			if not await warn(&"unsaved_database"):
 				return
-	loaded_database = Database.new()
+	loaded_database = ResourceDatabase.new()
 
 
 # Prompts the load dialog.

@@ -23,7 +23,7 @@ var _collection_name: StringName:
 		_update_categories()
 		title = "%s categories" % String(_collection_name).capitalize()
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 

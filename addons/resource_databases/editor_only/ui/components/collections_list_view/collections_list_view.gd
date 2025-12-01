@@ -26,7 +26,7 @@ var _database_editor: Namespace.DatabaseEditor:
 		)
 		selected_collection = StringName()
 
-var _current_database: Database:
+var _current_database: ResourceDatabase:
 	get:
 		return _database_editor.loaded_database
 		

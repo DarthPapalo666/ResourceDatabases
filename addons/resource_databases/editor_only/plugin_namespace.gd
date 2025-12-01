@@ -1,7 +1,7 @@
 
 const DatabaseEditor := preload("uid://dj55qe48saxx5")
 
-# Database editor components
+# Resource Database editor components
 const CollectionsListView := preload("uid://dgei1m2w0su5r")
 const CollectionView := preload("uid://bx01vht87edo1")
 
@@ -43,7 +43,7 @@ const WARNING_MSGS := {
 		"Are you sure you want to remove the \"[i]%s[/i]\" category?"
 	],
 	unsaved_database = [
-		"Unsaved changes in Database",
+		"Unsaved changes in ResourceDatabase",
 		"You have unsaved changes in the current database,\nare you sure you want to continue?"
 	],
 	clean_category = [

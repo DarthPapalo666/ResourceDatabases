@@ -27,7 +27,7 @@ var _collection_name: StringName:
 		_collection_name_parameter.setup_parameter(String(_collection_name))
 		title = "%s settings" % _collection_name.capitalize()
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
@@ -73,10 +73,10 @@ func _on_collections_list_changed() -> void:
 
 func _on_collection_settings_changed() -> void:
 	var settings: Dictionary = _collection.get_settings_data()
-	_classes_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.valid_classes, false))
-	_designated_folders_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.designated_folders))
-	_included_filters_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.included_filters))
-	_excluded_filters_parameter.setup_parameter(DatabaseFormatSaver.array_to_string(settings.excluded_filters))
+	_classes_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.valid_classes, false))
+	_designated_folders_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.designated_folders))
+	_included_filters_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.included_filters))
+	_excluded_filters_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.excluded_filters))
 #endregion
 
 
@@ -98,11 +98,11 @@ func _on_designated_folders_editable_parameter_change_made(_old: String, new: St
 
 
 func _on_included_editable_parameter_change_made(_old: String, new: String) -> void:
-	_collection.set_path_filters(new, DatabaseCollection.PathFilterType.INCLUDE)
+	_collection.set_path_filters(new, ResourceDatabaseCollection.PathFilterType.INCLUDE)
 
 
 func _on_excluded_editable_parameter_change_made(_old: String, new: String) -> void:
-	_collection.set_path_filters(new, DatabaseCollection.PathFilterType.EXCLUDE)
+	_collection.set_path_filters(new, ResourceDatabaseCollection.PathFilterType.EXCLUDE)
 #endregion
 
 #region Button callbacks

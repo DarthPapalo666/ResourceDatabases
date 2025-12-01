@@ -22,7 +22,7 @@ var correctly_initialized := false
 var _database_editor: Namespace.DatabaseEditor
 var _collection_name: StringName
 
-var _collection: DatabaseCollection:
+var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
@@ -50,7 +50,7 @@ var _locator: String:
 			locator_visible_text = locator_visible_text % ["light_blue" if _entry_locator_is_valid else "light_coral", _locator]
 		_resource_locator_label.text = locator_visible_text
 		_open_inspector_button.disabled = not _entry_locator_is_valid
-		if _locator == DatabaseCollection.INVALID_RESOURCE_LOCATOR:
+		if _locator == ResourceDatabaseCollection.INVALID_RESOURCE_LOCATOR:
 			_make_invalid_button.disabled = true
 
 var _entry_locator_is_valid: bool:

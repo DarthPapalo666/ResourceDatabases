@@ -1,11 +1,11 @@
 @tool
-class_name DatabaseFormatLoader
+class_name ResourceDatabaseFormatLoader
 extends ResourceFormatLoader
 ## Class in charge of loading resource databases files as resources inside Godot.
 
 
 func _get_recognized_extensions() -> PackedStringArray:
-	return PackedStringArray([Database.BINARY_FORMAT_EXTENSION, Database.TEXT_FORMAT_EXTENSION])
+	return PackedStringArray([ResourceDatabase.BINARY_FORMAT_EXTENSION, ResourceDatabase.TEXT_FORMAT_EXTENSION])
 
 
 func _load(path: String, _original_path: String, _use_sub_threads: bool, _cache_mode: int) -> Variant:
@@ -16,9 +16,9 @@ func _load(path: String, _original_path: String, _use_sub_threads: bool, _cache_
 		return FileAccess.get_open_error()
 	
 	match path.get_extension().to_lower():
-		Database.BINARY_FORMAT_EXTENSION:
+		ResourceDatabase.BINARY_FORMAT_EXTENSION:
 			data = f.get_var()
-		Database.TEXT_FORMAT_EXTENSION:
+		ResourceDatabase.TEXT_FORMAT_EXTENSION:
 			data = _parse_text_database_file(f.get_as_text(true))
 	
 	f.close()
@@ -80,19 +80,19 @@ func _parse_text_database_file(text: String) -> Dictionary[StringName, Dictionar
 	return collections_data
 
 
-func _collections_data_to_database(collections_data: Dictionary[StringName, Dictionary]) -> Database:
+func _collections_data_to_database(collections_data: Dictionary[StringName, Dictionary]) -> ResourceDatabase:
 	# TODO: Add additional validation for the dictionary
-	var new_database := Database.new()
+	var new_database := ResourceDatabase.new()
 	
 	for collection_name: StringName in collections_data:
 		var collection_data: Dictionary = collections_data[collection_name]
-		var collection: DatabaseCollection = new_database.create_collection(collection_name)
+		var collection: ResourceDatabaseCollection = new_database.create_collection(collection_name)
 		
 		# Load settings
 		collection.set_valid_classes(collection_data.valid_classes)
 		collection.set_designated_folders(collection_data.designated_folders)
-		collection.set_path_filters(collection_data.included_filters, DatabaseCollection.PathFilterType.INCLUDE)
-		collection.set_path_filters(collection_data.excluded_filters, DatabaseCollection.PathFilterType.EXCLUDE)
+		collection.set_path_filters(collection_data.included_filters, ResourceDatabaseCollection.PathFilterType.INCLUDE)
+		collection.set_path_filters(collection_data.excluded_filters, ResourceDatabaseCollection.PathFilterType.EXCLUDE)
 		
 		# Create the categories
 		for category: StringName in collection_data.categories_to_ints.keys():

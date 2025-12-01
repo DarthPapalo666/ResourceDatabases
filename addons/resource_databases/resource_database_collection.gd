@@ -1,5 +1,5 @@
 @tool
-class_name DatabaseCollection
+class_name ResourceDatabaseCollection
 
 signal settings_changed
 signal entries_changed
@@ -75,7 +75,7 @@ func fetch_category_resources(category: StringName, include_invalid: bool) -> Di
 func set_valid_classes(classes: Variant) -> void:
 	match typeof(classes):
 		TYPE_STRING:
-			_valid_classes = DatabaseFormatLoader.string_to_names_array(classes)
+			_valid_classes = ResourceDatabaseFormatLoader.string_to_names_array(classes)
 		TYPE_ARRAY:
 			_valid_classes.assign(classes)
 		_:
@@ -117,7 +117,7 @@ func set_designated_folders(folders: Variant) -> void:
 	var folders_array: Array[String]
 	match typeof(folders):
 		TYPE_STRING:
-			folders_array = DatabaseFormatLoader.string_to_strings_array(folders)
+			folders_array = ResourceDatabaseFormatLoader.string_to_strings_array(folders)
 		TYPE_ARRAY:
 			folders_array = folders
 		_:
@@ -139,7 +139,7 @@ func set_path_filters(filters: Variant, type: PathFilterType) -> void:
 	var filters_array: Array[String]
 	match typeof(filters):
 		TYPE_STRING:
-			filters_array = DatabaseFormatLoader.string_to_strings_array(filters)
+			filters_array = ResourceDatabaseFormatLoader.string_to_strings_array(filters)
 		TYPE_ARRAY:
 			filters_array = filters
 		_:
@@ -380,7 +380,7 @@ func unregister_resource(id: Variant) -> void:
 	entries_changed.emit()
 
 
-## Sets the locator of an entry to: [constant DatabaseCollection.INVALID_RESOURCE_LOCATOR][br]
+## Sets the locator of an entry to: [constant ResourceDatabaseCollection.INVALID_RESOURCE_LOCATOR][br]
 ## The invalid locator enables entries to act as [b]placeholders[/b].
 func set_invalid_resource(id: Variant) -> void:
 	var int_id: int = ensure_int_id(id)

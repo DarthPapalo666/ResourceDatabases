@@ -1,28 +1,28 @@
 @tool
-class_name DatabaseFormatSaver
+class_name ResourceDatabaseFormatSaver
 extends ResourceFormatSaver
 ## Class in charge of saving resource databases resources as files.
 
 
 func _get_recognized_extensions(resource: Resource) -> PackedStringArray:
-	return PackedStringArray([Database.TEXT_FORMAT_EXTENSION, Database.BINARY_FORMAT_EXTENSION])
+	return PackedStringArray([ResourceDatabase.TEXT_FORMAT_EXTENSION, ResourceDatabase.BINARY_FORMAT_EXTENSION])
 
 
 func _recognize(resource: Resource) -> bool:
-	return resource is Database
+	return resource is ResourceDatabase
 
 
 func _save(resource: Resource, path: String, flags: int) -> Error:
-	if resource is not Database:
+	if resource is not ResourceDatabase:
 		return ERR_INVALID_PARAMETER
-	var database := resource as Database
+	var database := resource as ResourceDatabase
 	
 	var f = FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		return f.get_open_error()
 	
 	match path.get_extension():
-		Database.BINARY_FORMAT_EXTENSION:
+		ResourceDatabase.BINARY_FORMAT_EXTENSION:
 			var database_data: Dictionary[StringName, Dictionary]
 			for collection_name: StringName in database.get_collections_list():
 				var data := {}
@@ -30,7 +30,7 @@ func _save(resource: Resource, path: String, flags: int) -> Error:
 				data.merge(database.get_collection(collection_name).get_settings_data())
 				database_data[collection_name] = data
 			f.store_var(database_data)
-		Database.TEXT_FORMAT_EXTENSION:
+		ResourceDatabase.TEXT_FORMAT_EXTENSION:
 			var text := ""
 			for collection_name: StringName in database.get_collections_list():
 				var collection = database.get_collection(collection_name)

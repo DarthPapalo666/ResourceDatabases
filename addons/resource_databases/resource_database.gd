@@ -1,24 +1,29 @@
 @tool
-class_name Database
+class_name ResourceDatabase
 extends Resource
 ## Database of resources. Load and access data dynamically![br]
-## Part of the [i]Resource Databases[/i] plugin by DarthPapalo.
+## Part of the Resource Databases plugin by DarthPapalo.
 
+## Emitted when the name of a collection is changed.
 signal collection_name_changed(old: StringName, new: StringName)
+## Emitted when the list of collections from the database changes.
 signal collections_list_changed
 
 const BINARY_FORMAT_EXTENSION := "gddb"
 const TEXT_FORMAT_EXTENSION := "tgddb"
 
-var _collections: Dictionary[StringName, DatabaseCollection]
+var _collections: Dictionary[StringName, ResourceDatabaseCollection]
 
+## Number of entries from the database.
 var db_size: int:
 	get:
 		var size: int = 0
-		for coll: DatabaseCollection in _collections.values():
+		for coll: ResourceDatabaseCollection in _collections.values():
 			size += coll.collection_size
 		return size
 
+## If the database has changes.[br]
+## Note: This is used in the database editor provided with the plugin, modifying the database at runtime is not recommended.
 var has_unsaved_changes := false: set = _set_unsaved_changes
 
 
@@ -30,13 +35,13 @@ func fetch_data(collection: StringName, id: Variant) -> Resource:
 
 
 ## Returns all the data from a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
+## The dictionary contains [code]IntID : Resource / null[/code]
 func fetch_collection_data(collection: StringName, include_invalid: bool = false) -> Dictionary[int, Resource]:
 	return get_collection(collection).fetch_all_resources(include_invalid)
 
 
 ## Returns all the data from a [param category] of a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
+## The dictionary contains [code]IntID : Resource / null[/code]
 func fetch_category_data(collection: StringName, category: StringName, include_invalid := false) -> Dictionary[int, Resource]:
 	return get_collection(collection).fetch_category_resources(category, include_invalid)
 
@@ -77,7 +82,7 @@ func get_collections_list() -> Array[StringName]:
 
 
 ## Returns the collection with the given [param collection_name].
-func get_collection(collection_name: StringName) -> DatabaseCollection:
+func get_collection(collection_name: StringName) -> ResourceDatabaseCollection:
 	if not has_collection(collection_name):
 		printerr("Can't get inexistent collection from resource database. (%s)" % collection_name)
 		return null
@@ -90,11 +95,11 @@ func is_collection_name_available(name: StringName) -> bool:
 
 
 ## Creates a collection in the database if the given name is available.
-func create_collection(collection_name: StringName) -> DatabaseCollection:
+func create_collection(collection_name: StringName) -> ResourceDatabaseCollection:
 	if not is_collection_name_available(collection_name):
 		printerr("Can't create new collection in resource database, name is not available. (%s)" % collection_name)
 		return null
-	var new_collection := DatabaseCollection.new()
+	var new_collection := ResourceDatabaseCollection.new()
 	_collections[collection_name] = new_collection
 	_connect_collection_signals(new_collection)
 	_emit_collections_list_changed()
@@ -102,7 +107,7 @@ func create_collection(collection_name: StringName) -> DatabaseCollection:
 
 
 # Used interanally to update unsaved changes when collections change.
-func _connect_collection_signals(collection: DatabaseCollection) -> void:
+func _connect_collection_signals(collection: ResourceDatabaseCollection) -> void:
 	var relevant_signals: Array[Signal] = [
 		collection.entries_changed,
 		collection.settings_changed,

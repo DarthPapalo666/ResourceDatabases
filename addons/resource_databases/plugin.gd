@@ -51,7 +51,7 @@ func _has_main_screen() -> bool:
 
 
 func _get_plugin_name() -> String:
-	return "Databases"
+	return "ResourcesDB"
 
 
 func _get_plugin_icon() -> Texture2D:
@@ -59,12 +59,12 @@ func _get_plugin_icon() -> Texture2D:
 
 
 func _handles(object: Object) -> bool:
-	var db := object as Database
+	var db := object as ResourceDatabase
 	return db != null and not db.resource_path.is_empty()
 
 
 func _edit(object: Object) -> void:
-	var db := object as Database
+	var db := object as ResourceDatabase
 	if (
 		db == null or
 		not ResourceLoader.exists(db.resource_path) or
