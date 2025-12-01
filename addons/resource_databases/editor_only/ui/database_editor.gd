@@ -59,7 +59,9 @@ var loaded_database: ResourceDatabase = null:
 			_collections_list_view.setup_collections_list_view(self)
 			_database_view.add_child(_collections_list_view)
 			
-			print_debug("This should always be false: ", loaded_database.has_unsaved_changes)
+			loaded_database.changed.connect(_on_database_changed)
+		
+		_on_database_changed()
 
 
 func _ready() -> void:
@@ -78,7 +80,7 @@ func _ready() -> void:
 	_load_dialog.filters = filters_array
 	_load_dialog.file_selected.connect(
 		func(path: String) -> void:
-			loaded_database = load(path)
+			loaded_database = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 	)
 	$VBoxContainer/EditorTopBar/HBoxContainer/DebugButton.pressed.connect(_debug)
 
@@ -162,8 +164,14 @@ func _update_database_button_options() -> void:
 
 #region ResourceDatabase management
 # Callback for when the database changes.
-func _on_database_changed(is_saved: bool) -> void:
-	_database_path_label.text = "%s%s" % ["" if is_saved else "[i]*", loaded_database.resource_path]
+func _on_database_changed() -> void:
+	if loaded_database == null:
+		_database_path_label.text = ""
+	else:
+		_database_path_label.text = "%s%s" % [
+			"[i]*" if loaded_database.has_unsaved_changes else "",
+			"unnamed_database" if loaded_database.resource_path.is_empty() else loaded_database.resource_path
+		]
 
 
 # Closes the currently loaded database if any is loaded.

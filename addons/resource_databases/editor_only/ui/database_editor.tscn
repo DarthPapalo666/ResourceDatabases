@@ -15,9 +15,9 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0is4y"]
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7ua7s"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0is4y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fbefp"]
 bg_color = Color(0.145098, 0.168627, 0.203922, 1)
@@ -31,13 +31,13 @@ content_margin_left = 12.0
 content_margin_top = 7.0
 content_margin_right = 12.0
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4w2ib"]
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rtd15"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3gbxt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wdhev"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3gbxt"]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rtd15"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4w2ib"]
 
 [node name="DatabaseEditor" type="MarginContainer" node_paths=PackedStringArray("_start_screen", "_start_screen_version", "_database_path_label", "_database_view", "_database_button", "_warning_dialog", "_load_dialog", "_save_dialog", "_settings_dialogues_container", "_categories_dialogues_container", "_collection_categories_dialogues_container")]
 anchors_preset = 15
@@ -103,8 +103,8 @@ popup/item_6/disabled = true
 layout_mode = 2
 size_flags_horizontal = 10
 size_flags_vertical = 4
-theme_override_styles/focus = SubResource("StyleBoxEmpty_0is4y")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_7ua7s")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_0is4y")
 bbcode_enabled = true
 fit_content = true
 autowrap_mode = 0
@@ -177,15 +177,15 @@ theme_override_constants/margin_bottom = 26
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
-theme_override_styles/fill = SubResource("StyleBoxEmpty_4w2ib")
-theme_override_styles/background = SubResource("StyleBoxEmpty_rtd15")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_wdhev")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_3gbxt")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_wdhev")
+theme_override_styles/background = SubResource("StyleBoxEmpty_rtd15")
+theme_override_styles/fill = SubResource("StyleBoxEmpty_4w2ib")
 bbcode_enabled = true
-text = "[center]Use a [color=violet]Database[/color] to hold and manage your
+text = "[center]Use a [color=violet]ResourceDatabase[/color] to hold and manage your
 own [color=lawngreen][i]custom or built-in[/i] resources[/color]!
 
-Start with [color=yellow]Database > New[/color] to create a new database.
+Start with [color=yellow]Database > New[/color] to create a new resource database.
 Or load an existing one with [color=yellow]Database > Load[/color]."
 fit_content = true
 autowrap_mode = 0
@@ -202,7 +202,7 @@ ok_button_text = "Open"
 dialog_hide_on_ok = true
 mode_overrides_title = false
 file_mode = 0
-filters = PackedStringArray("*.tgddb ; Text Database Files", "*.gddb ; Binary Database Files")
+filters = PackedStringArray("*.tgddb ; Text ResourceDatabase Files", "*.gddb ; Binary ResourceDatabase Files")
 use_native_dialog = true
 
 [node name="SaveDatabaseFileDialog" type="FileDialog" parent="."]
@@ -212,7 +212,7 @@ initial_position = 4
 size = Vector2i(700, 500)
 dialog_hide_on_ok = true
 mode_overrides_title = false
-filters = PackedStringArray("*.tgddb ; Text Database Files", "*.gddb ; Binary Database Files")
+filters = PackedStringArray("*.tgddb ; Text ResourceDatabase Files", "*.gddb ; Binary ResourceDatabase Files")
 use_native_dialog = true
 
 [node name="SettingsDialoguesContainer" type="Node" parent="."]
