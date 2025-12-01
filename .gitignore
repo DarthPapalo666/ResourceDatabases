@@ -1,18 +1,16 @@
 testing/
-/icon.svg
-/icon.svg.import
 project.godot
-plugin_icon.png.import
-plugin_icon.svg.import
 
 
 # Godot 4+ specific ignores
 .godot/
+.nomedia
 
 # Godot-specific ignores
 .import/
 export.cfg
-export_presets.cfg
+export_credentials.cfg
+*.tmp
 
 # Imported translations (automatically generated from CSV files)
 *.translation
