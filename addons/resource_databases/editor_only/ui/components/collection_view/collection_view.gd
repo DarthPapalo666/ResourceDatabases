@@ -317,6 +317,10 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 func _update_entries(page: int = -1) -> void:
 	if _was_updated:
 		return
+	_was_updated = true
+	await get_tree().process_frame # We wait for the whole frame in order to process all the modifications
+	_was_updated = false
+	
 	print_debug("Updating collection view entries.")
 	_selection_button.disabled = _current_entries.is_empty()
 	
@@ -402,10 +406,6 @@ func _update_entries(page: int = -1) -> void:
 		n_entry.entry_selection_changed.connect(_on_entry_selection_changed)
 		_collection_entries_container.add_child(n_entry)
 		index += 1
-		
-	_was_updated = true
-	await get_tree().process_frame
-	_was_updated = false
 
 
 #region Selection methods
