@@ -72,7 +72,7 @@ func _on_collections_list_changed() -> void:
 
 
 func _on_collection_settings_changed() -> void:
-	var settings: Dictionary = _collection.get_settings_data()
+	var settings: Dictionary[StringName, Variant] = _collection.get_settings_data()
 	_classes_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.valid_classes, false))
 	_designated_folders_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.designated_folders))
 	_included_filters_parameter.setup_parameter(ResourceDatabaseFormatSaver.array_to_string(settings.included_filters))

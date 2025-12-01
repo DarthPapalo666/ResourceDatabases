@@ -64,16 +64,18 @@ var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
-var _current_entries: Dictionary:
+var _current_entries: Dictionary[StringName, Variant]:
 	get:
 		return _collection.get_entries_data()
 
+# Indicates the current viewed page of the database collection
 var _view_page: int = 1
 
-var _selected_ids: Dictionary
+# Dictionary used for speed on many IDs selected, bool is just a placeholder
+var _selected_ids: Dictionary[int, bool]
 
-var _categories_view_include_filter: Dictionary
-var _categories_view_exclude_filter: Dictionary
+var _categories_view_include_filter: Dictionary[StringName, bool]
+var _categories_view_exclude_filter: Dictionary[StringName, bool]
 
 # Flag to update the view only once per frame when needed.
 var _was_updated := false
@@ -315,10 +317,6 @@ func _on_category_filter_state_changed(state: int, category: StringName) -> void
 func _update_entries(page: int = -1) -> void:
 	if _was_updated:
 		return
-	_was_updated = true
-	await get_tree().process_frame
-	_was_updated = false
-	
 	print_debug("Updating collection view entries.")
 	_selection_button.disabled = _current_entries.is_empty()
 	
@@ -364,8 +362,8 @@ func _update_entries(page: int = -1) -> void:
 		child.queue_free()
 		
 	# Get all data
-	var ints_to_strings: Dictionary = _current_entries.ints_to_strings
-	var ints_to_locators: Dictionary = _current_entries.ints_to_locators
+	var ints_to_strings: Dictionary[int, StringName] = _current_entries.ints_to_strings
+	var ints_to_locators: Dictionary[int, String] = _current_entries.ints_to_locators
 	
 	# Clean selected ids in case some were removed
 	for int_id: int in _selected_ids.keys():
@@ -404,6 +402,10 @@ func _update_entries(page: int = -1) -> void:
 		n_entry.entry_selection_changed.connect(_on_entry_selection_changed)
 		_collection_entries_container.add_child(n_entry)
 		index += 1
+		
+	_was_updated = true
+	await get_tree().process_frame
+	_was_updated = false
 
 
 #region Selection methods
@@ -428,7 +430,7 @@ func _unselect_entries() -> void:
 
 
 func _invert_entries_selection() -> void:
-	var result: Dictionary
+	var result: Dictionary[int, bool]
 	for int_id: int in _collection.get_entries_data().ints_to_locators:
 		if int_id not in _selected_ids:
 			result[int_id] = true
