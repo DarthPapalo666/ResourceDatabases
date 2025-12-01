@@ -73,7 +73,6 @@ func _update_categories() -> void:
 	var entries_data := _collection.get_entries_data()
 	
 	if _int_id not in entries_data.ints_to_locators:
-		print(_int_id)
 		queue_free()
 		return
 	var all_categories: Dictionary[StringName, Dictionary] = entries_data.categories_to_ints

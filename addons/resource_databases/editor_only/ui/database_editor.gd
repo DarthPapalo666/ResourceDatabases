@@ -37,7 +37,7 @@ var _embedded_collection_view: Namespace.CollectionView
 var loaded_database: ResourceDatabase = null:
 	set(v):
 		if v == loaded_database:
-			print_debug("ResourceDatabase already opened.")
+			#print_debug("ResourceDatabase already opened.")
 			return
 		
 		loaded_database = v
@@ -72,16 +72,8 @@ func _ready() -> void:
 		"*.%s ; Binary ResourceDatabase Files" % ResourceDatabase.BINARY_FORMAT_EXTENSION,
 	])
 	_save_dialog.filters = filters_array
-	_save_dialog.file_selected.connect(
-		func(path: String) -> void:
-			ResourceSaver.save(loaded_database, path, ResourceSaver.FLAG_CHANGE_PATH)
-			loaded_database.has_unsaved_changes = false
-	)
-	_load_dialog.filters = filters_array
-	_load_dialog.file_selected.connect(
-		func(path: String) -> void:
-			loaded_database = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
-	)
+	_save_dialog.file_selected.connect(save_database)
+	_load_dialog.file_selected.connect(load_database)
 	$VBoxContainer/EditorTopBar/HBoxContainer/DebugButton.pressed.connect(_debug)
 
 
@@ -146,12 +138,12 @@ func _update_database_button_options() -> void:
 	menu.add_item("New", 0)
 	menu.set_item_metadata(0, create_new_database)
 	menu.add_item("Load", 1)
-	menu.set_item_metadata(1, load_database)
+	menu.set_item_metadata(1, _load_dialog.popup)
 	menu.add_separator()
 	menu.add_item("Save", 3)
 	menu.set_item_metadata(3, save_database)
 	menu.add_item("Save As...", 4)
-	menu.set_item_metadata(4, save_database.bind(true))
+	menu.set_item_metadata(4, _save_dialog.popup)
 	menu.add_separator()
 	menu.add_item("Close", 6)
 	menu.set_item_metadata(6, close_loaded_database)
@@ -197,24 +189,39 @@ func create_new_database() -> void:
 
 
 # Prompts the load dialog.
-func load_database() -> void:
-	print_debug("Loading database with dialog.")
-	if loaded_database != null and loaded_database.has_unsaved_changes:
-		if not await warn(&"unsaved_database"):
+func load_database(path: String) -> void:
+	#print_debug("Loading database with dialog.")
+	if loaded_database != null:
+		if loaded_database.resource_path == path:
 			return
-	_load_dialog.popup()
+		elif loaded_database.has_unsaved_changes:
+			if not await warn(&"unsaved_database"):
+				return
+	loaded_database = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 
 
 # Saves the currently loaded database to its last save path.
 # Opens the save dialog if [code]force_dialog = true[/code] or
 # if the database was never saved.
-func save_database(force_dialog := false) -> void:
-	if not loaded_database:
+func save_database(path: String = "") -> void:
+	if loaded_database == null:
 		return
-	if loaded_database.resource_path.is_empty() or force_dialog:
-		_save_dialog.popup()
+	if path.is_empty():
+		if loaded_database.resource_path.is_empty():
+			_save_dialog.popup()
+		else:
+			ResourceSaver.save(
+			loaded_database,
+			loaded_database.resource_path,
+			ResourceSaver.FLAG_CHANGE_PATH
+		)
+		loaded_database.has_unsaved_changes = false
 	else:
-		ResourceSaver.save(loaded_database, loaded_database.resource_path, ResourceSaver.FLAG_CHANGE_PATH)
+		ResourceSaver.save(
+			loaded_database,
+			path,
+			ResourceSaver.FLAG_NONE
+		)
 		loaded_database.has_unsaved_changes = false
 #endregion
 
@@ -224,7 +231,7 @@ func _on_collection_selected(collection_name: StringName, embedded: bool) -> voi
 	assert(loaded_database.has_collection(collection_name) and
 			_collections_list_view != null)
 	
-	print_debug("Loading new collection view for: %s" % collection_name)
+	#print_debug("Loading new collection view for: %s" % collection_name)
 	var new_collection_view: Namespace.CollectionView = DATABASE_COLLECTION_VIEW_SCENE.instantiate()
 	new_collection_view.setup_collection_view(self, collection_name)
 	

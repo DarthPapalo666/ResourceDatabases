@@ -71,7 +71,7 @@ func _edit(object: Object) -> void:
 		_database_editor_instance == null
 	):
 		return
-	_database_editor_instance.loaded_database = ResourceLoader.load(db.resource_path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	_database_editor_instance.load_database(db.resource_path)
 
 
 #region Plugin settings

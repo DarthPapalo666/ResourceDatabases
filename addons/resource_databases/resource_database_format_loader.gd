@@ -7,8 +7,14 @@ extends ResourceFormatLoader
 func _get_recognized_extensions() -> PackedStringArray:
 	return PackedStringArray([ResourceDatabase.BINARY_FORMAT_EXTENSION, ResourceDatabase.TEXT_FORMAT_EXTENSION])
 
+func _get_resource_type(path: String) -> String:
+	return "Resource"
+	
+func _handles_type(type: StringName) -> bool:
+	return type == &"Resource"
 
-func _load(path: String, _original_path: String, _use_sub_threads: bool, _cache_mode: int) -> Variant:
+
+func _load(path: String, _original_path: String, _use_sub_threads: bool, cache_mode: int) -> Variant:
 	var data: Dictionary[StringName, Dictionary]
 	
 	var f := FileAccess.open(path, FileAccess.READ)

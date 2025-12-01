@@ -22,6 +22,7 @@ var _collection: ResourceDatabaseCollection:
 	get:
 		return _database_editor.loaded_database.get_collection(_collection_name)
 
+# Represents if the dialog is set up to add the category or remove it
 var _is_for_adding: bool
 
 
@@ -29,7 +30,6 @@ func setup_bulk_category_dialog(pdatabase_editor: Namespace.DatabaseEditor, pcol
 	_database_editor = pdatabase_editor
 	_is_for_adding = pis_for_adding
 	_collection_name = pcollection_name
-	print(_is_for_adding)
 	title = "%s category %s selected entries" % ["Add" if _is_for_adding else "Remove", "to" if _is_for_adding else "from"]
 	_correctly_initialized = true
 

@@ -50,7 +50,7 @@ func _ready() -> void:
 
 
 func _update_list() -> void:
-	print_debug("Updating collections list view")
+	#print_debug("Updating collections list view")
 	for child: Node in _collection_buttons_container.get_children():
 		child.queue_free()
 	

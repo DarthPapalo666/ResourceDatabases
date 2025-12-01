@@ -80,20 +80,20 @@ func set_valid_classes(classes: Variant) -> void:
 			_valid_classes.assign(classes)
 		_:
 			printerr("Invalid type for valid classes.")
-	print_debug("Setted valid classes: %s" % [_valid_classes])
+	#print_debug("Setted valid classes: %s" % [_valid_classes])
 	settings_changed.emit()
 
 
 # Validates if the resources from the collection have valid classes.
 func validate_resource_classes() -> void:
-	print_debug("Validating resource classses")
+	#print_debug("Validating resource classses")
 	for int_id: int in _ints_to_locators:
 		if not ResourceLoader.exists(_ints_to_locators[int_id]):
 			continue
 		var is_valid := _is_resource_class_valid(load(_ints_to_locators[int_id]))
 		if not is_valid:
 			set_invalid_resource(int_id)
-	print_debug("Validated resource classes.")
+	#print_debug("Validated resource classes.")
 	entries_changed.emit()
 
 
@@ -129,7 +129,7 @@ func set_designated_folders(folders: Variant) -> void:
 			return
 	
 	_designated_folders = folders_array
-	print_debug("Setted designated folders: ", _designated_folders)
+	#print_debug("Setted designated folders: ", _designated_folders)
 	settings_changed.emit()
 	update_designated_resources()
 
@@ -148,10 +148,10 @@ func set_path_filters(filters: Variant, type: PathFilterType) -> void:
 	match type:
 		PathFilterType.INCLUDE:
 			_included_filters = filters_array
-			print_debug("Setted include filters: %s" % [_included_filters])
+			#print_debug("Setted include filters: %s" % [_included_filters])
 		PathFilterType.EXCLUDE:
 			_excluded_filters = filters_array
-			print_debug("Setted exclude filters: %s" % [_excluded_filters])
+			#print_debug("Setted exclude filters: %s" % [_excluded_filters])
 		_:
 			printerr("Invalid type of path filter.")
 	settings_changed.emit()
@@ -159,7 +159,7 @@ func set_path_filters(filters: Variant, type: PathFilterType) -> void:
 
 ## Adds all new resources from the designated filters and invalidates entries of missing ones.
 func update_designated_resources() -> void:
-	print_debug("Updating designated resources.")
+	#print_debug("Updating designated resources.")
 	# Check existing resources
 	for int_id: int in _ints_to_locators.keys():
 		var locator: String = get_locator(int_id)
@@ -172,7 +172,7 @@ func update_designated_resources() -> void:
 		for folder: String in _designated_folders:
 			register_folder_resources(folder)
 	
-	print_debug("Designated resources updated.")
+	#print_debug("Designated resources updated.")
 	entries_changed.emit()
 
 
@@ -217,7 +217,7 @@ func create_category(category: StringName) -> void:
 		printerr("Can't register category, invalid identifier.")
 		return
 	_categories_to_ints[category] = {}
-	print_debug("Category created: %s." % category)
+	#print_debug("Category created: %s." % category)
 	entries_changed.emit()
 
 
@@ -227,7 +227,7 @@ func remove_category(category: StringName) -> void:
 		printerr("Can't remove inexistent category.")
 		return
 	_categories_to_ints.erase(category)
-	print_debug("Category removed: %s." % category)
+	#print_debug("Category removed: %s." % category)
 	entries_changed.emit()
 
 
@@ -237,7 +237,7 @@ func clear_category(category: StringName) -> void:
 		printerr("Can't clear inexsistent category.")
 		return
 	(_categories_to_ints[category] as Dictionary).clear()
-	print_debug("Category cleared: %s." % category)
+	#print_debug("Category cleared: %s." % category)
 	entries_changed.emit()
 
 
@@ -270,7 +270,7 @@ func add_category_to_resource(category: StringName, id: Variant, show_error := t
 			printerr("Resource already in category.")
 		return
 	category_dict[int_id] = true # NOTE: true is a placeholder
-	print_debug("Category %s added to resource with ID %s." % [category, id])
+	#print_debug("Category %s added to resource with ID %s." % [category, id])
 	entries_changed.emit()
 
 
@@ -286,7 +286,7 @@ func remove_category_from_resource(category: StringName, id: Variant, show_error
 			printerr("Resource (ID: %s) is not in the specified category (%s), can't remove it." % [id, category])
 		return
 	category_dict.erase(int_id)
-	print_debug("Category %s removed from resource with ID %s." % [category, id])
+	#print_debug("Category %s removed from resource with ID %s." % [category, id])
 	entries_changed.emit()
 
 
@@ -303,14 +303,14 @@ func get_categories_of_resource(id: Variant) -> Array[StringName]:
 #region Resource registering
 ## Registers the resources of a folder.
 func register_folder_resources(dir: String) -> void:
-	print_debug("Registering folder of resources: %s." % dir)
+	#print_debug("Registering folder of resources: %s." % dir)
 	if not DirAccess.dir_exists_absolute(dir):
 		printerr("Path doesn't exist: (%s)" % dir)
 		return
 	var all_resource_paths: PackedStringArray = _resource_search(dir)
 	for path in all_resource_paths:
 		register_resource(path, true)
-	print_debug("Registered folder of resources.")
+	#print_debug("Registered folder of resources.")
 	entries_changed.emit()
 
 
@@ -361,7 +361,7 @@ func register_resource(locator: String, in_bulk := false) -> void:
 	_ints_to_strings[int_id] = file_name
 	_strings_to_ints[file_name] = int_id
 	_ints_to_locators[int_id] = locator
-	print_debug("New resource registered: %s." % locator)
+	#print_debug("New resource registered: %s." % locator)
 	entries_changed.emit()
 
 
@@ -376,7 +376,7 @@ func unregister_resource(id: Variant) -> void:
 		(_categories_to_ints[category] as Dictionary).erase(int_id)
 	_strings_to_ints.erase(_ints_to_strings[int_id])
 	_ints_to_strings.erase(int_id)
-	print_debug("Unregistered resource with ID: %s." % id)
+	#print_debug("Unregistered resource with ID: %s." % id)
 	entries_changed.emit()
 
 
@@ -388,7 +388,7 @@ func set_invalid_resource(id: Variant) -> void:
 		printerr("Can't make inexistent resource invalid")
 		return
 	_ints_to_locators[int_id] = INVALID_RESOURCE_LOCATOR
-	print_debug("Invalidated resource with ID: %s." % id)
+	#print_debug("Invalidated resource with ID: %s." % id)
 	entries_changed.emit()
 #endregion
 

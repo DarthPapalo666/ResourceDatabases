@@ -321,7 +321,7 @@ func _update_entries(page: int = -1) -> void:
 	await get_tree().process_frame # We wait for the whole frame in order to process all the modifications
 	_was_updated = false
 	
-	print_debug("Updating collection view entries.")
+	#print_debug("Updating collection view entries.")
 	_selection_button.disabled = _current_entries.is_empty()
 	
 	# Free category filters
