@@ -69,8 +69,7 @@ func _parse_text_database_file(text: String) -> Dictionary[StringName, Dictionar
 			collections_data[current_collection].strings_to_ints[string_id] = int_id
 			collections_data[current_collection].ints_to_locators[int_id] = uid
 			for category in categories:
-				var categories_to_ints := (collections_data[current_collection].categories_to_ints as Dictionary[StringName, Dictionary])
-				categories_to_ints.get_or_add(category, {})[int_id] = true
+				(collections_data[current_collection].categories_to_ints as Dictionary).get_or_add(category, {})[int_id] = true
 		
 		elif line.begins_with("#"): # Comment
 			continue
@@ -85,7 +84,7 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 	var new_database := ResourceDatabase.new()
 	
 	for collection_name: StringName in collections_data:
-		var collection_data: Dictionary[StringName, Variant] = collections_data[collection_name]
+		var collection_data: Dictionary = collections_data[collection_name]
 		var collection: ResourceDatabaseCollection = new_database.create_collection(collection_name)
 		
 		# Load settings

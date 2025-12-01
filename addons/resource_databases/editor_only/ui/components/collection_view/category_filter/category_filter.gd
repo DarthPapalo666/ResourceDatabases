@@ -8,11 +8,11 @@ var _state: int = 0:
 		_state = v
 		match _state:
 			0:
-				_texture.texture = preload("res://addons/resource_databases/editor_only/ui/icons/category_filter/no_filter_clean.svg")
+				_texture.texture = preload("uid://duf7splcl7ddr")
 			1:
-				_texture.texture = preload("res://addons/resource_databases/editor_only/ui/icons/category_filter/included_clean.svg")
+				_texture.texture = preload("uid://bisy3524ellsk")
 			2:
-				_texture.texture = preload("res://addons/resource_databases/editor_only/ui/icons/category_filter/excluded_clean.svg")
+				_texture.texture = preload("uid://cce1hito70j7w")
 		filter_changed.emit(_state)
 
 @export var _button: Button

@@ -5,7 +5,7 @@ signal collection_selected(collection_name: StringName, embedded: bool)
 
 const Namespace := preload("uid://b7ra0aicagaes")
 
-const COLLECTION_BUTTON_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/collection_button/collection_button.tscn")
+const COLLECTION_BUTTON_SCENE := preload("uid://d1p78w1c430sb")
 
 @export_subgroup("Components")
 @export var _new_collection_line_edit: LineEdit

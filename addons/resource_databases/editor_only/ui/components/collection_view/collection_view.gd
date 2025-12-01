@@ -3,12 +3,12 @@ extends PanelContainer
 
 const Namespace := preload("uid://b7ra0aicagaes")
 
-const BulkCategoryDialog := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.gd")
-const BULK_CATEGORY_DIALOG_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/bulk_category_dialog/bulk_category_dialog.tscn")
+const BulkCategoryDialog := preload("uid://cvpspfh7y3qjx")
+const BULK_CATEGORY_DIALOG_SCENE := preload("uid://1px3v5fmg1dx")
 
-const DATABASE_ENTRY_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/database_entry/database_entry.tscn")
+const DATABASE_ENTRY_SCENE := preload("uid://xy4e3kkw44ru")
 
-const CATEGORY_FILTER_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/collection_view/category_filter/category_filter.tscn")
+const CATEGORY_FILTER_SCENE := preload("uid://cwy0p6kbmufgt")
 
 @export_subgroup("Menu buttons")
 @export var _collection_button: MenuButton

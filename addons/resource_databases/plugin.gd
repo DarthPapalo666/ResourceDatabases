@@ -5,7 +5,7 @@ const Namespace := preload("uid://b7ra0aicagaes")
 
 const SETTINGS_PREFIX := "resource_databases"
 
-const DATABASE_EDITOR_SCENE := preload("res://addons/resource_databases/editor_only/ui/database_editor.tscn")
+const DATABASE_EDITOR_SCENE := preload("uid://juvgv48tbcqo")
 
 var _database_editor_instance: Namespace.DatabaseEditor
 var _settings_list: PackedStringArray

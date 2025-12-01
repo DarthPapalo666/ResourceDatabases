@@ -3,7 +3,7 @@ extends Window
 
 const Namespace := preload("uid://b7ra0aicagaes")
 
-const CATEGORY_BUTTON_SCENE := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/category_button/category_button.tscn")
+const CATEGORY_BUTTON_SCENE := preload("uid://crtatdwnr4bgq")
 
 @export var _new_category_line_edit: LineEdit
 @export var _create_category_button: Button

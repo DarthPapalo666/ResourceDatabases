@@ -62,7 +62,7 @@ func fetch_category_resources(category: StringName, include_invalid: bool) -> Di
 	if not has_category(category):
 		printerr("Can't fetch category data from inexistent category.")
 	var fetched: Dictionary[int, Resource] = {}
-	for int_id: int in _categories_to_ints[category] as Dictionary[int, bool]:
+	for int_id: int in _categories_to_ints[category] as Dictionary:
 		var data := fetch_resource(int_id)
 		if data != null or include_invalid:
 			fetched[int_id] = data
@@ -236,7 +236,7 @@ func clear_category(category: StringName) -> void:
 	if not has_category(category):
 		printerr("Can't clear inexsistent category.")
 		return
-	(_categories_to_ints[category] as Dictionary[int, bool]).clear()
+	(_categories_to_ints[category] as Dictionary).clear()
 	print_debug("Category cleared: %s." % category)
 	entries_changed.emit()
 
@@ -263,7 +263,7 @@ func add_category_to_resource(category: StringName, id: Variant, show_error := t
 	if not has_category(category):
 		printerr("Can't add inexistent category to resource.")
 		return
-	var category_dict: Dictionary[int, bool] = _categories_to_ints[category]
+	var category_dict: Dictionary = _categories_to_ints[category]
 	var int_id: int = ensure_int_id(id)
 	if category_dict.has(int_id):
 		if show_error:
@@ -279,7 +279,7 @@ func remove_category_from_resource(category: StringName, id: Variant, show_error
 	if not has_category(category):
 		printerr("Can't remove resource from inexistent category.")
 		return
-	var category_dict: Dictionary[int, bool] = _categories_to_ints[category]
+	var category_dict: Dictionary = _categories_to_ints[category]
 	var int_id: int = ensure_int_id(id)
 	if not category_dict.has(int_id):
 		if show_error:
@@ -294,7 +294,7 @@ func remove_category_from_resource(category: StringName, id: Variant, show_error
 func get_categories_of_resource(id: Variant) -> Array[StringName]:
 	var arr: Array[StringName]
 	for category: StringName in _categories_to_ints:
-		if (_categories_to_ints[category] as Dictionary[int, bool]).has(ensure_int_id(id)):
+		if (_categories_to_ints[category] as Dictionary).has(ensure_int_id(id)):
 			arr.append(category)
 	return arr
 #endregion
@@ -373,7 +373,7 @@ func unregister_resource(id: Variant) -> void:
 		return
 	_ints_to_locators.erase(int_id)
 	for category: StringName in _categories_to_ints:
-		(_categories_to_ints[category] as Dictionary[int, bool]).erase(int_id)
+		(_categories_to_ints[category] as Dictionary).erase(int_id)
 	_strings_to_ints.erase(_ints_to_strings[int_id])
 	_ints_to_strings.erase(int_id)
 	print_debug("Unregistered resource with ID: %s." % id)
@@ -454,7 +454,7 @@ func change_resource_int_id(old: int, new: int) -> void:
 	_ints_to_locators.erase(old)
 	_ints_to_locators[new] = res_locator
 	for category: StringName in _categories_to_ints:
-		var category_dict: Dictionary[int, bool] = _categories_to_ints[category]
+		var category_dict: Dictionary = _categories_to_ints[category]
 		if category_dict.has(old):
 			category_dict.erase(old)
 			category_dict[new] = true

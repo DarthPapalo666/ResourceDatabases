@@ -5,7 +5,7 @@ signal entry_selection_changed(_int_id: int, selected: bool)
 
 const Namespace := preload("uid://b7ra0aicagaes")
 
-const CHANGE_RESOURCE_DIALOG := preload("res://addons/resource_databases/editor_only/ui/components/dialogs/change_resource_dialog.tscn")
+const CHANGE_RESOURCE_DIALOG := preload("uid://xw3jk8st6nrf")
 
 @export var _int_id_parameter: Namespace.EditableParameter
 @export var _string_id_parameter: Namespace.EditableParameter
