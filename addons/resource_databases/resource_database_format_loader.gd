@@ -50,6 +50,11 @@ func _parse_text_database_file(text: String) -> Dictionary[StringName, Dictionar
 			collections_data[current_collection].strings_to_ints = {}
 			collections_data[current_collection].ints_to_locators = {}
 			collections_data[current_collection].categories_to_ints = {}
+			collections_data[current_collection].valid_classes = String()
+			collections_data[current_collection].designated_folders = String()
+			collections_data[current_collection].included_filters = String()
+			collections_data[current_collection].excluded_filters = String()
+			
 		
 		elif line.begins_with("{") and line.ends_with("}"): # Valid classes
 			collections_data[current_collection].valid_classes = line.left(-1).right(-1)
@@ -93,12 +98,6 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 		var collection_data: Dictionary = collections_data[collection_name]
 		var collection: ResourceDatabaseCollection = new_database.create_collection(collection_name)
 		
-		# Load settings
-		collection.set_valid_classes(collection_data.valid_classes)
-		collection.set_designated_folders(collection_data.designated_folders)
-		collection.set_path_filters(collection_data.included_filters, ResourceDatabaseCollection.PathFilterType.INCLUDE)
-		collection.set_path_filters(collection_data.excluded_filters, ResourceDatabaseCollection.PathFilterType.EXCLUDE)
-		
 		# Create the categories
 		for category: StringName in collection_data.categories_to_ints.keys():
 			collection.create_category(category)
@@ -107,12 +106,18 @@ func _collections_data_to_database(collections_data: Dictionary[StringName, Dict
 		for int_id: int in collection_data.ints_to_strings.keys():
 			var string_id: StringName = collection_data.ints_to_strings[int_id]
 			var locator: String = collection_data.ints_to_locators[int_id]
-			collection.register_resource(locator)
+			collection.register_resource(locator, true)
 			
 			# Add categories to entry
 			for category: StringName in collection_data.categories_to_ints:
 				if int_id in collection_data.categories_to_ints[category]:
 					collection.add_category_to_resource(category, int_id)
+		
+		# Load settings
+		collection.set_valid_classes(collection_data.valid_classes)
+		collection.set_designated_folders(collection_data.designated_folders)
+		collection.set_path_filters(collection_data.included_filters, ResourceDatabaseCollection.PathFilterType.INCLUDE)
+		collection.set_path_filters(collection_data.excluded_filters, ResourceDatabaseCollection.PathFilterType.EXCLUDE)
 	
 	return new_database
 
