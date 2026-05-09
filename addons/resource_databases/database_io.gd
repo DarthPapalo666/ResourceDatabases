@@ -1,4 +1,4 @@
-
+@tool
 const DATABASE_FILE_EXTENSION := "gddb"
 
 
@@ -15,6 +15,12 @@ static func export_database_data(path: String, data: Dictionary) -> bool:
 		return false
 	f.store_var(data)
 	f.close()
+	# Update cached reference
+	if ResourceLoader.has_cached(path):
+		# ResourceLoader.load with CACHE_MODE_REPLACE doesn't replace cache at all...
+		# We have to take_over_path with an un-updated resource copy to actually change the cache
+		# This is solved in 2.0 by using a proper ResourceFormatSaver
+		load(path).duplicate().take_over_path(path)
 	return true
 
 

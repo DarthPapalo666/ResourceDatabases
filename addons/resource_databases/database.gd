@@ -14,13 +14,27 @@ func get_int_id(collection: StringName, id: Variant) -> int:
 	match typeof(id):
 		TYPE_STRING_NAME:
 			assert(_has_string_id(collection, id as StringName), "[ResourceDatabase] Error getting Int ID from String ID.")
-			return _collections_data[collection][&"strings_to_ints"][id as StringName]as int
+			return _collections_data[collection][&"strings_to_ints"][id as StringName] as int
 		TYPE_INT:
 			assert(_has_int_id(collection, id as int), "[ResourceDatabase] Int ID doesn't exist.")
 			return id as int
 		_:
 			assert(false, "[ResourceDatabase] Invalid ID type.")
 	return -1
+
+
+## Given an [param id] (either String or Int) of a [param collection], it will always return the [param id] as an [StringName].
+func get_string_id(collection: StringName, id: Variant) -> StringName:
+	match typeof(id):
+		TYPE_STRING_NAME:
+			assert(_has_string_id(collection, id as StringName), "[ResourceDatabase] String ID doesn't exist.")
+			return id as StringName
+		TYPE_INT:
+			assert(_has_int_id(collection, id as int), "[ResourceDatabase] Error getting String ID from Int ID.")
+			return _collections_data[collection][&"ints_to_strings"][id as int] as StringName
+		_:
+			assert(false, "[ResourceDatabase] Invalid ID type.")
+	return StringName()
 
 
 #region Fetch data methods
@@ -58,27 +72,33 @@ func fetch_data_string(string: String) -> Variant:
 
 
 ## Returns all the data from a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
-func fetch_collection_data(collection: StringName) -> Dictionary:
+## The dictionary contains [code]Int ID / String ID : Resource[/code]
+func fetch_collection_data(collection: StringName, use_string_ids: bool = false) -> Dictionary:
 	assert(_has_collection(collection), "Can't fetch inexistent collection")
 	var result := {}
 	var locators_dict: Dictionary = _collections_data[collection][&"ints_to_locators"]
 	for int_id: int in locators_dict:
 		var data := fetch_data(collection, int_id)
 		if data != null:
-			result[int_id] = data
+			if use_string_ids:
+				result[get_string_id(collection, int_id)] = data
+			else:
+				result[int_id] = data
 	return result
 
 
 ## Returns all the data from a [param category] of a [param collection].[br]
-## The dictionary contains [code]Int ID : Resource/null[/code]
-func fetch_category_data(collection: StringName, category: StringName) -> Dictionary:
+## The dictionary contains [code]Int ID : Resource[/code]
+func fetch_category_data(collection: StringName, category: StringName, use_string_ids: bool = false) -> Dictionary:
 	assert(_has_category(collection, category), "[ResourceDatabase] Can't fetch category data from inexistent category.")
 	var result := {}
 	for int_id: int in _collections_data[collection][&"categories_to_ints"][category]:
 		var data := fetch_data(collection, int_id)
 		if data != null:
-			result[int_id] = data
+			if use_string_ids:
+				result[get_string_id(collection, int_id)] = data
+			else:
+				result[int_id] = data
 	return result
 #endregion
 
